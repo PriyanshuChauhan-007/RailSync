@@ -1,16 +1,16 @@
 // Presentation-only geometry. No scheduling, conflict inference or solver rules.
-export const TD = { width: 1000, left: 170, right: 28, top: 46, row: 76 };
+export const TD = { width: 1000, left: 170, right: 28, top: 46, row: 76, maxZoom: 32 };
 export const MINUTE = 60000;
 export const sectionIds = (block) => block.section_ids?.length ? block.section_ids : [block.section_id].filter(Boolean);
 const finiteTime = (value) => typeof value === "string" && Number.isFinite(Date.parse(value));
 
-export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, tasks = []) {
+export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, tasks = [], rowSpacing = TD.row) {
   if (!territory || !finiteTime(horizon?.start_time) || !finiteTime(horizon?.end_time)) return null;
   const start = Date.parse(horizon.start_time), total = (Date.parse(horizon.end_time) - start) / MINUTE;
   if (total <= 0) return null;
   const stations = [...(territory.stations ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   if (stations.length < 2) return null;
-  const stationById = new Map(stations.map((station, index) => [station.station_id, { ...station, index, y: TD.top + index * TD.row }]));
+  const stationById = new Map(stations.map((station, index) => [station.station_id, { ...station, index, y: TD.top + index * rowSpacing }]));
   const sections = new Map((territory.sections ?? []).map((section) => [section.section_id, section]));
   const services = new Map((territory.train_services ?? []).map((service) => [service.train_id, service]));
   const taskById = new Map(tasks.map((task) => [task.task_id, task]));
@@ -62,12 +62,33 @@ export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, ta
     for (const block of rows) block.bands.find((band) => band.sectionId === id).lanes = ends.length;
   }
   return { start, total, stations, stationById, sections, trains: [...trains.values()], possessions, minute,
-    height: TD.top * 2 + (stations.length - 1) * TD.row };
+    height: TD.top * 2 + (stations.length - 1) * rowSpacing };
 }
 
 export function boundView(start, zoom, total) {
-  const boundedZoom = Math.min(8, Math.max(1, zoom));
+  const boundedZoom = Math.min(TD.maxZoom, Math.max(1, zoom));
   return { zoom: boundedZoom, start: Math.min(Math.max(0, start), Math.max(0, total - total / boundedZoom)) };
+}
+
+// Presentation-only viewport fit. All source data remains available through Full horizon.
+export function fitActivityView(model, selectedBlockId, selectedTaskId) {
+  if (!model) return { start: 0, zoom: 1 };
+  const selected = model.possessions.find(block => block.block_id === selectedBlockId)
+    ?? model.possessions.find(block => block.tasks?.includes(selectedTaskId));
+  let rows;
+  let padding;
+  if (selected) {
+    rows = [selected];
+    padding = 18;
+  } else {
+    rows = [...model.trains.flatMap(train => train.segments), ...model.possessions];
+    padding = 20;
+  }
+  if (!rows.length) return { start: 0, zoom: 1 };
+  const first = Math.max(0, Math.min(...rows.map(row => row.start)) - padding);
+  const last = Math.min(model.total, Math.max(...rows.map(row => row.end)) + padding);
+  const span = Math.max(1, last - first);
+  return boundView(first, model.total / span, model.total);
 }
 
 export function bufferSegments(block) {

@@ -1751,9 +1751,6 @@
 .operations-tabs button.is-active { border-color: var(--train); color: var(--train); background: #eef5f9; }
 .operations-list { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
 .operations-list li { padding: 9px 10px; border-left: 3px solid var(--line); background: #FFFFFF; font-size: 12px; line-height: 1.45; }
-.copilot-form { display: flex; gap: 7px; }
-.copilot-form input { flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); }
-.copilot-answer { margin-top: 10px; padding: 10px; border-left: 3px solid var(--confirm); background: #f1f7f3; }
 .lifecycle-badge { display: inline-block; padding: 3px 7px; border-radius: 999px; background: #eef5f9; color: var(--train); font-size: 12px; font-weight: 700; }
 @media (max-width: 860px) { .operations-shell { grid-template-columns: 1fr; } .time-distance-heading { align-items: flex-start; flex-direction: column; } }
 

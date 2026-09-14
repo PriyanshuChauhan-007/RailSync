@@ -1,6 +1,6 @@
 import { useId, useMemo, useRef, useState } from "react";
 import { timeLabel } from "../../utils/timeline.js";
-import { TD, MINUTE, buildTimeDistanceModel, boundView, bufferSegments, sectionIds } from "../../utils/timeDistanceModel.js";
+import { TD, MINUTE, buildTimeDistanceModel, boundView, fitActivityView, bufferSegments, sectionIds } from "../../utils/timeDistanceModel.js";
 import "./timeDistance.css";
 
 const EMPTY = [];
@@ -12,7 +12,7 @@ function BlockFacts({ block }) {
   return <>
     <div><strong>{block.block_id} · {block.integrated ? "Integrated / shared possession" : "Individual possession"}</strong>
       <p>{timeLabel(block.start_time)}–{timeLabel(block.end_time)} · {Math.round(block.end - block.start)} minutes</p>
-      <p>Sections: {sectionIds(block).join(", ")}{block.status ? " · " + block.status : ""}</p></div>
+      <p>Sections: {block.sectionNames.join(", ")}{block.status ? " · " + block.status : ""}</p></div>
     <div><strong>Included maintenance</strong><ul>{block.taskDetails.map(task => <li key={task.task_id}>
       {task.department ? task.department + " · " : ""}{task.task_type ?? task.task_id}
       {task.task_type ? " (" + task.task_id + ")" : ""}
@@ -44,20 +44,24 @@ function TrainFacts({ train, blocks }) {
 
 export default function TimeDistanceDiagram({
   territory, occupancy = EMPTY, blocks = EMPTY, tasks = EMPTY, horizon,
-  selectedSection, selectedBlockId, onSelectBlock, previousBlocks = EMPTY, conflicts = EMPTY,
+  selectedSection, selectedBlockId, selectedTaskId, onSelectBlock, previousBlocks = EMPTY, conflicts = EMPTY,
 }) {
   const [selectedTrain, setSelectedTrain] = useState("");
   const [hovered, setHovered] = useState(null);
-  const [view, setView] = useState({ start: 0, zoom: 1 });
   const [layers, setLayers] = useState({ trains: true, possessions: true, buffers: false, conflicts: true });
   const drag = useRef(null);
   const clipId = useId().replaceAll(":", "");
-  const model = useMemo(() => buildTimeDistanceModel(territory, occupancy, blocks, horizon, tasks), [territory, occupancy, blocks, horizon, tasks]);
-  const previous = useMemo(() => buildTimeDistanceModel(territory, EMPTY, previousBlocks, horizon, tasks), [territory, previousBlocks, horizon, tasks]);
-  const context = [territory?.territory_id, horizon?.start_time, horizon?.end_time].join("|");
+  const rowSpacing = blocks.length ? TD.row : 56;
+  const model = useMemo(() => buildTimeDistanceModel(territory, occupancy, blocks, horizon, tasks, rowSpacing), [territory, occupancy, blocks, horizon, tasks, rowSpacing]);
+  const previous = useMemo(() => buildTimeDistanceModel(territory, EMPTY, previousBlocks, horizon, tasks, rowSpacing), [territory, previousBlocks, horizon, tasks, rowSpacing]);
+  const fitView = fitActivityView(model, selectedBlockId, selectedTaskId);
+  const [view, setView] = useState(() => fitView);
+  const context = JSON.stringify([territory?.territory_id, horizon?.start_time, horizon?.end_time, selectedBlockId, selectedTaskId,
+    occupancy.map(row => [row.train_id, row.entry_time, row.exit_time]),
+    blocks.map(block => [block.block_id, block.start_time, block.end_time])]);
   const [lastContext, setLastContext] = useState(context);
   if (context !== lastContext) {
-    setLastContext(context); setSelectedTrain(""); setHovered(null); setView({ start: 0, zoom: 1 });
+    setLastContext(context); setSelectedTrain(""); setHovered(null); setView(fitView);
   }
   if (!model) return <section className="time-distance-card"><p>Load a territory with stations and a valid planning horizon to explore the diagram.</p></section>;
   const bounded = boundView(view.start, view.zoom, model.total);
@@ -90,29 +94,37 @@ export default function TimeDistanceDiagram({
   });
   const chooseBlock = id => { setSelectedTrain(""); setHovered(null); onSelectBlock?.(id); };
   const zoom = factor => {
-    const nextZoom = Math.min(8, Math.max(1, bounded.zoom * factor));
+    const nextZoom = Math.min(TD.maxZoom, Math.max(1, bounded.zoom * factor));
     setView(boundView(bounded.start + span / 2 - model.total / nextZoom / 2, nextZoom, model.total));
   };
   const pan = delta => setView(boundView(bounded.start + delta, bounded.zoom, model.total));
   const clear = () => { setSelectedTrain(""); setHovered(null); onSelectBlock?.(""); };
-  return <section className="time-distance-card td-interactive" aria-label="Time-distance possession diagram">
+  const selectedPossession = model.possessions.find(block => block.block_id === selectedBlockId)
+    ?? model.possessions.find(block => block.tasks?.includes(selectedTaskId));
+  const section = model.sections.get(selectedSection);
+  const sectionFrom = model.stationById.get(section?.from_station);
+  const sectionTo = model.stationById.get(section?.to_station);
+  return <section className={"time-distance-card td-interactive" + (!blocks.length ? " td-baseline" : "")} aria-label="Time-distance possession diagram">
     <div className="workspace-column-heading time-distance-heading"><div>
-      <span className="planner-kicker">Route-wide operating picture</span><h2>Time–distance possession diagram</h2>
-    </div><p>Time runs left to right; stations run top to bottom. Select a train or possession for recorded details.</p></div>
+      <span className="planner-kicker">Route-wide operating picture</span><h2>{blocks.length ? "Time–distance possession diagram" : "Train occupancy baseline"}</h2>
+    </div><p>Train paths and planned maintenance possessions on the same route-time axis.</p></div>
+    {!blocks.length ? <p className="td-baseline-note">{model.trains.length} timetable services across {model.stations[0].station_name} → {model.stations.at(-1).station_name}. Run the optimizer to overlay proposed maintenance possessions.</p> : null}
     <div className="td-toolbar">
-      <div role="group" aria-label="Diagram layers">{["trains", "possessions", ...(hasBuffers ? ["buffers"] : []), ...(actualConflicts.length ? ["conflicts"] : [])].map(layer =>
+      <div role="group" aria-label="Diagram layers">{["trains", ...(blocks.length ? ["possessions"] : []), ...(hasBuffers ? ["buffers"] : []), ...(actualConflicts.length ? ["conflicts"] : [])].map(layer =>
         <button key={layer} type="button" aria-pressed={layers[layer]} onClick={() => setLayers(current => ({ ...current, [layer]: !current[layer] }))}>{layer[0].toUpperCase() + layer.slice(1)}</button>)}</div>
       <div role="group" aria-label="Diagram view">
+        <button type="button" disabled={!selectedPossession} onClick={() => setView(fitActivityView(model, selectedBlockId, selectedTaskId))}>Focus selected</button>
+        <button type="button" onClick={() => setView({ start: 0, zoom: 1 })}>Full horizon</button>
         <button type="button" aria-label="Zoom out time" disabled={bounded.zoom <= 1} onClick={() => zoom(0.5)}>−</button>
-        <output aria-label="Time zoom">{bounded.zoom}×</output>
-        <button type="button" aria-label="Zoom in time" disabled={bounded.zoom >= 8} onClick={() => zoom(2)}>+</button>
+        <output aria-label="Time zoom">{Number(bounded.zoom.toFixed(1))}×</output>
+        <button type="button" aria-label="Zoom in time" disabled={bounded.zoom >= TD.maxZoom} onClick={() => zoom(2)}>+</button>
         <button type="button" aria-label="Pan earlier" disabled={bounded.start <= 0} onClick={() => pan(-span / 4)}>←</button>
         <button type="button" aria-label="Pan later" disabled={bounded.start + span >= model.total} onClick={() => pan(span / 4)}>→</button>
-        <button type="button" onClick={() => setView({ start: 0, zoom: 1 })}>Reset View</button>
+        <button type="button" onClick={() => setView(fitView)}>Reset View</button>
         <button type="button" onClick={clear}>Clear selection</button>
       </div>
     </div>
-    <div className="time-distance-legend"><span><i className="td-train" />Timetable path</span><span><i className="td-block" />Solver possession</span><span><i className="td-selected" />Selected</span>{ghosts.length ? <span>Dashed: previous position</span> : null}</div>
+    <div className="time-distance-legend"><span><i className="td-train" />Timetable path</span>{blocks.length ? <span><i className="td-block" />Solver possession</span> : null}<span><i className="td-selected" />Selected</span>{ghosts.length ? <span>Dashed: previous position</span> : null}</div>
     <div className="time-distance-scroll" tabIndex={0} aria-label="Scrollable time-distance chart">
       <svg className={"time-distance-svg" + (bounded.zoom > 1 ? " is-zoomed" : "")} viewBox={"0 0 " + TD.width + " " + model.height} role="group" aria-label="Interactive time-distance chart"
         onPointerDown={event => {
@@ -155,18 +167,22 @@ export default function TimeDistanceDiagram({
               role="button" tabIndex={0} aria-label={"Select train " + train.number + (train.name ? " · " + train.name : "")} aria-pressed={selectedTrain === train.trainId}
               {...describe("train", train.trainId)} onClick={() => setSelectedTrain(train.trainId)} onKeyDown={event => activate(event, () => setSelectedTrain(train.trainId))}>
               <title>{train.number + (train.name ? " · " + train.name : "")}</title><path className="td-train-hit" d={path} /><path className="td-train-path" d={path} />
+              {segments.filter(row => row.end >= bounded.start && row.end <= bounded.start + span).slice(-1).map((row, index) =>
+                <text key={index} className="td-train-end-label" x={x(row.end) - 4} y={row.y2 - 6} textAnchor="end">{train.number}</text>)}
             </g>;
           })}
           {layers.conflicts && actualConflicts.filter(visible).map((conflict, index) => <rect key={index} className="td-conflict" {...range(conflict)} y={conflict.y} height={conflict.height}><title>{conflict.reason ?? "Recorded conflict"}</title></rect>)}
         </g>
-        {selectedSection ? <text x={TD.width - TD.right} y={model.height - 7} textAnchor="end" className="td-scope-label">Focused section: {selectedSection}</text> : null}
+        {selectedSection ? <text x={TD.width - TD.right} y={model.height - 7} textAnchor="end" className="td-scope-label">Focused section: {sectionFrom && sectionTo ? `${sectionFrom.station_name} → ${sectionTo.station_name}` : selectedSection}</text> : null}
       </svg>
     </div>
     <div className="td-pan"><label>Time position <input aria-label="Time position" type="range" min={0} max={Math.max(0, model.total - span)} step="any" value={bounded.start} disabled={bounded.zoom === 1} onChange={event => setView(boundView(Number(event.target.value), bounded.zoom, model.total))} /></label><span>Zoom then drag empty chart space or use arrows. Page scrolling stays normal.</span></div>
     <div className="td-details" role="region" aria-label={trainDetail ? "Train details" : blockDetail ? "Possession details" : "Diagram details"} aria-live="polite">
-      {trainDetail ? <TrainFacts train={trainDetail} blocks={model.possessions} /> : blockDetail ? <BlockFacts block={blockDetail} /> : <p>Hover, focus or select a train / possession. Click or tap to keep its details here.</p>}
+      {trainDetail ? <TrainFacts train={trainDetail} blocks={model.possessions} /> : blockDetail ? <BlockFacts block={{ ...blockDetail, sectionNames: sectionIds(blockDetail).map(id => {
+        const row = model.sections.get(id), from = model.stationById.get(row?.from_station), to = model.stationById.get(row?.to_station);
+        return from && to ? `${from.station_name} → ${to.station_name} (${id})` : id;
+      }) }} /> : <p>Hover, focus or select a train / possession. Click or tap to keep its details here.</p>}
     </div>
-    {!blocks.length ? <p className="timeline-empty">Run the CP-SAT optimizer to overlay maintenance possessions.</p> : null}
     {!actualConflicts.length ? <p className="td-data-note">No explicit conflict records supplied; this does not certify an absence of conflicts.</p> : null}
   </section>;
 }

@@ -390,6 +390,7 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               previousBlocks={session.previousPlan?.blocks}
               selectedSection={selectedSection}
               selectedBlockId={selectedBlockId}
+              selectedTaskId={selectedTaskId}
               onSelectBlock={selectBlock}
             />}
 

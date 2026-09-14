@@ -128,11 +128,95 @@ def test_indirect_action_classification_cannot_invent_parameters(plan, monkeypat
 
 def test_polite_explanation_is_not_misclassified_as_action(plan, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
-    mocked = Mock(side_effect=['{"intent":"EXPLANATION"}', "Here is the recorded plan explanation."])
+    mocked = Mock(return_value="Here is the recorded plan explanation.")
     monkeypatch.setattr(service, "_gemini_response", mocked)
     result = ask(payload(plan, question="Can you explain this simply?"))
     assert result["engine"] == "GEMINI_PLAN_CONTEXT"
-    assert mocked.call_count == 2
+    assert result["answer"] == "Here is the recorded plan explanation."
+    assert mocked.call_count == 1
+    assert mocked.call_args.kwargs.get("route") is None
+
+
+def test_multi_field_persistent_preference_and_one_turn_short(plan, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    multi = ask(payload(plan, question="Abse casual Hinglish me answer karna aur answers short rakhna"))
+    assert multi["preference_update"] == {"detected": {"language": "hinglish", "tone": "casual", "detail": "concise"},
+                                           "is_reset": False, "is_persistent": True}
+    assert "Abse" in multi["answer"] or "abse" in multi["answer"]
+    one_turn = ask(payload(plan, question="Keep this answer short"))
+    assert one_turn["preference_update"] is None
+    one_turn_hinglish = ask(payload(plan, question="Isko Hinglish me samjhao"))
+    assert one_turn_hinglish["preference_update"] is None
+    assert plan["blocks"][0]["block_id"] in one_turn_hinglish["answer"]
+    assert "window" in one_turn_hinglish["answer"]
+    assert ask(payload(plan, question="Abse Hinglish me samjhao"))["preference_update"]["detected"]["language"] == "hinglish"
+
+
+@pytest.mark.parametrize("marker", ["abse", "ab se", "aage se", "hamesha", "from now on", "always", "going forward", "by default"])
+def test_persistent_markers_are_explicit(marker):
+    updates, persistent, reset = service._detect_preferences(f"{marker} answers short rakhna")
+    assert updates["detail"] == "concise"
+    assert persistent and not reset
+
+
+def test_saved_style_applies_to_identity_and_preference_summary_without_provider(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    prefs = {"language": "hinglish", "tone": "casual", "detail": "concise"}
+    identity = ask(payload(question="tum jante ho mai kaun hu?", user_preferences=prefs))
+    assert identity["engine"] == "FACTUAL_FALLBACK"
+    assert "tumhari identity nahi pata" in identity["answer"]
+    summary = ask(payload(question="What are my current preferences?", user_preferences=prefs))
+    assert "Abhi style Hinglish" in summary["answer"]
+
+
+def test_gemini_failure_keeps_styled_deterministic_identity_fallback(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    monkeypatch.setattr(service, "_gemini_response", Mock(side_effect=TimeoutError("provider unavailable")))
+    result = ask(payload(question="tum jante ho mai kaun hu?", user_preferences={"language": "hinglish", "tone": "casual", "detail": "concise"}))
+    assert result["engine"] == "FACTUAL_FALLBACK"
+    assert "tumhari identity nahi pata" in result["answer"]
+
+
+def test_ordinary_followup_uses_gemini_with_bounded_history_and_current_context(plan, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    captured = []
+    def explain(instructions, messages, **kwargs):
+        captured.append((instructions, messages, kwargs))
+        return "RailSync plans maintenance around recorded trains."
+    monkeypatch.setattr(service, "_gemini_response", explain)
+    history = [{"role": "user", "content": "RailSync kya hai?"},
+               {"role": "assistant", "content": "It's a railway planning prototype."}]
+    result = ask(payload(plan, question="thoda aur detail me batao", history=history))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert len(captured) == 1
+    instructions, messages, kwargs = captured[0]
+    assert kwargs == {}
+    assert messages == history + [{"role": "user", "content": "thoda aur detail me batao"}]
+    assert plan["plan_identity"]["plan_id"] in instructions
+    assert "Verified server context" in instructions
+
+
+@pytest.mark.parametrize("question", ["what can you do?", "RailSync kya hai?", "CP-SAT kya karta hai?",
+                                    "easy language me batao", "tum random questions answer kar sakte ho?",
+                                    "mai kaun hu?", "thoda aur samjhao"])
+def test_ordinary_capability_uses_gemini_when_healthy(monkeypatch, question):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    mocked = Mock(return_value="I can explain recorded RailSync planning data.")
+    monkeypatch.setattr(service, "_gemini_response", mocked)
+    result = ask(payload(question=question))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert mocked.call_count == 1
+
+
+def test_gemini_receives_saved_style_as_instructions_not_scheduling_facts(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    mocked = Mock(return_value="Haan, main RailSync ke recorded plan ko samjha sakta hoon.")
+    monkeypatch.setattr(service, "_gemini_response", mocked)
+    result = ask(payload(question="what can you do?", user_preferences={"language": "hinglish", "tone": "casual", "detail": "concise"}))
+    instructions = mocked.call_args.args[0]
+    assert "Mix Hindi and English naturally" in instructions
+    assert "Keep your response brief" in instructions
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
 
 
 def test_shared_block_extension_requires_one_explicit_task(plan):

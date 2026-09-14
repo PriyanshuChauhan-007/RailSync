@@ -121,7 +121,27 @@ describe("RailSaathi", () => {
     expect(screen.queryByText(reply.answer)).toBeNull();
     submit("New selection question");
     expect(await screen.findByText(reply.answer)).toBeTruthy();
-    expect(api.askCopilot.mock.lastCall[0].history).toEqual([]);
+    expect(api.askCopilot.mock.lastCall[0].history).toEqual([{ role: "user", content: "Why this window?" }]);
+  });
+
+  it("keeps the conversation while task and block selections change, then sends current context", async () => {
+    const { rerender } = render(<RailSaathi {...props} />); open(); submit("is task ke bare me batao");
+    expect(await screen.findByText(reply.answer)).toBeTruthy();
+    const nextTask = { ...task, task_id: "T2" };
+    rerender(<RailSaathi {...props} selectedTask={nextTask} />);
+    expect(screen.getByText(reply.answer)).toBeTruthy();
+    expect(screen.getByRole("textbox", { name: "Ask RailSaathi" }).value).toBe("");
+    const nextBlock = { ...block, block_id: "B2", tasks: ["T2"] };
+    rerender(<RailSaathi {...props} selectedTask={nextTask} selectedBlock={nextBlock} />);
+    expect(screen.getByText(reply.answer)).toBeTruthy();
+    submit("ab jo selected hai uske bare me batao");
+    await waitFor(() => expect(api.askCopilot).toHaveBeenCalledTimes(2));
+    const next = api.askCopilot.mock.lastCall[0];
+    expect(next).toMatchObject({ selected_task_id: "T2", selected_block_id: "B2" });
+    expect(next.history).toEqual([
+      { role: "user", content: "is task ke bare me batao" },
+      { role: "assistant", content: reply.answer },
+    ]);
   });
 
   it("bounds history to 12 messages in memory and in storage", async () => {
@@ -149,6 +169,14 @@ it("uses the existing Apply preview control only after an explicit click", async
   expect(onApplyPlan).not.toHaveBeenCalled();
   fireEvent.click(button);
   expect(onApplyPlan).toHaveBeenCalledWith(preview);
+});
+
+it("does not render the old inline Copilot while floating RailSaathi remains available", () => {
+  render(<><OperationalPanels territory={props.territory} plan={plan} tasks={[task]} selectedTaskId="T1" selectedBlock={block} />
+    <RailSaathi {...props} /></>);
+  expect(screen.queryByText("✦ RailSync Copilot")).toBeNull();
+  expect(screen.queryByRole("textbox", { name: "Ask RailSync Copilot" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Open RailSaathi" })).toBeTruthy();
 });
 
 // ── Persistence tests ──────────────────────────────────────────────────────────

@@ -136,7 +136,7 @@ CONVERSATIONAL_PATTERNS = re.compile(
     # Explanation / description / Q&A
     r"\b(explain|summarize|summarise|tell\s+me\s+about|describe|"
     r"what\s+is|what'?s\s+the|why\s+is|why\s+was|how\s+does|how\s+did|what\s+does|"
-    r"bataiye|batao|samjhao|samjhaiye|"
+    r"bataiye|batao|samjhao|samjhaiye|thoda\s+aur|tell\s+me\s+more|"
     r"kyun|kaise|kya\s+hai|kya\s+tha|kya\s+hota|kya\s+karta)\b",
     re.I,
 )
@@ -154,11 +154,8 @@ _PREF_KEYWORDS = re.compile(
 
 # Markers that indicate the user wants the preference saved permanently
 _PERSISTENT_MARKERS = re.compile(
-    r"\b(abse|ab\s+se|from\s+now\s+on|always|hamesha|generally|aage\s+se|"
-    r"going\s+forward|permanently|henceforth|"
-    r"mujhe\s+\w+\s+me\s+(jawab|answer|baat)\s+(karo|karna)|"
-    r"keep\s+(it|answers?|response|your)\b|"
-    r"set\s+(my|response|default)|make\s+(it|answers?|response))\b",
+    r"\b(abse|ab\s+se|aage\s+se|hamesha|from\s+now\s+on|always|"
+    r"going\s+forward|by\s+default|permanently|henceforth)\b",
     re.I,
 )
 
@@ -176,7 +173,7 @@ _RESET_PATTERNS = re.compile(
 _VIEW_PREF_PATTERNS = re.compile(
     r"\b(what\s+tone|current\s+(tone|style|language|preference)|"
     r"meri\s+(settings?|preferences?)\s+kya|how\s+are\s+you\s+(supposed\s+to\s+)?answer|"
-    r"active\s+style|current\s+preference|meri\s+response\s+settings?)\b",
+    r"active\s+style|current\s+preferences?|meri\s+response\s+settings?)\b",
     re.I,
 )
 
@@ -265,6 +262,14 @@ def _is_preference_command(question: str) -> bool:
         return False
     if _DOMAIN_WORDS.search(question):
         return False
+    if (not _PERSISTENT_MARKERS.search(question)
+            and re.search(r"\b(samjhao|samjhaiye|batao|bataiye|explain)\b", question, re.I)
+            and not re.search(r"\b(use|set|keep|maintain|reply|answer)\b", question, re.I)):
+        return False
+    # "Isko Hinglish me samjhao" asks for an explanation in one-turn style,
+    # not an acknowledgment of a new standing preference.
+    if re.search(r"\b(isko|ise|this)\b", question, re.I) and re.search(r"\b(samjhao|samjhaiye|explain)\b", question, re.I):
+        return False
     return bool(re.search(
         r"\b(abse|ab\s+se|from\s+now\s+on|always|hamesha|use|set|karo|raho|keep|maintain|"
         r"baat\s+karo|jawab\s+do|please|going\s+forward|henceforth|"
@@ -340,7 +345,7 @@ def _preference_acknowledgment_fallback(updates: dict, is_reset: bool, is_persis
     if is_reset:
         return "Done — back to default response style. Ask away! 👍"
     if not updates:
-        return "Got it, I'll keep that in mind!"
+        return "Theek hai, style yaad rahega." if prefs.get("language") == "hinglish" else "Got it, I'll keep that in mind!"
 
     lang_map = {"hinglish": "Hinglish", "hindi": "Hindi", "english": "English", "auto": "auto"}
     tone_map = {"casual": "casual", "formal": "formal", "friendly": "friendly", "professional": "professional"}
@@ -364,8 +369,12 @@ def _preference_acknowledgment_fallback(updates: dict, is_reset: bool, is_persis
     if is_persistent:
         # If casual Hinglish was set, acknowledge in that style
         if prefs.get("language") == "hinglish" and prefs.get("tone") in {"casual", "default"}:
+            if prefs.get("detail") == "concise":
+                return f"Done, abse {change_str}."
             return f"Done 😄 Abse main {change_str} use karunga. Kuch aur chahiye ho toh bas bol dena!"
         return f"Got it! I'll use {change_str} from now on. You can change this anytime by just asking. 😊"
+    if prefs.get("language") == "hinglish":
+        return f"Theek hai, is jawab mein {change_str} use karunga."
     return f"Sure! For this response I'll use {change_str}."
 
 
@@ -383,21 +392,30 @@ def _format_pref_summary(prefs: dict) -> str:
     style = style_map.get(prefs.get("explanation_style", "default"), "default")
     jargon = jargon_map.get(prefs.get("jargon", "normal"), "normal")
 
+    if prefs.get("language") == "hinglish":
+        return f"Abhi style {lang}, tone {tone}, detail {detail}, explanation {style}, jargon {jargon} hai."
     return (
         f"Current style: {lang} language, {tone} tone, {detail} detail, "
         f"{style} explanation style, {jargon}."
     )
 
 
-def _conversational_fallback(question: str, context: dict) -> str:
+def _conversational_fallback(question: str, context: dict, prefs: dict | None = None) -> str:
     """Fallback for conversational/identity/general-domain questions.
     Never returns missing-plan text; these questions don't require a plan.
     """
     q = question.lower().strip()
+    hinglish = (prefs or {}).get("language") == "hinglish"
+    if re.fullmatch(r"(hi+|hello|hey|howdy|namaste|namaskar)[\s!?.]*", q):
+        return "Hi! RailSync ke baare mein kya jaan'na hai?" if hinglish else "Hi! What would you like to explore in RailSync?"
+    if re.search(r"\b(thanks|thank you|shukriya|dhanyawad|bye|goodbye|alvida)\b", q):
+        return "Theek hai, phir milte hain!" if hinglish else "You're welcome. Your RailSync plan is unchanged."
 
     # User identity questions
     if re.search(r"\b(kaun\s+hu|kaun\s+hain|main\s+kaun|mai\s+kaun|do\s+you\s+know\s+who|"
                  r"mujhe\s+(jaante|pehchante)|who\s+am\s+i)\b", q):
+        if hinglish:
+            return "Nahi, jab tak tum khud na batao, mujhe tumhari identity nahi pata. Main sirf is chat aur RailSync ke current context ko dekh sakta hoon."
         return (
             "I don't know your identity unless you share it here. "
             "I only have access to the RailSync context — territory, maintenance tasks, "
@@ -407,6 +425,8 @@ def _conversational_fallback(question: str, context: dict) -> str:
     # Random-question / scope questions
     if re.search(r"\b(random\s+questions?|koi\s+bhi\s+question|jawab\s+de\s+sakte|"
                  r"kuch\s+bhi|sakte\s+ho)\b", q):
+        if hinglish:
+            return "Haan, casual baat kar sakte hain. Mera focus RailSync aur railway maintenance planning hai; uske bahar main reliable general assistant nahi hoon."
         return (
             "Main thoda-bahut casual baat kar sakta hoon — greetings, capability questions, "
             "language preferences — lekin mera asli focus hai RailSync aur railway maintenance "
@@ -416,6 +436,8 @@ def _conversational_fallback(question: str, context: dict) -> str:
 
     # RailSync product definition
     if re.search(r"\b(railsync\s+kya|what\s+is\s+railsync|railsync\s+kaise\s+kaam)\b", q):
+        if hinglish:
+            return "RailSync railway maintenance planning ka prototype hai. Timetable traffic ke beech Engineering, S&T aur TRD ke liye CP-SAT se possession windows plan karta hai."
         return (
             "RailSync is a prototype maintenance planning platform. It coordinates Engineering, "
             "S&T (Signal & Telecom), and TRD (Traction) maintenance on a railway corridor using "
@@ -425,6 +447,8 @@ def _conversational_fallback(question: str, context: dict) -> str:
 
     # CP-SAT
     if re.search(r"\b(cp.?sat\s+kya|what\s+(is|does)\s+cp.?sat)\b", q):
+        if hinglish:
+            return "CP-SAT ek constraint solver hai. RailSync isse timetable, crew aur maintenance constraints ke andar feasible possession windows dhoondhta hai."
         return (
             "CP-SAT is Google OR-Tools' Constraint Programming SAT solver. RailSync uses it to "
             "schedule maintenance blocks: it searches for time windows that don't conflict with "
@@ -434,6 +458,8 @@ def _conversational_fallback(question: str, context: dict) -> str:
 
     # S&T
     if re.search(r"\b(s\s*[&+]\s*t\s+kya|what\s+is\s+s.?t\b|signal.*telecom)\b", q):
+        if hinglish:
+            return "S&T ka matlab Signal & Telecommunication hai. Iske maintenance tasks signalling aur telecom equipment se jude hote hain."
         return (
             "S&T stands for Signal & Telecommunication — the department responsible for "
             "signalling systems, track circuits, point machines, and telecom equipment. S&T "
@@ -442,6 +468,8 @@ def _conversational_fallback(question: str, context: dict) -> str:
 
     # TRD
     if re.search(r"\b(trd\s+kya|what\s+is\s+trd\b|traction.*distribution|ohe)\b", q):
+        if hinglish:
+            return "TRD traction power aur overhead equipment ki maintenance dekhta hai. RailSync mein power isolation requirements recorded hoti hain."
         return (
             "TRD stands for Traction & Rolling Distribution — responsible for overhead equipment "
             "(OHE), substations, and power supply on electrified lines. TRD maintenance may "
@@ -450,6 +478,8 @@ def _conversational_fallback(question: str, context: dict) -> str:
 
     # Maintenance block definition
     if re.search(r"\b(maintenance\s+block\s+kya|what\s+is\s+a\s+(maintenance\s+)?block\b)\b", q):
+        if hinglish:
+            return "Maintenance block ek reserved track-time window hai jisme kaam ke liye train movement roka jata hai. RailSync ise timetable ke saath plan karta hai."
         return (
             "A maintenance block (possession) is a reserved track time window during which train "
             "movements are suspended for safe maintenance work. RailSync schedules these to fit "
@@ -457,6 +487,10 @@ def _conversational_fallback(question: str, context: dict) -> str:
         )
 
     # Default — territory stats without the missing-plan message
+    if hinglish:
+        return (f"Main RailSaathi hoon. {context['display_name']} mein {context['physical_section_count']} sections, "
+                f"{context['maintenance_task_count']} maintenance tasks aur {context['train_service_count']} train services recorded hain. "
+                "Plan ke blocks samjha sakta hoon aur supported duration what-if ko solver se verify kar sakta hoon.")
     territory_info = (
         f"{context['display_name']} has {context['physical_section_count']} physical sections, "
         f"{context['maintenance_task_count']} maintenance tasks and "
@@ -590,12 +624,14 @@ def _duration_delta(question):
 def _is_conversational(question: str) -> bool:
     """Return True for capability/greeting/explanation messages that must never be scheduling actions."""
     cleaned = question.strip().rstrip(" .!?")
+    if re.search(r"\b(isko|ise|this)\b.*\b(samjhao|samjhaiye|explain)\b", cleaned, re.I):
+        return True
     # Strip trailing style modifiers to get the core intent, e.g. "What can you do? Hinglish me batao"
     core = STYLE_MODIFIERS.sub("", cleaned).strip().rstrip(" .!?,;")
     if CONVERSATIONAL_PATTERNS.search(core):
         return True
     # If the ENTIRE question (minus style modifiers) is a style modifier phrase, it's conversational.
-    if not core or STYLE_MODIFIERS.fullmatch(cleaned.strip()):
+    if not core or core.lower() in {"me", "mein", "thoda", "thoda aur", "please"} or STYLE_MODIFIERS.fullmatch(cleaned.strip()):
         return True
     return False
 
@@ -668,16 +704,20 @@ def _preview(request, territory, plan, context, delta):
     return {"permanent": False, "scenario_provenance": "SYNTHETIC_WHAT_IF", "result": result, "diff": diff}
 
 
-def _fallback(context, question=""):
+def _fallback(context, question="", prefs=None):
     block = context["selected_block"]
+    hinglish = (prefs or {}).get("language") == "hinglish"
     prefix = "Based on the current RailSync prototype plan, "
     if re.search(r"\burgent|urgency|zaroori|zaruri\b", question, re.I) and context["highest_urgency_tasks"]:
         tasks = context["highest_urgency_tasks"]
+        if hinglish:
+            return (f"Prototype inputs mein {', '.join(t['task_id'] for t in tasks)} ki recorded urgency sabse zyada "
+                    f"({tasks[0]['urgency']}) hai. Scheduling ke liye available windows aur baaki constraints bhi dekhne honge.")
         return (f"In the loaded prototype maintenance inputs, {', '.join(t['task_id'] for t in tasks)} "
                 f"has the highest recorded urgency score ({tasks[0]['urgency']}). "
                 "Urgency is one planning input; a scheduling decision also depends on the available windows and other constraints.")
     if block:
-        if re.search(r"\b(ye|yeh|kyu|kyun|kaise|rakha)\b", question, re.I):
+        if hinglish or re.search(r"\b(ye|yeh|kyu|kyun|kaise|rakha)\b", question, re.I):
             return (f"Current RailSync prototype plan mein {block['block_id']} ka window "
                     f"{block['start_time'][11:16]} se {block['end_time'][11:16]} tak hai "
                     f"({block['duration_minutes']} minute), aur ismein {len(block['tasks'])} task hain. "
@@ -696,7 +736,16 @@ def _fallback(context, question=""):
                 f"({block['duration_minutes']} minutes), with {len(block['tasks'])} task(s): {', '.join(block['tasks'])}. "
                 + reasons + " Earlier-window feasibility needs a solver comparison; the selected time alone doesn't establish it.")
     if context.get("missing_plan_reason"):
+        if hinglish:
+            return "Current plan server par verify nahi ho pa raha. Verified context ke liye naya plan generate karo."
         return context["missing_plan_reason"]
+    if hinglish:
+        base = (f"{context['display_name']} mein {context['physical_section_count']} sections, "
+                f"{context['maintenance_task_count']} maintenance tasks aur {context['train_service_count']} train services recorded hain. ")
+        if context["plan_available"]:
+            return base + (f"Current plan mein {context['plan']['block_count']} blocks aur "
+                           f"{context['plan']['unscheduled_task_count']} unscheduled tasks hain. Details ke liye block select karo.")
+        return base + "Plan data verify karne ke liye plan generate karo ya block select karo."
     return (f"{context['display_name']} has {context['physical_section_count']} physical sections, "
             f"{context['maintenance_task_count']} prototype maintenance tasks and {context['train_service_count']} named train services. "
             + (f"The current prototype plan contains {context['plan']['block_count']} blocks and {context['plan']['unscheduled_task_count']} unscheduled tasks. Select a block for its details."
@@ -710,27 +759,17 @@ def answer(request, territory):
 
     # Extract saved preferences from request (validated by Pydantic — safe to use directly)
     saved_prefs: dict = request.user_preferences.model_dump() if request.user_preferences else {}
+    one_turn_updates, _, _ = _detect_preferences(question)
+    effective_prefs = {**saved_prefs, **one_turn_updates} if one_turn_updates else saved_prefs
 
     # Build the base result; answer will be overwritten below based on routing.
     result = {
-        "answer": _fallback(context, question), "engine": "FACTUAL_FALLBACK",
+        "answer": _fallback(context, question, effective_prefs), "engine": "FACTUAL_FALLBACK",
         "selected_block": context["selected_block"], "action_preview": None,
         "grounding": {"territory_id": request.territory_id, "plan_id": (plan or {}).get("identity", {}).get("plan_id"), "solver_verified": False},
         "disclaimer": "RailSaathi explains RailSync prototype data; it does not certify railway operating authority.",
         "preference_update": None,
     }
-
-    casual = question.lower().strip(" .!?")
-
-    # ── Priority 1: Exact casual fast-path (local, no Gemini) ─────────────────
-    if casual in {"hi", "hello", "hey", "how are you", "who are you", "what can you do", "thanks", "thank you", "bye"} and not request.task_overrides:
-        if casual in {"thanks", "thank you"}:
-            result["answer"] = "You're welcome! I'm here whenever you want to explore your RailSync plan."
-        elif casual == "bye":
-            result["answer"] = "See you! Your RailSync plan stays right where you left it."
-        else:
-            result["answer"] = "Hey! I'm RailSaathi, RailSync's planning assistant. I can explain maintenance blocks, recorded train conflicts and planning decisions, and test supported duration changes with a solver preview."
-        return result
 
     available = bool(os.environ.get("GEMINI_API_KEY"))
     messages = [message.model_dump() for message in request.history[-10:]] + [{"role": "user", "content": question}]
@@ -803,28 +842,28 @@ def answer(request, territory):
 
     # ── One-turn style hints (not a preference command, but has style keywords) ─
     # Apply for this response only; do not write preference_update.
-    one_turn_updates, _, _ = _detect_preferences(question)
-    effective_prefs = {**saved_prefs, **one_turn_updates} if one_turn_updates else saved_prefs
     pref_instructions = _build_preference_instructions(effective_prefs)
 
     # ── Priority 3: Duration what-if (CP-SAT) ────────────────────────────────
     delta = _duration_delta(question)
 
     # ── Priority 4: Conversational / capability / domain-definition ──────────
-    conversational = not request.task_overrides and delta is None and _is_conversational(question)
+    conversational = (not request.task_overrides and delta is None
+                      and not _action_question(question) and _is_conversational(question))
 
     # Override the initial fallback with a proper conversational response —
     # BUT only when there is no selected block. When a block is selected,
     # _fallback() already provides block-level detail that's the right basis
     # for explanation questions (e.g. "Explain technically", "Why this window?").
-    if conversational and not context["selected_block"]:
-        result["answer"] = _conversational_fallback(question, context)
+    social = bool(re.search(r"\b(kaun\s+hu|mai\s+kaun|who\s+am\s+i|who\s+are\s+you|what\s+can\s+you\s+do|random\s+questions?|thanks|hello|hi|bye)\b", question, re.I))
+    if conversational and (not context["selected_block"] or social):
+        result["answer"] = _conversational_fallback(question, context, effective_prefs)
 
     # ── Priority 5: Scheduling action ─────────────────────────────────────────
     action = bool(request.task_overrides or delta is not None or (not conversational and _action_question(question)))
 
     # ── Priority 6: Gemini routing (only for non-action, non-conversational) ──
-    if available and not action:
+    if available and not action and not conversational:
         try:
             routing = _gemini_response(
                 "Classify the latest question in English or Hinglish using the conversation for reference. "
@@ -847,7 +886,10 @@ def answer(request, territory):
     # ── Priority 7: Action path (CP-SAT or scenario guidance) ────────────────
     if action:
         if delta is None and not request.task_overrides:
-            result["answer"] = SCENARIO_GUIDANCE
+            result["answer"] = ("Is change ka solver preview nahi chala hai. Crew, machine, train ya power change ke liye "
+                                "Scenario Lab use karo. Duration test ke liye ek task select karke 'What if +15 min?' poochho. "
+                                "Main bina explicit parameters ke block move ya merge nahi kar sakta."
+                                if effective_prefs.get("language") == "hinglish" else SCENARIO_GUIDANCE)
             return result
         try:
             if request.parent_plan_id and plan is None:

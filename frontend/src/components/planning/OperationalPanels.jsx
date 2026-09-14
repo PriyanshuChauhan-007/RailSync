@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  askCopilot,
   exportBlocksCsv,
   getAlerts,
   getDataSources,
@@ -54,8 +53,6 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
   const [localPreview, setLocalPreview] = useState(null);
   const whatIf = localPreview?.source === assistantPreview ? localPreview?.result : assistantPreview;
   const setWhatIf = (result) => setLocalPreview({ source: assistantPreview, result });
-  const [copilotQuestion, setCopilotQuestion] = useState("");
-  const [copilotAnswer, setCopilotAnswer] = useState(null);
   const [importResult, setImportResult] = useState(null);
   const selectedTask = useMemo(() => tasks.find((item) => item.task_id === selectedTaskId), [tasks, selectedTaskId]);
 
@@ -98,24 +95,6 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
       const response = await runWhatIf(territory.territory_id, [{ task_id: selectedTask.task_id, duration_minutes: selectedTask.duration_minutes + 10 }], { parentPlanId: identity?.plan_id });
       setWhatIf(response.result);
     } catch (error) { setMessage(error.message); } finally { setBusy(false); }
-  }
-
-  async function ask(event) {
-    event.preventDefault(); if (!copilotQuestion.trim()) return;
-    setBusy(true);
-    try {
-      const result = await askCopilot({
-        conversation_version: 1,
-        territory_id: territory.territory_id,
-        question: copilotQuestion,
-        selected_block: selectedBlock,
-        parent_plan_id: identity?.plan_id,
-        selected_task_id: selectedTaskId,
-        current_plan: plan ? { blocks: plan.blocks, unscheduled_tasks: plan.unscheduled_tasks } : null,
-      });
-      setCopilotAnswer(result);
-      if (result.action_preview?.result) setWhatIf(result.action_preview.result);
-    } catch (error) { setCopilotAnswer({ answer: error.message, engine: "ERROR" }); } finally { setBusy(false); }
   }
 
   async function importFile(event) {
@@ -186,13 +165,6 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
         <label className="import-file-label">Select demand file<input className="import-file-input" aria-label="Import maintenance demand" type="file" accept=".csv,.xlsx,.json" onChange={importFile} /></label>
         {importResult ? <p role="status">{importResult.valid ? `${importResult.preview.length} rows valid; preview only.` : `${importResult.errors.length} validation errors.`}</p> : null}
         {operational ? <p>{operational.sources.datasets.length} datasets · {operational.sources.service_source_urls.length} timetable sources</p> : null}
-      </div>
-    </details>
-    <details className="operations-card copilot-tool">
-      <summary>✦ RailSync Copilot</summary>
-      <div className="tool-body"><p>Ask about the current plan or explore a what-if.</p>
-        <form className="copilot-form" onSubmit={ask}><input aria-label="Ask RailSync Copilot" value={copilotQuestion} onChange={(event) => setCopilotQuestion(event.target.value)} placeholder="Why this possession?" /><button type="submit" disabled={busy}>Ask</button></form>
-        {copilotAnswer ? <div className="copilot-answer"><p>{copilotAnswer.answer}</p>{copilotAnswer.action_preview ? <small>CP-SAT preview ready; the current plan is unchanged.</small> : null}</div> : null}
       </div>
     </details>
     {loadError ? <p role="alert">{loadError.message}</p> : null}

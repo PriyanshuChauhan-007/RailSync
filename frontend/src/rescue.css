@@ -76,9 +76,8 @@
 .compact-tools .operations-list { margin: 12px 0; padding: 0; list-style: none; }
 .compact-tools .operations-list li { background: #fff; padding: 10px 0 10px 12px; border-left: 2px solid #dce2e7; }
 .compact-tools .operations-list small { display: block; color: #5a6370; font-size: 13px; }
-.compact-tools .copilot-tool { margin-left: auto; }
 .operations-actions { margin: 12px 0; flex-wrap: wrap; }
-.operations-tabs button, .operations-actions button, .copilot-form button { background: #fff; padding: 9px 13px; border: 1px solid #cbd5df; border-radius: 3px; cursor: pointer; }
+.operations-tabs button, .operations-actions button { background: #fff; padding: 9px 13px; border: 1px solid #cbd5df; border-radius: 3px; cursor: pointer; }
 .operations-actions button:disabled { opacity: .5; cursor: default; }
 .resource-counts { margin: 10px 0; display: grid; gap: 10px; }
 .resource-counts > div { display: grid; grid-template-columns: 180px 1fr; gap: 16px; }
@@ -421,6 +420,5 @@
   .recovery-outcome-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .comparison-technical-body { max-width: 100%; overflow-x: auto; }
   .railsync-site-footer, .footer { flex-wrap: wrap; }
-  .compact-tools .copilot-tool { margin-left: 0; }
 }
 

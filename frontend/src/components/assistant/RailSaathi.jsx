@@ -20,7 +20,7 @@ function RailIcon() {
 export default function RailSaathi({ territoryId, territory, plan, selectedBlock, selectedTask, onPreview, onOpenPlanning }) {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => loadChat(territoryId, plan?.plan_identity?.plan_id ?? null));
   const [busy, setBusy] = useState(false);
   const [failedQuestion, setFailedQuestion] = useState("");
   // Communication preferences are global (not per-territory/plan).
@@ -36,26 +36,21 @@ export default function RailSaathi({ territoryId, territory, plan, selectedBlock
   const planId = plan?.plan_identity?.plan_id ?? null;
   const chatKey = storageKey(territoryId, planId);
 
-  // Abort/clear key includes block+task so switching selection still cancels in-flight requests.
-  const contextKey = `${territoryId}:${planId ?? "none"}:${selectedBlock?.block_id ?? ""}:${selectedTask?.task_id ?? ""}`;
-  const [chatContext, setChatContext] = useState({ key: contextKey, chatKey, plan });
+  // Selection affects the next request, but never defines conversation identity.
+  const contextKey = `${territoryId}:${planId ?? "none"}:${plan?.plan_identity?.state ?? ""}:${selectedBlock?.block_id ?? ""}:${selectedTask?.task_id ?? ""}`;
+  const [chatContext, setChatContext] = useState({ contextKey, chatKey });
 
-  if (chatContext.key !== contextKey || chatContext.plan !== plan) {
-    // Context has changed: clear in-memory state immediately (React sync update).
-    setChatContext({ key: contextKey, chatKey, plan });
-    setMessages([]);
-    setQuestion("");
+  if (chatContext.contextKey !== contextKey || chatContext.chatKey !== chatKey) {
+    const scopeChanged = chatContext.chatKey !== chatKey;
+    setChatContext({ contextKey, chatKey });
+    if (scopeChanged) {
+      setMessages(loadChat(territoryId, planId));
+      setQuestion("");
+      setFailedQuestion("");
+    }
+    // A selection change cancels stale work, not the visible conversation.
     setBusy(false);
-    setFailedQuestion("");
   }
-
-  // Load persisted history when the storage key changes (territory or plan switch).
-  // This runs after the sync clear above, so it correctly loads the new context's history.
-  useEffect(() => {
-    const loaded = loadChat(territoryId, planId);
-    setMessages(loaded);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatKey]);
 
   // Persist messages whenever they change. Transient error messages are filtered inside saveChat.
   useEffect(() => {
@@ -67,7 +62,7 @@ export default function RailSaathi({ territoryId, territory, plan, selectedBlock
   useEffect(() => () => {
     controller.current?.abort();
     controller.current = null;
-  }, [contextKey, plan]);
+  }, [contextKey]);
 
   useEffect(() => { if (open) input.current?.focus(); }, [open]);
   useEffect(() => {
