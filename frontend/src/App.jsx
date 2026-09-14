@@ -3,6 +3,7 @@ import AnalysisPage from "./pages/AnalysisPage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import PlanningWorkspace from "./pages/PlanningWorkspace.jsx";
 import ScenarioLab from "./pages/ScenarioLab.jsx";
+import RailSaathi from "./components/assistant/RailSaathi.jsx";
 import "./rescue.css";
 
 function App() {
@@ -14,6 +15,9 @@ function App() {
     tasks: [],
     trains: [],
     plan: null,
+    selectedTaskId: null,
+    selectedBlockId: null,
+    assistantPreview: null,
     dataError: null,
     optimizationError: null,
     recovery: null,
@@ -21,27 +25,38 @@ function App() {
   });
 
   if (view === "workspace") {
+    let page;
     if (workspaceView === "scenario") {
-      return <ScenarioLab session={planningSession} setSession={setPlanningSession}
+      page = <ScenarioLab session={planningSession} setSession={setPlanningSession}
         onNavigate={setWorkspaceView} onHome={() => setView("landing")} />;
-    }
-    if (workspaceView === "analysis") {
-      return (
+    } else if (workspaceView === "analysis") {
+      page = (
         <AnalysisPage
           session={planningSession}
           onNavigate={setWorkspaceView}
           onHome={() => setView("landing")}
         />
       );
-    }
-    return (
+    } else {
+      page = (
       <PlanningWorkspace
         session={planningSession}
         setSession={setPlanningSession}
         onNavigate={setWorkspaceView}
         onHome={() => setView("landing")}
       />
-    );
+      );
+    }
+    return <div className="railsaathi-workspace">{page}
+      <RailSaathi
+        territoryId={planningSession.territoryId} territory={planningSession.territory}
+        plan={planningSession.plan}
+        selectedBlock={planningSession.plan?.blocks.find((block) => block.block_id === planningSession.selectedBlockId)}
+        selectedTask={planningSession.tasks.find((task) => task.task_id === planningSession.selectedTaskId)}
+        onPreview={(preview) => setPlanningSession((current) => ({ ...current, assistantPreview: preview }))}
+        onOpenPlanning={() => setWorkspaceView("planning")}
+      />
+    </div>;
   }
 
   return (
@@ -52,6 +67,7 @@ function App() {
           setPlanningSession((current) => ({
             ...current, territoryId, territory: null, tasks: [], trains: [], plan: null,
             recovery: null, dataError: null, optimizationError: null,
+            selectedTaskId: null, selectedBlockId: null, assistantPreview: null,
           }));
         }
         setWorkspaceView("planning");

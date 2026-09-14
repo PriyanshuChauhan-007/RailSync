@@ -131,7 +131,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
             </div>
           </section>
           <RecoveryTimeline result={recovery} territory={territory} tasks={tasks} originalTrains={trains} />
-          <div className="scenario-apply-row"><Button onClick={() => setSession((current) => ({ ...current, plan: { ...plan, blocks: recovery.recovered_plan.blocks, unscheduled_tasks: recovery.recovered_plan.unscheduled_tasks, proof_state: recovery.recovered_plan.proof_state }, recovery: null }))}>Apply recovered plan explicitly</Button>{recovery.escalation_required ? <strong>Escalation required: an immutable block was invalidated.</strong> : null}</div>
+          <div className="scenario-apply-row"><Button onClick={() => setSession((current) => ({ ...current, previousPlan: plan, plan: { ...plan, blocks: recovery.recovered_plan.blocks, unscheduled_tasks: recovery.recovered_plan.unscheduled_tasks, proof_state: recovery.recovered_plan.proof_state }, recovery: null, assistantPreview: null }))}>Apply recovered plan explicitly</Button>{recovery.escalation_required ? <strong>Escalation required: an immutable block was invalidated.</strong> : null}</div>
           <details className="recovery-technical-details">
             <summary>View recovery technical details</summary>
             <div className="recovery-technical-body">

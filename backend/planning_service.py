@@ -327,6 +327,7 @@ def _response(
     compared: dict[str, Any],
     *,
     parent_plan_id: str | None = None,
+    copilot_config: dict | None = None,
 ) -> dict[str, Any]:
     baseline = compared["baseline"]
     optimized = compared["optimized"]
@@ -397,7 +398,14 @@ def _response(
         ],
     }
     response["plan_identity"] = register_plan(
-        territory.manifest.territory_id, response, parent_plan_id
+        territory.manifest.territory_id, response, parent_plan_id,
+        copilot_context={
+            "tasks": territory.maintenance_tasks,
+            "planning_context": response["planning_context"],
+            "analysis": response["analysis"],
+            "proof_state": response["proof_state"],
+            "config": copilot_config or {},
+        },
     )
     return response
 
@@ -457,4 +465,5 @@ def optimize_registered_territory(
         )
     except RuntimeError as error:
         raise PlanningExecutionError(str(error)) from error
-    return dict(_response(territory, compared, parent_plan_id=parent_plan_id), risk=risk)
+    return dict(_response(territory, compared, parent_plan_id=parent_plan_id,
+                         copilot_config={"risk_mode": risk_mode, "risk_profiles": list(risk_profiles)}), risk=risk)

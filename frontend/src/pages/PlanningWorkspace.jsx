@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../components/layout/Navbar.jsx";
 import Footer from "../components/layout/Footer.jsx";
 import RiskControls, { RiskResult } from "../components/planning/RiskControls.jsx";
@@ -46,7 +46,9 @@ function initialDataState(session = {}) {
 }
 
 export default function PlanningWorkspace({ session, setSession, onNavigate, onHome }) {
-  const initialSection = session.territory?.sections?.[0]?.section_id ?? "";
+  const initialSection = session.tasks.find((task) => task.task_id === session.selectedTaskId)?.section_id
+    ?? session.plan?.blocks.find((block) => block.block_id === session.selectedBlockId)?.section_id
+    ?? session.territory?.sections?.[0]?.section_id ?? "";
   const initialTask = session.tasks.find((task) => task.section_id === initialSection);
   const initialBlock = session.plan?.blocks.find(
     (block) => block.section_id === initialSection,
@@ -58,8 +60,10 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   const [availableTerritories, setAvailableTerritories] = useState([]);
   const [loadVersion, setLoadVersion] = useState(0);
   const [selectedSection, setSelectedSection] = useState(initialSection);
-  const [selectedTaskId, setSelectedTaskId] = useState(initialTask?.task_id ?? "");
-  const [selectedBlockId, setSelectedBlockId] = useState(initialBlock?.block_id ?? "");
+  const selectedTaskId = session.selectedTaskId ?? initialTask?.task_id ?? "";
+  const selectedBlockId = session.selectedBlockId ?? initialBlock?.block_id ?? "";
+  const setSelectedTaskId = useCallback((id) => setSession((current) => ({ ...current, selectedTaskId: id })), [setSession]);
+  const setSelectedBlockId = useCallback((id) => setSession((current) => ({ ...current, selectedBlockId: id })), [setSession]);
   const [optimizationStatus, setOptimizationStatus] = useState(
     session.plan ? "success" : session.optimizationError ? "error" : "idle",
   );
@@ -136,7 +140,7 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
       });
 
     return () => controller.abort();
-  }, [loadVersion, session.territory, setSession, territoryId]);
+  }, [loadVersion, session.territory, setSession, setSelectedTaskId, territoryId]);
 
   useEffect(
     () => () => {
@@ -188,11 +192,21 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   };
 
   const selectTask = (task) => {
-    const firstBlock = plan?.blocks.find((block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(task.section_id));
+    const firstBlock = plan?.blocks.find((block) => block.tasks.includes(task.task_id));
     selectedSectionRef.current = task.section_id;
     setSelectedTaskId(task.task_id);
     setSelectedSection(task.section_id);
     setSelectedBlockId(firstBlock?.block_id ?? "");
+  };
+
+  const selectBlock = (id) => {
+    const block = plan?.blocks.find((item) => item.block_id === id);
+    const taskId = block?.tasks.includes(selectedTaskId) ? selectedTaskId : block?.tasks[0] ?? "";
+    setSession((current) => ({ ...current, selectedBlockId: block?.block_id ?? "", selectedTaskId: taskId }));
+    if (block) {
+      selectedSectionRef.current = block.section_id;
+      setSelectedSection(block.section_id);
+    }
   };
 
   const runOptimization = async () => {
@@ -210,6 +224,8 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
       plan: null,
       optimizationError: null,
       recovery: null,
+      previousPlan: null,
+      assistantPreview: null,
     }));
     setSelectedBlockId("");
 
@@ -280,6 +296,8 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
     setSession((current) => ({
       ...current,
       territoryId: nextId,
+      assistantPreview: null,
+      previousPlan: null,
       territory: null,
       tasks: [],
       trains: [],
@@ -362,15 +380,17 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               occupancy={dataState.trains.filter((train) => train.section_id === selectedSection)}
               blocks={(plan?.blocks ?? []).filter((block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(selectedSection))}
               horizon={horizon} hasPlan={Boolean(plan)} selectedBlockId={selectedBlockId}
-              onSelectBlock={setSelectedBlockId} territory={dataState.territory} tasks={dataState.tasks}
+              onSelectBlock={selectBlock} territory={dataState.territory} tasks={dataState.tasks}
             /> : <TimeDistanceDiagram
               territory={dataState.territory}
               occupancy={dataState.trains}
               blocks={plan?.blocks ?? []}
+              tasks={dataState.tasks}
               horizon={horizon}
+              previousBlocks={session.previousPlan?.blocks}
               selectedSection={selectedSection}
               selectedBlockId={selectedBlockId}
-              onSelectBlock={setSelectedBlockId}
+              onSelectBlock={selectBlock}
             />}
 
             <div className="planning-workspace-grid">
@@ -411,9 +431,10 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               tasks={dataState.tasks}
               selectedTaskId={selectedTaskId}
               selectedBlock={selectedBlock}
+              assistantPreview={session.assistantPreview?.plan_identity?.parent_plan_id === plan?.plan_identity?.plan_id ? session.assistantPreview : null}
               onApplyPlan={(nextPlan) => {
                 setPlan(nextPlan);
-                setSession((current) => ({ ...current, plan: nextPlan, recovery: null }));
+                setSession((current) => ({ ...current, plan: nextPlan, recovery: null, assistantPreview: null, previousPlan: null }));
                 setOptimizationStatus("success");
                 setSelectedBlockId(nextPlan.blocks[0]?.block_id ?? "");
               }}

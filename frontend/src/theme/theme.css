@@ -1,0 +1,128 @@
+/* One palette for the application; existing railway tokens remain aliases. */
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-secondary: #f3f6f8;
+  --surface-elevated: #ffffff;
+  --text: #183347;
+  --text-muted: #536576;
+  --border: #dce2e7;
+  --nav-background: #ffffff;
+  --input-background: #ffffff;
+  --selected-background: #edf3f7;
+  --accent: #1e5a8a;
+  --on-accent: #ffffff;
+  --confirm: #2d6a4f;
+  --confirm-surface: #edf4ef;
+  --warning: #a55f14;
+  --warning-surface: #fff6e7;
+  --danger: #b42318;
+  --danger-surface: #fff0ed;
+  --chart-grid: #dce2e7;
+  --chart-label: #536576;
+  --chart-train: #1e5a8a;
+  --chart-possession: #2d6a4f;
+  --chart-possession-fill: #e6f0ea;
+  --chart-buffer: #c7974a;
+  --focus: #b9792e;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0e1925;
+  --surface: #152432;
+  --surface-secondary: #1b2d3d;
+  --surface-elevated: #213649;
+  --text: #e3edf4;
+  --text-muted: #afc0ce;
+  --border: #344a5d;
+  --nav-background: #12212f;
+  --input-background: #10202e;
+  --selected-background: #243f53;
+  --accent: #82b7e1;
+  --on-accent: #0e1925;
+  --confirm: #89c9a5;
+  --confirm-surface: #203c32;
+  --warning: #e4b771;
+  --warning-surface: #3d3323;
+  --danger: #f0aaa0;
+  --danger-surface: #422e32;
+  --chart-grid: #344a5d;
+  --chart-label: #b5c9d7;
+  --chart-train: #83bce6;
+  --chart-possession: #89c9a5;
+  --chart-possession-fill: #203c32;
+  --chart-buffer: #cda766;
+  --focus: #edc27c;
+  --navy: var(--text);
+  --navy-mid: #c7dbe9;
+  --ink: var(--text);
+  --muted: var(--text-muted);
+  --line: var(--border);
+  --white: var(--surface);
+  --paper: var(--surface-secondary);
+  --train: var(--accent);
+  --block: var(--warning);
+  --critical: var(--danger);
+}
+body { background: var(--background); }
+.nav-appearance-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text); font: 600 13px var(--font-sans); cursor: pointer; white-space: nowrap; }
+.theme-toggle span { font-size: 18px; line-height: 1; }
+:is(button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* Cover legacy literal surfaces without copying their layout styles. */
+[data-theme="dark"] :is(.navbar-solid, .navbar.open, .nav-panel.open, .footer, .railsync-site-footer,
+  .planner-timeline-chart, .planner-timeline-track, .timeline-axis-row, .timeline-legend,
+  .planner-task-row, .planner-field-readonly, .optimizer-status, .optimizer-unscheduled,
+  .optimizer-result-summary dl div, .operations-list li, .block-details-dept-pill,
+  .analysis-outcome-card, .comparison-table, .comparison-table th, .comparison-table td,
+  .comparison-technical-details summary, .comparison-table-row.is-header,
+  .scenario-field-readonly, .recovery-card, .recovery-technical-details,
+  .integration-gain-card, .outstanding-card, .paired-lane-track, .recovery-track,
+  .recovery-technical-details > summary, .risk-result, .risk-result-grid > div,
+  .time-distance-scroll, .time-distance-card, [role="tooltip"], .timeline-tooltip,
+  .pipeline-stage, .pipeline-complete, .pipeline-complete-card, .possession-pane, .row-track,
+  .solution .timeline, .how, .corridor, .solution, .final-cta, .integrated-possession-section,
+  .landing-territory-launcher) {
+  background: var(--surface) !important; color: var(--text); border-color: var(--border) !important;
+}
+[data-theme="dark"] :is(.planning-workspace, .analysis-page, .scenario-page) :is(button, select, input, textarea),
+[data-theme="dark"] .landing :is(select, input),
+[data-theme="dark"] .theme-toggle { background-color: var(--input-background); color: var(--text); border-color: var(--border); }
+[data-theme="dark"] :is(.workspace-navigation button, .nav-brand) { background: transparent; color: var(--text); }
+[data-theme="dark"] :is(.rs-btn-primary, .planner-optimize-button, .plan-view-switch button[aria-pressed="true"]) { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+[data-theme="dark"] :is(.planner-task-row.is-selected, .planner-task-row:hover, .operations-tabs button.is-active) { background: var(--selected-background); border-color: var(--accent); }
+[data-theme="dark"] :is(.block-pill-dept, .compact-tools .operations-card > summary,
+  .planner-task-title-row strong, .timeline-lane-label, .train-bar-human, .train-marker-visual,
+  .row-label, .pane-header strong, .footer strong, .railsync-site-footer strong) { color: var(--text); }
+[data-theme="dark"] :is(.block-pill-time, .block-pill-tasks, .selected-route-train, .scenario-flow,
+  .compact-tools .operations-list small, .footer p, .footer a, .footer span,
+  .railsync-site-footer p, .railsync-site-footer a, .railsync-site-footer span, .pane-caption) { color: var(--text-muted); }
+[data-theme="dark"] :is(.analysis-outcome, .block-pill-integrated, .task-plan-state,
+  .lifecycle-badge, .pane-tag.tag-railsync) { background: var(--confirm-surface); color: var(--confirm); }
+[data-theme="dark"] :is(.outcome-reduction-badge, .paired-block.railsync) { color: var(--on-accent); }
+[data-theme="dark"] :is(.outcome-duration-shift > div:last-child, .pane-caption-saved,
+  .scenario-flow strong:last-child, .recovery-legend .retained,
+  .card-retained strong, .card-retained .recovery-card-label) { color: var(--confirm); }
+[data-theme="dark"] :is(.card-shifted strong, .card-shifted .recovery-card-label, .recovery-legend .shifted) { color: var(--warning); }
+[data-theme="dark"] :is(.card-cancelled strong, .card-cancelled .recovery-card-label,
+  .recovery-legend .cancelled, .recovery-legend .disrupted) { color: var(--danger); }
+[data-theme="dark"] :is(.card-new strong, .card-new .recovery-card-label, .recovery-legend .new) { color: var(--accent); }
+[data-theme="dark"] :is(.scenario-error, .planner-data-state.is-error, .optimizer-status.is-error, .risk-error) { background: var(--danger-surface); color: var(--danger); }
+[data-theme="dark"] .risk-status-value.is-experimental { background: var(--warning-surface); color: var(--warning); }
+[data-theme="dark"] :is(.planner-corridor-section-label, .td-station-label, .td-time-label, .td-scope-label) { fill: var(--chart-label); }
+[data-theme="dark"] .planner-corridor-sleeper { stroke: var(--chart-grid); }
+[data-theme="dark"] :is(.landing-territory-launcher, .how, .integrated-possession-section, .corridor, .solution, .final-cta) :is(h2, h3, strong) { color: var(--text) !important; }
+[data-theme="dark"] .landing :is(.section-heading p, .pipeline-stage p, .pipeline-progress-label, .pipeline-caption) { color: var(--text-muted) !important; }
+[data-theme="dark"] .landing :is(.section-eyebrow, .pipeline-stage-category, .pipeline-stage-icon) { color: var(--accent) !important; }
+[data-theme="dark"] :is(.pipeline-stage-index, .station-list > span) { color: var(--text) !important; }
+@media (max-width: 780px) {
+  .workspace-navbar { height: auto; min-height: var(--nav-h); flex-wrap: wrap; gap: 8px; padding-block: 10px; }
+  .workspace-navbar .workspace-navigation { position: static; order: 3; width: 100%; transform: none; }
+  .workspace-navbar .workspace-navigation ul { justify-content: center; gap: 24px; }
+  .workspace-navbar .workspace-navigation button { padding: 8px 0; }
+  :is(.planning-workspace, .analysis-page, .scenario-page) { padding-top: 116px; }
+  .nav-appearance-actions { gap: 6px; }
+  .nav-appearance-actions .workspace-home-button { font-size: 10px; padding: 7px; }
+}

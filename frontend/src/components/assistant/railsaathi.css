@@ -1,0 +1,40 @@
+.railsaathi { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); right: max(20px, env(safe-area-inset-right)); z-index: 60; color: var(--text); font: 14px/1.5 var(--font-sans, system-ui); }
+.railsaathi button { font: inherit; cursor: pointer; }
+.railsaathi button:disabled { opacity: .45; cursor: not-allowed; }
+.railsaathi button:focus-visible, .railsaathi input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.railsaathi-launcher { margin-left: auto; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 11px 17px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 28px; box-shadow: 0 4px 20px #1833471a; font-weight: 650 !important; transition: transform .2s ease, box-shadow .2s ease; }
+.railsaathi-launcher:hover { transform: translateY(-3px); box-shadow: 0 8px 24px #18334729; }
+.railsaathi-launcher-dot, .railsaathi-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--confirm); flex-shrink: 0; }
+.railsaathi-panel { width: 400px; max-width: calc(100vw - 32px); height: min(640px, calc(100dvh - 150px)); min-height: 260px; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 12px 50px #18334726; animation: railsaathi-in .2s ease-out; }
+.railsaathi-header { display: flex; align-items: center; gap: 12px; padding: 18px; border-bottom: 1px solid var(--border); }
+.railsaathi-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--confirm-surface); color: var(--confirm); }
+.railsaathi-header h2 { font-size: 21px; line-height: 1.2; }
+.railsaathi-header p { margin: 3px 0 0; font-size: 11px; color: var(--text-muted); }
+.railsaathi-close { border: 0; border-radius: 8px; width: 36px; height: 36px; background: var(--surface-secondary); color: var(--text); font-size: 25px !important; flex-shrink: 0; }
+.railsaathi-header :last-child.railsaathi-close { margin-left: auto; }
+.railsaathi-clear { margin-left: auto; border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px; background: transparent; color: var(--text-muted); font-size: 10px !important; }
+.railsaathi-clear:hover:not(:disabled) { color: var(--text); border-color: var(--text-muted); }
+.railsaathi-context { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 9px 18px; font-size: 11px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--surface-secondary); }
+.railsaathi-context small { overflow-wrap: anywhere; flex-basis: 100%; padding-left: 12px; font-size: 10px; }
+.railsaathi-messages { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px; }
+.railsaathi-welcome { padding: 4px 0 18px; color: var(--text-muted); font-size: 13px; }
+.railsaathi-welcome strong { display: block; color: var(--text); margin-bottom: 7px; }
+.railsaathi-message { margin: 10px 0; padding: 12px; border-radius: 10px; background: var(--confirm-surface); overflow-wrap: anywhere; }
+.railsaathi-message.is-user { background: var(--selected-background); margin-left: 26px; }
+.railsaathi-message p { white-space: pre-wrap; font-size: 13px; }
+.railsaathi-speaker { display: block; margin-bottom: 5px; font-size: 10px; font-weight: 700; color: var(--text-muted); }
+.railsaathi-grounding { display: block; border-top: 1px solid var(--border); padding-top: 7px; margin-top: 9px; color: var(--text-muted); font-size: 10px; }
+.railsaathi-prompts { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; border-top: 1px solid var(--border); }
+.railsaathi-prompts button { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 5px 9px; color: var(--confirm); font-size: 11px; }
+.railsaathi-prompts button:hover:not(:disabled) { background: var(--confirm-surface); border-color: var(--confirm); }
+.railsaathi-form { display: flex; gap: 8px; margin: 0 14px; padding: 5px; border: 1px solid var(--border); border-radius: 10px; }
+.railsaathi-form input { flex: 1; min-width: 0; width: 0; padding: 8px; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px; }
+.railsaathi-form button { padding: 6px 12px; border: 0; border-radius: 7px; background: var(--confirm); color: var(--on-accent); font-size: 12px; }
+.railsaathi-note { text-align: center; padding: 9px 12px; font-size: 10px; color: var(--text-muted); }
+.railsaathi-loading { font-size: 12px; color: var(--text-muted); }
+.railsaathi-review, .railsaathi-retry { margin-top: 8px; background: var(--surface); color: var(--confirm); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; font-size: 11px !important; }
+/* Reserve scroll space so the launcher doesn't cover the last operational controls. */
+.railsaathi-workspace { padding-bottom: 78px; }
+@keyframes railsaathi-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 480px) { .railsaathi { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); } .railsaathi-panel { width: 100%; max-width: none; height: min(640px, calc(100dvh - 210px)); } }
+@media (prefers-reduced-motion: reduce) { .railsaathi-panel { animation: none; } .railsaathi-launcher { transition: none; } .railsaathi-launcher:hover { transform: none; } }

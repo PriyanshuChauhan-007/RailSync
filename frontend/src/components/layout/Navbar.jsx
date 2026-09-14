@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "../ui/Button.jsx";
+import ThemeToggle from "../../theme/ThemeToggle.jsx";
 
 export default function Navbar({
   overlay = false,
@@ -52,9 +53,9 @@ export default function Navbar({
           </ul>
         </nav>
 
-        <Button variant="ghost" onClick={onHome} className="workspace-home-button">
+        <div className="nav-appearance-actions"><ThemeToggle /><Button variant="ghost" onClick={onHome} className="workspace-home-button">
           Back to Home
-        </Button>
+        </Button></div>
       </header>
     );
   }
@@ -128,6 +129,7 @@ export default function Navbar({
         </Button>
       </div>
 
+      <ThemeToggle />
       <button
         className="nav-toggle"
         type="button"

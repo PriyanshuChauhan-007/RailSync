@@ -1,17 +1,17 @@
 /* Scoped application polish. Opening homepage video sections keep their original styles. */
 :is(.planning-workspace, .analysis-page, .scenario-page) {
-  --white: #FFFFFF;
-  --paper: #FFFFFF;
-  --cream: #FFFFFF;
-  --line: #dce2e7;
-  background: #FFFFFF !important;
+  --white: var(--surface);
+  --paper: var(--surface);
+  --cream: var(--surface);
+  --line: var(--border);
+  background: var(--background) !important;
   font-size: 15px;
   line-height: 1.5;
 }
 
 .workspace-navbar {
-  background: #FFFFFF !important;
-  border-bottom: 1px solid #dce2e7;
+  background: var(--nav-background) !important;
+  border-bottom: 1px solid var(--border);
 }
 
 :is(.planning-workspace, .analysis-page, .scenario-page) :is(
@@ -38,7 +38,7 @@
   .recovery-technical-details,
   .recovery-card
 ) {
-  background: #FFFFFF !important;
+  background: var(--surface) !important;
 }
 
 :is(.planning-workspace, .analysis-page, .scenario-page) h1 { font-size: 34px; line-height: 1.15; font-family: var(--font-serif); }
@@ -418,6 +418,8 @@
 
 @media (max-width: 900px) {
   .block-details-content, .possession-comparison-wrap { grid-template-columns: 1fr; }
+  .recovery-outcome-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .comparison-technical-body { max-width: 100%; overflow-x: auto; }
   .railsync-site-footer, .footer { flex-wrap: wrap; }
   .compact-tools .copilot-tool { margin-left: 0; }
 }

@@ -25,7 +25,7 @@ _plans: dict[str, dict[str, Any]] = {}
 _territory_versions: dict[str, int] = {}
 
 
-def register_plan(territory_id: str, payload: dict[str, Any], parent_plan_id: str | None = None):
+def register_plan(territory_id: str, payload: dict[str, Any], parent_plan_id: str | None = None, *, copilot_context=None):
     version = _territory_versions.get(territory_id, 0) + 1
     _territory_versions[territory_id] = version
     plan_id = f"{territory_id}-v{version}"
@@ -43,6 +43,7 @@ def register_plan(territory_id: str, payload: dict[str, Any], parent_plan_id: st
         "unscheduled_tasks": list(payload.get("unscheduled_tasks", [])),
         "metrics": deepcopy(payload.get("metrics", {})),
         "events": [{"state": "DRAFT", "at": identity["created_at"], "actor": "planner"}],
+        "_copilot_context": deepcopy(copilot_context),
     }
     return identity
 
@@ -60,12 +61,20 @@ def transition_plan(plan_id: str, target_state: str, actor: str = "planner", not
     timestamp = datetime.now(timezone.utc).isoformat()
     plan["identity"]["state"] = target_state
     plan["events"].append({"state": target_state, "at": timestamp, "actor": actor, "note": note})
-    return deepcopy(plan)
+    return deepcopy({key: value for key, value in plan.items() if key != "_copilot_context"})
 
 
 def history(territory_id: str | None = None):
     values = [item for item in _plans.values() if territory_id is None or item["territory_id"] == territory_id]
-    return sorted((deepcopy(item) for item in values), key=lambda item: item["identity"]["created_at"], reverse=True)
+    return sorted((deepcopy({key: value for key, value in item.items() if key != "_copilot_context"}) for item in values), key=lambda item: item["identity"]["created_at"], reverse=True)
+
+
+def copilot_plan(plan_id: str | None, territory_id: str):
+    """Resolve only the requested plan, including its latest lifecycle state."""
+    plan = _plans.get(plan_id)
+    if plan is None or plan["territory_id"] != territory_id:
+        return None
+    return deepcopy(plan)
 
 
 def transition_block(plan_id: str, block_id: str, target_status: str, actor: str = "planner"):

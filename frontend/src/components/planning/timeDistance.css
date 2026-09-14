@@ -1,0 +1,42 @@
+.td-interactive { min-width: 0; color: var(--text); }
+.td-interactive .td-toolbar, .td-interactive .td-toolbar > div { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.td-interactive .td-toolbar { justify-content: space-between; gap: 12px; margin: 16px 0; }
+.td-interactive .td-toolbar button { min-height: 34px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; font: 600 12px var(--font-sans); }
+.td-interactive .td-toolbar button[aria-pressed="true"] { background: var(--selected-background); border-color: var(--accent); color: var(--text); }
+.td-interactive .td-toolbar button:disabled { opacity: .45; cursor: default; }
+.td-interactive .td-toolbar output { min-width: 24px; text-align: center; font-size: 12px; }
+.td-interactive .time-distance-scroll { max-width: 100%; overflow: auto; background: var(--surface); border: 1px solid var(--border); }
+.td-interactive .time-distance-svg { min-width: 760px; touch-action: pan-y; user-select: none; }
+.td-interactive .time-distance-svg.is-zoomed { cursor: grab; }
+.td-interactive :is(.td-grid-time, .td-grid-station) { stroke: var(--chart-grid); }
+.td-interactive :is(.td-time-label, .td-station-label, .td-scope-label) { fill: var(--chart-label); font-size: 12px; }
+.td-interactive .time-distance-legend { color: var(--text-muted); flex-wrap: wrap; }
+.td-interactive .time-distance-legend .td-train { background: var(--chart-train); }
+.td-interactive .time-distance-legend .td-block { background: var(--chart-possession); }
+.td-interactive .time-distance-legend .td-selected { background: var(--warning); }
+.td-interactive .td-train-group, .td-interactive .td-possession { cursor: pointer; }
+.td-interactive .td-train-path { fill: none; stroke: var(--chart-train); stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: none; }
+.td-interactive .td-train-hit { fill: none; stroke: transparent; stroke-width: 14; vector-effect: non-scaling-stroke; }
+.td-interactive .td-train-group:is(.is-selected, :hover, :focus) .td-train-path { stroke: var(--warning); stroke-width: 3.5; }
+.td-interactive .td-train-group.is-muted { opacity: .2; }
+.td-interactive .td-possession.is-muted { opacity: .4; }
+.td-interactive .td-possession .td-window { fill: var(--chart-possession-fill); stroke: var(--chart-possession); stroke-width: 1.4; }
+.td-interactive .td-possession:is(.is-selected, :hover, :focus) .td-window { fill: var(--selected-background); stroke: var(--warning); stroke-width: 2.6; }
+.td-interactive .td-possession text { fill: var(--text); font-size: 11px; pointer-events: none; }
+.td-interactive .td-possession .td-departments { font-size: 10px; font-weight: 600; }
+.td-interactive .td-possession .td-buffer { fill: var(--chart-buffer); opacity: .35; stroke: none; pointer-events: none; }
+.td-interactive .td-ghost rect { fill: none; stroke: var(--chart-label); stroke-dasharray: 5 4; pointer-events: none; }
+.td-interactive .td-conflict { fill: var(--danger); fill-opacity: .14; stroke: var(--danger); stroke-dasharray: 3 3; pointer-events: none; }
+.td-interactive .td-pan { display: flex; align-items: center; gap: 20px; padding: 12px 0; color: var(--text-muted); font-size: 12px; }
+.td-interactive .td-pan label { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.td-interactive .td-pan input { accent-color: var(--accent); max-width: 180px; }
+.td-interactive .td-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding: 14px; max-height: 210px; overflow: auto; overflow-wrap: anywhere; border: 1px solid var(--border); background: var(--surface-secondary); font-size: 12px; line-height: 1.6; }
+.td-interactive .td-details p { margin: 4px 0; color: var(--text-muted); }
+.td-interactive .td-details ul { margin: 5px 0; padding-left: 17px; }
+.td-interactive .td-train-times { grid-column: span 2; }
+.td-interactive .td-data-note { color: var(--text-muted); font-size: 11px; margin: 10px 0 0; }
+@media (max-width: 760px) {
+  .td-interactive .time-distance-heading { display: block; }
+  .td-interactive .td-pan { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .td-interactive .td-train-times { grid-column: auto; }
+}

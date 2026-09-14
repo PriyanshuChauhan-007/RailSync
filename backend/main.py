@@ -9,7 +9,7 @@ from fastapi import Body, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
-from . import operations_service, planning_service, recovery_service
+from . import copilot_service, operations_service, planning_service, recovery_service
 from .schemas import OptimizeRequest, OptimizeResponse, ReoptimizeRequest, ReoptimizeResponse
 from ml.inference import status as ml_status
 
@@ -251,26 +251,9 @@ def explain_plan(payload: dict = Body(...)):
 
 
 @app.post("/api/copilot")
-def copilot(payload: dict = Body(...)):
-    territory_id = payload.get("territory_id", planning_service.DEFAULT_TERRITORY_ID)
-    territory = _load_territory_or_http(territory_id)
-    selected = payload.get("selected_block")
-    preview = None
-    engine = "FACTUAL_PLAN_CONTEXT"
-    if payload.get("task_overrides"):
-        preview = run_what_if({
-            "territory_id": territory_id,
-            "task_overrides": payload["task_overrides"],
-            "parent_plan_id": payload.get("parent_plan_id"),
-        })
-        engine = "CP_SAT_WHAT_IF"
-    answer = (
-        f"This plan uses {len(territory.sections)} physical sections and {len(territory.train_services)} named public services. "
-        f"The selected block contains {len(selected.get('tasks', []))} task(s)."
-        if selected else
-        f"{territory.manifest.display_name} has {len(territory.maintenance_tasks)} prototype maintenance tasks and {len(territory.train_services)} named public services in this planning slice."
-    )
-    return {"answer": answer, "engine": engine, "selected_block": selected, "action_preview": preview, "disclaimer": "Copilot reports loaded facts and invokes the optimization engine for action previews; it does not certify railway operating authority."}
+def copilot(payload: copilot_service.CopilotRequest):
+    territory = _load_territory_or_http(payload.territory_id)
+    return copilot_service.answer(payload, territory)
 
 
 @app.post("/api/import/tasks/validate")

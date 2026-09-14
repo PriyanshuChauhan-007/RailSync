@@ -44,14 +44,16 @@ function parseImport(text, filename) {
   })));
 }
 
-export default function OperationalPanels({ territory, plan, tasks, selectedTaskId, selectedBlock, onApplyPlan, onUpdateBlock }) {
+export default function OperationalPanels({ territory, plan, tasks, selectedTaskId, selectedBlock, assistantPreview, onApplyPlan, onUpdateBlock }) {
   const [tab, setTab] = useState("monthly");
   const [operational, setOperational] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [identity, setIdentity] = useState(plan?.plan_identity ?? null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [whatIf, setWhatIf] = useState(null);
+  const [localPreview, setLocalPreview] = useState(null);
+  const whatIf = localPreview?.source === assistantPreview ? localPreview?.result : assistantPreview;
+  const setWhatIf = (result) => setLocalPreview({ source: assistantPreview, result });
   const [copilotQuestion, setCopilotQuestion] = useState("");
   const [copilotAnswer, setCopilotAnswer] = useState(null);
   const [importResult, setImportResult] = useState(null);
@@ -102,15 +104,17 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
     event.preventDefault(); if (!copilotQuestion.trim()) return;
     setBusy(true);
     try {
-      const actionRequested = /what.?if|move|reschedul|extend/i.test(copilotQuestion) && selectedTask;
       const result = await askCopilot({
+        conversation_version: 1,
         territory_id: territory.territory_id,
         question: copilotQuestion,
         selected_block: selectedBlock,
         parent_plan_id: identity?.plan_id,
-        task_overrides: actionRequested ? [{ task_id: selectedTask.task_id, duration_minutes: selectedTask.duration_minutes + 10 }] : [],
+        selected_task_id: selectedTaskId,
+        current_plan: plan ? { blocks: plan.blocks, unscheduled_tasks: plan.unscheduled_tasks } : null,
       });
       setCopilotAnswer(result);
+      if (result.action_preview?.result) setWhatIf(result.action_preview.result);
     } catch (error) { setCopilotAnswer({ answer: error.message, engine: "ERROR" }); } finally { setBusy(false); }
   }
 
@@ -150,7 +154,7 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
       </dl> : <p>Loading resources…</p>}</div>
     </details>
     <details className="operations-card">
-      <summary>Plan Tools</summary>
+      <summary>Plan Tools{assistantPreview ? " · RailSaathi preview ready" : ""}</summary>
       <div className="tool-body">
         <h3>Rolling planning</h3>
         <div className="operations-tabs">{[["monthly", "Monthly"], ["weekly", "Weekly"], ["day_of", "Day-of"]].map(([key, label]) => <button key={key} type="button" className={tab === key ? "is-active" : ""} onClick={() => setTab(key)}>{label}</button>)}</div>
