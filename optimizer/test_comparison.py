@@ -109,7 +109,7 @@ def test_identical_feasibility_inputs_and_same_quality(monkeypatch):
     assert calls[0][1]["allow_integration"] is False
     assert calls[1][1]["allow_integration"] is True
     for mode in ("baseline", "optimized"):
-        assert len(result[mode]["priority_stages"]) == 9
+        assert len(result[mode]["priority_stages"]) == 10
         assert all(s["status"] == "OPTIMAL" for s in result[mode]["priority_stages"])
     assert result["both_proven_optimal"]
 

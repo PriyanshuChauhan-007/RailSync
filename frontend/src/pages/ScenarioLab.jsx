@@ -7,7 +7,7 @@ import OutstandingWork from "../components/analysis/OutstandingWork.jsx";
 import RiskControls, { RiskResult } from "../components/planning/RiskControls.jsx";
 import { riskOptions } from "../utils/risk.js";
 import RecoveryTimeline from "../components/planning/RecoveryTimeline.jsx";
-import { reoptimizePlan } from "../services/api.js";
+import { adoptRecoveredPlan, reoptimizePlan } from "../services/api.js";
 import { proofLabel, sectionLabel, territoryLabel, trainFullLabel } from "../utils/planningLabels.js";
 import "./scenario/scenario.css";
 import "./analysis/analysis.css";
@@ -15,15 +15,21 @@ import "./analysis/analysis.css";
 export default function ScenarioLab({ session, setSession, onNavigate, onHome }) {
   const { plan, territory, trains, tasks, recovery, riskConfig } = session;
   const trainIds = [...new Set(trains.map((r) => r.train_id))];
-  const [trainId, setTrainId] = useState(recovery?.disruption.train_id ?? trainIds[0] ?? "");
+  const publicDemoTrain = territory?.territory_id === "saktigarh_memari_public_demo" && trainIds.includes("37814")
+    ? "37814"
+    : trainIds[0];
+  const [trainId, setTrainId] = useState(recovery?.disruption.train_id ?? publicDemoTrain ?? "");
   const [delay, setDelay] = useState(recovery?.disruption.delay_minutes ?? 25);
   const [scenarioType, setScenarioType] = useState(recovery?.disruption.type ?? "TRAIN_DELAY");
   const [sectionId, setSectionId] = useState(territory?.sections?.[0]?.section_id ?? "");
   const [crewType, setCrewType] = useState(Object.keys(territory?.resources?.crew?.reduce((all, item) => ({ ...all, [item.resource_id]: true }), {}) ?? {})[0] ?? "TRACK_CREW");
   const [machineType, setMachineType] = useState(territory?.resources?.machines?.[0]?.resource_id ?? "TOWER_WAGON");
   const [effectiveTime, setEffectiveTime] = useState(plan?.planning_context?.horizon_start?.slice(0, 16) ?? "");
+  const [outageEndTime, setOutageEndTime] = useState(plan?.planning_context?.horizon_end?.slice(0, 16) ?? "");
   const [busy, setBusy] = useState(false);
+  const [adopting, setAdopting] = useState(false);
   const [error, setError] = useState(null);
+  const [adoptionMessage, setAdoptionMessage] = useState("");
   const controller = useRef(null);
   useEffect(() => () => controller.current?.abort(), []);
 
@@ -36,12 +42,13 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
     setSession((current) => ({ ...current, recovery: null }));
     try {
       const effective_time = effectiveTime ? `${effectiveTime}:00` : plan.planning_context.horizon_start;
+      const end_time = outageEndTime ? `${outageEndTime}:00` : plan.planning_context.horizon_end;
       const disruptions = {
         TRAIN_DELAY: { type: "TRAIN_DELAY", train_id: trainId, delay_minutes: Number(delay), effective_time },
-        CREW_UNAVAILABLE: { type: "CREW_UNAVAILABLE", crew_type: crewType, effective_time },
-        MACHINE_UNAVAILABLE: { type: "MACHINE_UNAVAILABLE", machine_type: machineType, effective_time },
-        POWER_ISOLATION_CANCELLED: { type: "POWER_ISOLATION_CANCELLED", section_ids: [sectionId], effective_time },
-        SECTION_UNAVAILABLE: { type: "SECTION_UNAVAILABLE", section_id: sectionId, start_time: effective_time, end_time: plan.planning_context.horizon_end, effective_time },
+        CREW_UNAVAILABLE: { type: "CREW_UNAVAILABLE", crew_type: crewType, start_time: effective_time, end_time, effective_time },
+        MACHINE_UNAVAILABLE: { type: "MACHINE_UNAVAILABLE", machine_type: machineType, start_time: effective_time, end_time, effective_time },
+        POWER_ISOLATION_CANCELLED: { type: "POWER_ISOLATION_CANCELLED", section_ids: [sectionId], start_time: effective_time, end_time, effective_time },
+        SECTION_UNAVAILABLE: { type: "SECTION_UNAVAILABLE", section_id: sectionId, start_time: effective_time, end_time, effective_time },
         WEATHER_RESTRICTION: { type: "WEATHER_RESTRICTION", delay_minutes: Number(delay), train_ids: [], effective_time },
         EMERGENCY_WORK: { type: "EMERGENCY_WORK", effective_time, task: { task_id: `EMERGENCY_${sectionId}`, department: "ENGINEERING", section_id: sectionId, task_type: "Emergency track inspection", duration_minutes: 20, criticality: 10, urgency: 10, overdue_days: 0, deadline: plan.planning_context.horizon_end, requires_power_block: false, crew_type: "TRACK_CREW", compatibility_group: `EMERGENCY_${sectionId}` } },
       };
@@ -55,6 +62,31 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
       if (!requestController.signal.aborted) setBusy(false);
     }
   }
+  async function adoptRecovery() {
+    setAdopting(true); setError(null); setAdoptionMessage("");
+    try {
+      const adopted = await adoptRecoveredPlan(
+        recovery.recovery_id,
+        plan.plan_identity?.plan_id,
+        { signal: controller.current?.signal },
+      );
+      const retimed = metrics.shifted_blocks;
+      const deferred = metrics.deferred_blocks ?? metrics.cancelled_blocks;
+      setSession((current) => current.plan === plan ? {
+        ...current,
+        previousPlan: plan,
+        plan: adopted,
+        trains: recovery.train_occupancy,
+        recovery: null,
+        assistantPreview: null,
+      } : current);
+      setAdoptionMessage(`${retimed} possession${retimed === 1 ? "" : "s"} retimed · ${deferred} deferred. Planning, Analysis, and RailSaathi now use the adopted plan.`);
+    } catch (err) {
+      if (err.name !== "AbortError") setError(err);
+    } finally {
+      setAdopting(false);
+    }
+  }
   const names = new Map(tasks.map((t) => [t.task_id,t.task_type]));
   const metrics = recovery?.recovery_metrics;
   return <div className="scenario-page">
@@ -62,7 +94,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
     <main className="scenario-main">
       <header className="scenario-hero"><span>Scenario Lab</span>
         <h1>What happens when reality changes?</h1>
-        <p>Apply a time-aware operational disruption. RailSync freezes elapsed or explicitly frozen work, then repairs only the remaining plan while preserving feasible decisions.</p>
+        <p>Apply a time-aware operational disruption. RailSync preserves recorded execution and repairs future work while keeping feasible decisions.</p>
       </header>
       <div className="scenario-flow"><strong>Current plan</strong><span aria-hidden="true">→</span><strong>Disruption</strong><span aria-hidden="true">→</span><strong>Recovered plan</strong></div>
       {!plan ? <section className="analysis-empty">
@@ -83,6 +115,8 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
           {scenarioType === "CREW_UNAVAILABLE" ? <label>Crew pool<select value={crewType} onChange={(event) => setCrewType(event.target.value)}>{(territory.resources?.crew ?? []).map((item) => <option key={item.resource_id}>{item.resource_id}</option>)}</select></label> : null}
           {scenarioType === "MACHINE_UNAVAILABLE" ? <label>Machine pool<select value={machineType} onChange={(event) => setMachineType(event.target.value)}>{(territory.resources?.machines ?? []).map((item) => <option key={item.resource_id}>{item.resource_id}</option>)}</select></label> : null}
           <label>Effective time<input type="datetime-local" value={effectiveTime} onChange={(event) => setEffectiveTime(event.target.value)} /></label>
+          {["CREW_UNAVAILABLE", "MACHINE_UNAVAILABLE", "POWER_ISOLATION_CANCELLED", "SECTION_UNAVAILABLE"].includes(scenarioType) ?
+            <label>Outage ends<input type="datetime-local" value={outageEndTime} min={effectiveTime} onChange={(event) => setOutageEndTime(event.target.value)} required /></label> : null}
           <Button type="submit" disabled={busy || (scenarioType === "TRAIN_DELAY" && !trainId)} ariaBusy={busy}>{busy ? "Recovering plan…" : "Run Scenario"}</Button>
         </form>
         <p className="scenario-note">Simulation only — recovered changes are not automatically applied. Each run starts from the base plan.</p>
@@ -119,9 +153,9 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
                 <small>retimed windows</small>
               </div>
               <div className="recovery-card card-cancelled">
-                <span className="recovery-card-label">CANCELLED</span>
-                <strong>{metrics.cancelled_blocks}</strong>
-                <small>groups broken</small>
+                <span className="recovery-card-label">DEFERRED</span>
+                <strong>{metrics.deferred_blocks ?? metrics.cancelled_blocks}</strong>
+                <small>work still outstanding</small>
               </div>
               <div className="recovery-card card-new">
                 <span className="recovery-card-label">NEW</span>
@@ -131,7 +165,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
             </div>
           </section>
           <RecoveryTimeline result={recovery} territory={territory} tasks={tasks} originalTrains={trains} />
-          <div className="scenario-apply-row"><Button onClick={() => setSession((current) => ({ ...current, previousPlan: plan, plan: { ...plan, blocks: recovery.recovered_plan.blocks, unscheduled_tasks: recovery.recovered_plan.unscheduled_tasks, proof_state: recovery.recovered_plan.proof_state }, recovery: null, assistantPreview: null }))}>Apply recovered plan explicitly</Button>{recovery.escalation_required ? <strong>Escalation required: an immutable block was invalidated.</strong> : null}</div>
+          <div className="scenario-apply-row"><Button onClick={adoptRecovery} disabled={adopting} ariaBusy={adopting}>{adopting ? "Adopting…" : "Adopt Recovered Plan"}</Button>{recovery.escalation_required ? <strong>Escalation required: an immutable block was invalidated.</strong> : null}</div>
           <details className="recovery-technical-details">
             <summary>View recovery technical details</summary>
             <div className="recovery-technical-body">
@@ -142,7 +176,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
                 </li>)}</ul> : <p>No original possession was invalidated by the supplied delay.</p>}
               </section>
               <dl className="recovery-metrics">
-                {[["Unchanged possessions",metrics.retained_blocks],["Shifted possessions",metrics.shifted_blocks],["Cancelled groups",metrics.cancelled_blocks],
+                {[["Unchanged possessions",metrics.retained_blocks],["Shifted possessions",metrics.shifted_blocks],["Deferred groups",metrics.deferred_blocks ?? metrics.cancelled_blocks],
                   ["New groups",metrics.new_blocks],["Unchanged task starts",metrics.retained_tasks],["Shifted tasks",metrics.shifted_tasks],
                   ["Outstanding tasks",metrics.unscheduled_tasks_after_disruption],["Total task displacement",`${metrics.total_shift_minutes} min`]].map(([label,value]) =>
                   <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
@@ -155,6 +189,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
             </div>
           </details>
         </> : null}
+        {adoptionMessage ? <p role="status" className="scenario-note">{adoptionMessage}</p> : null}
       </>}
       <DataAssumptions territory={session.territory} />
     </main>

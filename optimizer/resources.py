@@ -27,6 +27,8 @@ class ResourceContext:
     # therefore capacity-only; explicitly empty calendars make the pool unavailable.
     crew_windows: Mapping[str, tuple[PowerWindow, ...]] = field(default_factory=dict)
     machine_windows: Mapping[str, tuple[PowerWindow, ...]] = field(default_factory=dict)
+    crew_outages: Mapping[str, tuple[PowerWindow, ...]] = field(default_factory=dict)
+    machine_outages: Mapping[str, tuple[PowerWindow, ...]] = field(default_factory=dict)
 
     def __post_init__(self):
         for pools in (self.crew_capacities, self.machine_capacities):
@@ -39,7 +41,8 @@ class ResourceContext:
     def validate_times(self, origin):
         for section in self.power_windows:
             power_intervals(self, section, origin)
-        for calendars in (self.crew_windows, self.machine_windows):
+        for calendars in (self.crew_windows, self.machine_windows,
+                          self.crew_outages, self.machine_outages):
             for windows in calendars.values():
                 _merge_windows(windows, origin)
 
@@ -73,6 +76,20 @@ def _intersect_start_ranges(ranges, windows, duration):
         for start, end in windows
         if max(left, start) <= min(right, end - duration)
     ]
+
+
+def _subtract_outage_starts(ranges, outages, duration, origin):
+    """Keep starts whose half-open reservation avoids unavailable bands."""
+    remaining = list(ranges)
+    for outage_start, outage_end in _merge_windows(outages, origin):
+        next_ranges = []
+        for left, right in remaining:
+            if left <= min(right, outage_start - duration):
+                next_ranges.append((left, min(right, outage_start - duration)))
+            if max(left, outage_end) <= right:
+                next_ranges.append((max(left, outage_end), right))
+        remaining = next_ranges
+    return remaining
 
 
 def power_start_ranges(task, duration, earliest, latest, origin, context):
@@ -122,29 +139,61 @@ def reservation_start_ranges(task, duration, earliest, latest, origin, context):
                 ranges, _merge_windows(calendars[pool], origin), duration
             )
             checks["crew" if field_name == "crew_type" else "machine"] = bool(ranges)
+    for field_name, outages in (
+        ("crew_type", context.crew_outages),
+        ("machine_type", context.machine_outages),
+    ):
+        pool = task.get(field_name)
+        if pool and pool in outages:
+            ranges = _subtract_outage_starts(ranges, outages[pool], duration, origin)
+            checks["crew" if field_name == "crew_type" else "machine"] = bool(ranges)
     return ranges, checks
 
 
-def add_capacity_constraints(model, tasks, variables, context):
+def add_capacity_constraints(model, tasks, variables, context, *, origin=None,
+                             fixed_reservations=None):
     if context is None:
         return
-    for field_name, pools in (("crew_type", context.crew_capacities), ("machine_type", context.machine_capacities)):
+    for field_name, pools, outages in (
+        ("crew_type", context.crew_capacities, context.crew_outages),
+        ("machine_type", context.machine_capacities, context.machine_outages),
+    ):
         for pool, capacity in pools.items():
             intervals = [variables[t["task_id"]]["interval"] for t in tasks if t.get(field_name) == pool]
+            demands = [1] * len(intervals)
+            for index, (left, right) in enumerate((fixed_reservations or {}).get(field_name, {}).get(pool, ())):
+                intervals.append(model.NewIntervalVar(left, right - left, right,
+                                                      f"{field_name}_{pool}_fixed_{index}"))
+                demands.append(1)
+            if pool in outages:
+                if origin is None:
+                    raise ValueError("Outage constraints require the planning origin")
+                for index, (left, right) in enumerate(_merge_windows(outages[pool], origin)):
+                    intervals.append(model.NewIntervalVar(left, right - left, right,
+                                                          f"{field_name}_{pool}_outage_{index}"))
+                    demands.append(capacity)
             if intervals:
-                model.AddCumulative(intervals, [1] * len(intervals), capacity)
+                model.AddCumulative(intervals, demands, capacity)
 
 
-def validate_capacities(reservations, context):
+def validate_capacities(reservations, context, *, origin=None):
     """Independent sweep: end events precede starts at equal timestamps."""
     if context is None:
         return
-    for field_name, pools in (("crew_type", context.crew_capacities), ("machine_type", context.machine_capacities)):
+    for field_name, pools, outages in (
+        ("crew_type", context.crew_capacities, context.crew_outages),
+        ("machine_type", context.machine_capacities, context.machine_outages),
+    ):
         for pool, capacity in pools.items():
             events = []
             for task, start, end in reservations:
                 if task.get(field_name) == pool:
                     events.extend(((start, 1), (end, -1)))
+            if pool in outages:
+                if origin is None:
+                    raise ValueError("Outage validation requires the planning origin")
+                for left, right in _merge_windows(outages[pool], origin):
+                    events.extend(((left, capacity), (right, -capacity)))
             used = 0
             for _, change in sorted(events):
                 used += change

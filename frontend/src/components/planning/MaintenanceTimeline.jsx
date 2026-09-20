@@ -9,39 +9,12 @@ import {
   buildTicks,
   dateLabel,
   durationMinutes,
+  intervalDensity,
+  intervalLabelFits,
   rangeStyle,
   timeLabel,
 } from "../../utils/timeline.js";
-import trainTopView from "../../assets/rail-train-top-view.png";
-
-function TimelineGrid({ ticks }) {
-  return (
-    <span className="timeline-hour-lines" aria-hidden="true">
-      {ticks.map((tick) => (
-        <i key={tick.key} style={{ left: tick.left }} />
-      ))}
-    </span>
-  );
-}
-
-function TrainImage({ large = false }) {
-  return (
-    <img
-      className={`train-top-view${large ? " is-large" : ""}`}
-      src={trainTopView}
-      alt=""
-      aria-hidden="true"
-    />
-  );
-}
-
-function intervalDensity(startTime, endTime, horizon) {
-  const total = Math.max(1, durationMinutes(horizon.start_time, horizon.end_time));
-  const percentage = (durationMinutes(startTime, endTime) / total) * 100;
-  if (percentage >= 8) return "wide";
-  if (percentage >= 3) return "medium";
-  return "narrow";
-}
+import { OperationalTrainMarker, TimelineGrid } from "../timeline/TimelinePrimitives.jsx";
 
 export default function MaintenanceTimeline({
   sectionId,
@@ -53,6 +26,8 @@ export default function MaintenanceTimeline({
   onSelectBlock,
   territory,
   tasks = [],
+  selectedTaskId = "",
+  diagnostics,
 }) {
   const chartRef = useRef(null);
   const [selectedTrainKey, setSelectedTrainKey] = useState(null);
@@ -69,6 +44,12 @@ export default function MaintenanceTimeline({
   const taskById = useMemo(
     () => new Map(tasks.map((task) => [task.task_id, task])),
     [tasks],
+  );
+  const diagnosticWindows = (diagnostics?.candidate_windows ?? []).filter(
+    (item) => item.task_id === selectedTaskId && item.section_ids.includes(sectionId),
+  );
+  const diagnosticConflicts = (diagnostics?.conflicts ?? []).filter(
+    (item) => item.task_id === selectedTaskId && item.section_id === sectionId,
   );
 
   const trainLanes = useMemo(() => {
@@ -209,12 +190,14 @@ export default function MaintenanceTimeline({
           <i className="valid" />
           Optimized possession · segmented setup / work / release
         </span>
+        {diagnosticWindows.length ? <span><i className="candidate" />Candidate window · selected task</span> : null}
+        {diagnosticConflicts.length ? <span><i className="exclusion" />Protected train interval</span> : null}
       </div>
 
       {selectedTrain ? (
         <div className="timeline-selected-train-banner">
           <div className="selected-train-pill">
-            <TrainImage large />
+            <OperationalTrainMarker train={selectedTrain} territory={territory} />
             <strong>{trainLabel(selectedTrain.train_id, territory)}</strong>
             {trainLabel(selectedTrain.train_id, territory) !== canonicalTrainId(selectedTrain.train_id) ? (
               <span className="selected-train-id">
@@ -263,7 +246,7 @@ export default function MaintenanceTimeline({
             {tooltip.type === "train" ? (
               <div className="tooltip-train-box">
                 <div className="tooltip-header-row">
-                  <TrainImage />
+                  <span className="operational-train-glyph" aria-hidden="true">⇄</span>
                   <strong>{tooltip.human}</strong>
                   {tooltip.human !== tooltip.canonical ? <small>{tooltip.canonical}</small> : null}
                 </div>
@@ -316,6 +299,34 @@ export default function MaintenanceTimeline({
         </div>
 
         <div className="timeline-lanes">
+          {diagnosticWindows.length ? <div className="planner-timeline-row diagnostic-row">
+            <span className="timeline-lane-label">Candidate windows</span>
+            <div className="planner-timeline-track">
+              <TimelineGrid ticks={ticks} className="timeline-hour-lines" />
+              {diagnosticWindows.map((window) => <span
+                key={window.window_id}
+                className={`timeline-diagnostic-window${window.solver_selected ? " is-selected" : ""}${window.feasible ? "" : " is-infeasible"}`}
+                style={rangeStyle(window.usable_start, window.usable_end, horizon)}
+                role="generic"
+                aria-label={`Candidate window ${window.window_id}: ${timeLabel(window.usable_start)} to ${timeLabel(window.usable_end)}; ${window.solver_selected ? "selected by CP-SAT" : window.feasible ? "feasible alternative" : "not feasible"}`}
+                title={`${window.window_id} · ${timeLabel(window.usable_start)}–${timeLabel(window.usable_end)}`}
+              />)}
+            </div>
+          </div> : null}
+          {diagnosticConflicts.length ? <div className="planner-timeline-row diagnostic-row">
+            <span className="timeline-lane-label">Safety exclusions</span>
+            <div className="planner-timeline-track">
+              <TimelineGrid ticks={ticks} className="timeline-hour-lines" />
+              {diagnosticConflicts.map((conflict) => <span
+                key={conflict.conflict_id}
+                className={`timeline-safety-exclusion is-${conflict.severity.toLowerCase()}`}
+                style={rangeStyle(conflict.protected_start, conflict.protected_end, horizon)}
+                role="generic"
+                aria-label={`Train ${trainLabel(conflict.train_id, territory)} protected interval: ${timeLabel(conflict.protected_start)} to ${timeLabel(conflict.protected_end)}`}
+                title={`${trainLabel(conflict.train_id, territory)} · protected ${timeLabel(conflict.protected_start)}–${timeLabel(conflict.protected_end)}`}
+              />)}
+            </div>
+          </div> : null}
           {trainLanes.map((lane, laneIdx) => (
             <div className="planner-timeline-row" key={`train-lane-${laneIdx}`}>
               <span
@@ -327,7 +338,7 @@ export default function MaintenanceTimeline({
                 {laneIdx === 0 ? "Train movements" : ""}
               </span>
               <div className="planner-timeline-track">
-                <TimelineGrid ticks={ticks} />
+                <TimelineGrid ticks={ticks} className="timeline-hour-lines" />
                 {lane.map((train) => {
                   const human = trainLabel(train.train_id, territory);
                   const canonical = canonicalTrainId(train.train_id);
@@ -362,10 +373,7 @@ export default function MaintenanceTimeline({
                         train.entry_time,
                       )} to ${timeLabel(train.exit_time)}`}
                     >
-                      <span className="train-marker-visual">
-                        <TrainImage />
-                        <span className="train-bar-human">{canonical}</span>
-                      </span>
+                      <span className="train-marker-visual"><OperationalTrainMarker train={train} territory={territory} compact /></span>
                     </button>
                   );
                 })}
@@ -382,7 +390,7 @@ export default function MaintenanceTimeline({
           <div className="planner-timeline-row maintenance-row">
             <span className="timeline-lane-label">Possessions</span>
             <div className="planner-timeline-track">
-              <TimelineGrid ticks={ticks} />
+              <TimelineGrid ticks={ticks} className="timeline-hour-lines" />
               {blocks.map((block) => {
                 const blockTasks = block.tasks
                   .map((id) => taskById.get(id))
@@ -399,6 +407,12 @@ export default function MaintenanceTimeline({
                   block.start_time,
                   block.end_time,
                   horizon,
+                );
+                const showLabel = intervalLabelFits(
+                  block.start_time,
+                  block.end_time,
+                  horizon,
+                  deptText,
                 );
 
                 return (
@@ -423,10 +437,10 @@ export default function MaintenanceTimeline({
                     />
                     <span className="possession-phase work">
                       <strong className="possession-dept-title">
-                        {deptText}
+                        {showLabel ? deptText : ""}
                       </strong>
                       <small className="possession-type-tag">
-                        {block.block_id}{density === "wide" && block.integrated ? " · Shared" : ""}
+                        {showLabel ? `${block.block_id}${density === "wide" && block.integrated ? " · Shared" : ""}` : ""}
                       </small>
                     </span>
                     <span

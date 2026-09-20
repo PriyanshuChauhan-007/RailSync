@@ -1,0 +1,14 @@
+[
+  {
+    "tier": "LOCAL",
+    "mutable_block_ids": [
+      "P_A",
+      "P_B"
+    ],
+    "status": "VALIDATED",
+    "validation": {
+      "valid": true,
+      "violations": []
+    }
+  }
+]

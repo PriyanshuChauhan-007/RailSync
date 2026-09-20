@@ -14,7 +14,7 @@ client = TestClient(app)
 TERRITORY = "western_hdn"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def public_plan():
     response = client.post("/api/optimize", json={"territory_id": TERRITORY})
     assert response.status_code == 200, response.text
@@ -66,9 +66,17 @@ def test_lifecycle_advances_one_controlled_state_at_a_time(public_plan):
     plan_id = public_plan["plan_identity"]["plan_id"]
     block_id = public_plan["blocks"][0]["block_id"]
     for target in ("FROZEN", "IN_PROGRESS", "COMPLETED"):
+        execution = (
+            {"actual_start_time": public_plan["blocks"][0]["start_time"],
+             "remaining_minutes_by_task": {task_id: 10 for task_id in public_plan["blocks"][0]["tasks"]},
+             "remaining_handback_minutes": 10}
+            if target == "IN_PROGRESS" else
+            {"actual_end_time": public_plan["blocks"][0]["end_time"]}
+            if target == "COMPLETED" else None
+        )
         response = client.post(
             f"/api/plans/{plan_id}/blocks/{block_id}/status",
-            json={"target_status": target, "actor": "test"},
+            json={"target_status": target, "actor": "test", "execution": execution},
         )
         assert response.status_code == 200
         assert response.json()["status"] == target
@@ -133,9 +141,12 @@ def test_excel_import_is_parsed_and_validated_without_persisting():
 
 @pytest.mark.parametrize("disruption", [
     {"type": "TRAIN_DELAY", "train_id": "93003", "delay_minutes": 12},
-    {"type": "CREW_UNAVAILABLE", "crew_type": "OHE_CREW"},
-    {"type": "MACHINE_UNAVAILABLE", "machine_type": "TOWER_WAGON"},
-    {"type": "POWER_ISOLATION_CANCELLED", "section_ids": ["WR_SEC02"]},
+    {"type": "CREW_UNAVAILABLE", "crew_type": "OHE_CREW", "event_id": "V2_CREW",
+     "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T06:15:00"},
+    {"type": "MACHINE_UNAVAILABLE", "machine_type": "TOWER_WAGON", "event_id": "V2_MACHINE",
+     "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T06:15:00"},
+    {"type": "POWER_ISOLATION_CANCELLED", "section_ids": ["WR_SEC02"], "event_id": "V2_POWER",
+     "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T06:15:00"},
     {"type": "SECTION_UNAVAILABLE", "section_id": "WR_SEC03", "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T08:00:00"},
     {"type": "WEATHER_RESTRICTION", "delay_minutes": 5, "train_ids": ["93001"]},
     {"type": "EMERGENCY_WORK", "task": {"task_id": "EMERGENCY_WR_SEC08", "department": "ENGINEERING", "section_id": "WR_SEC08", "task_type": "Emergency track inspection", "duration_minutes": 20, "criticality": 10, "urgency": 10, "overdue_days": 0, "deadline": "2026-09-10T10:30:00", "requires_power_block": False, "crew_type": "TRACK_CREW", "compatibility_group": "EMERGENCY_WR_SEC08"}},
@@ -146,14 +157,11 @@ def test_every_scenario_option_runs_a_real_recovery(public_plan, disruption):
     assert response.json()["recovered_plan"]["status"] == "success"
 
 
-def test_effective_time_freezes_elapsed_work(public_plan):
+def test_elapsed_work_without_actual_execution_is_rejected(public_plan):
     payload = recovery_payload(public_plan, {"type": "TRAIN_DELAY", "train_id": "93003", "delay_minutes": 0})
     first = payload["current_plan"]["blocks"][0]
     first["status"] = "COMPLETED"
     payload["disruption"]["effective_time"] = first["end_time"]
     response = client.post("/api/reoptimize", json=payload)
-    assert response.status_code == 200, response.text
-    result = response.json()
-    assert set(first["tasks"]) <= set(result["immutable_task_ids"])
-    recovered_by_task = {task: block for block in result["recovered_plan"]["blocks"] for task in block["tasks"]}
-    assert all(recovered_by_task[task]["start_time"] == first["start_time"] for task in first["tasks"])
+    assert response.status_code == 422, response.text
+    assert "INVALID_EXECUTION_SNAPSHOT" in response.json()["detail"]["message"]

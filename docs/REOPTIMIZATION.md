@@ -22,4 +22,4 @@ Recovery first preserves normal maintenance service priorities, then maximizes p
 
 ## Status and application
 
-Results distinguish retained, shifted, cancelled/new groups, regrouped tasks, newly unscheduled work, displacement, affected sections, proof state, immutable task IDs, and escalation. Scenario results are synthetic previews. The browser requires “Apply recovered plan explicitly”; recovery never auto-approves or publishes.
+Results distinguish retained, shifted, cancelled/new groups, regrouped tasks, newly unscheduled work, displacement, affected sections, proof state, immutable task IDs, and escalation. Scenario results are synthetic previews. “Adopt Recovered Plan” creates a new draft plan version with the base plan as its parent; recovery never auto-approves or publishes.

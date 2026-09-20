@@ -11,6 +11,8 @@ from xml.etree import ElementTree
 from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any
+from threading import RLock
+from optimizer.time_utils import parse_datetime
 
 
 PLAN_STATES = ("DRAFT", "REVIEWED", "APPROVED", "PUBLISHED")
@@ -23,9 +25,34 @@ BLOCK_TRANSITIONS = {
 }
 _plans: dict[str, dict[str, Any]] = {}
 _territory_versions: dict[str, int] = {}
+_latest_plan_ids: dict[str, str] = {}
+_state_revisions: dict[str, int] = {}
+_registry_lock = RLock()
+
+
+class StalePlanError(ValueError):
+    """A recovery proposal no longer matches the authoritative plan/world."""
+
+
+def registry_snapshot(territory_id: str) -> tuple[dict[str, Any] | None, int]:
+    with _registry_lock:
+        plan = _plans.get(_latest_plan_ids.get(territory_id))
+        return (deepcopy(plan["identity"]) if plan else None,
+                _state_revisions.get(territory_id, 0))
+
+
+def registry_lock():
+    """Use only for short adoption transactions, never while optimizing."""
+    return _registry_lock
 
 
 def register_plan(territory_id: str, payload: dict[str, Any], parent_plan_id: str | None = None, *, copilot_context=None):
+    with _registry_lock:
+        return _register_plan_locked(territory_id, payload, parent_plan_id,
+                                     copilot_context=copilot_context)
+
+
+def _register_plan_locked(territory_id, payload, parent_plan_id, *, copilot_context=None):
     version = _territory_versions.get(territory_id, 0) + 1
     _territory_versions[territory_id] = version
     plan_id = f"{territory_id}-v{version}"
@@ -45,10 +72,16 @@ def register_plan(territory_id: str, payload: dict[str, Any], parent_plan_id: st
         "events": [{"state": "DRAFT", "at": identity["created_at"], "actor": "planner"}],
         "_copilot_context": deepcopy(copilot_context),
     }
+    _latest_plan_ids[territory_id] = plan_id
     return identity
 
 
 def transition_plan(plan_id: str, target_state: str, actor: str = "planner", note: str = ""):
+    with _registry_lock:
+        return _transition_plan_locked(plan_id, target_state, actor, note)
+
+
+def _transition_plan_locked(plan_id, target_state, actor, note):
     if plan_id not in _plans:
         raise ValueError(f"Unknown plan ID: {plan_id}")
     if target_state not in PLAN_STATES:
@@ -61,6 +94,7 @@ def transition_plan(plan_id: str, target_state: str, actor: str = "planner", not
     timestamp = datetime.now(timezone.utc).isoformat()
     plan["identity"]["state"] = target_state
     plan["events"].append({"state": target_state, "at": timestamp, "actor": actor, "note": note})
+    _state_revisions[plan["territory_id"]] = _state_revisions.get(plan["territory_id"], 0) + 1
     return deepcopy({key: value for key, value in plan.items() if key != "_copilot_context"})
 
 
@@ -77,7 +111,13 @@ def copilot_plan(plan_id: str | None, territory_id: str):
     return deepcopy(plan)
 
 
-def transition_block(plan_id: str, block_id: str, target_status: str, actor: str = "planner"):
+def transition_block(plan_id: str, block_id: str, target_status: str, actor: str = "planner",
+                     execution: dict[str, Any] | None = None):
+    with _registry_lock:
+        return _transition_block_locked(plan_id, block_id, target_status, actor, execution)
+
+
+def _transition_block_locked(plan_id, block_id, target_status, actor, execution=None):
     if plan_id not in _plans:
         raise ValueError(f"Unknown plan ID: {plan_id}")
     plan = _plans[plan_id]
@@ -87,6 +127,27 @@ def transition_block(plan_id: str, block_id: str, target_status: str, actor: str
     current = block.get("status", "DRAFT")
     if target_status not in BLOCK_TRANSITIONS.get(current, set()):
         raise ValueError(f"Block transition {current} → {target_status} is not allowed.")
+    execution = execution or {}
+    if target_status == "IN_PROGRESS":
+        actual_start = execution.get("actual_start_time")
+        remaining = execution.get("remaining_minutes_by_task")
+        handback = execution.get("remaining_handback_minutes")
+        if (not actual_start or not isinstance(remaining, dict)
+                or set(remaining) != set(block["tasks"])
+                or any(type(value) is not int or value < 0 for value in remaining.values())
+                or type(handback) is not int or handback < 0
+                or not any(remaining.values()) and not handback):
+            raise ValueError("INVALID_EXECUTION_SNAPSHOT: actual start and explicit residual work are required")
+        parse_datetime(actual_start)
+        block.update(actual_start_time=actual_start,
+                     remaining_minutes_by_task=deepcopy(remaining),
+                     remaining_handback_minutes=handback)
+    elif target_status == "COMPLETED":
+        actual_end = execution.get("actual_end_time")
+        if not actual_end or not block.get("actual_start_time") or (
+                parse_datetime(actual_end) <= parse_datetime(block["actual_start_time"])):
+            raise ValueError("INVALID_EXECUTION_SNAPSHOT: completion requires actual end after actual start")
+        block["actual_end_time"] = actual_end
     block["status"] = target_status
     plan["events"].append({
         "block_id": block_id,
@@ -94,6 +155,7 @@ def transition_block(plan_id: str, block_id: str, target_status: str, actor: str
         "at": datetime.now(timezone.utc).isoformat(),
         "actor": actor,
     })
+    _state_revisions[plan["territory_id"]] = _state_revisions.get(plan["territory_id"], 0) + 1
     return deepcopy(block)
 
 

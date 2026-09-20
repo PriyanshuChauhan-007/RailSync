@@ -81,6 +81,13 @@ describe("RailSaathi", () => {
     expect(screen.getByText(reply.answer)).toBeTruthy();
   });
 
+  it("labels a neutral provider failure without calling it a RailSync factual answer", async () => {
+    api.askCopilot.mockResolvedValue({ ...reply, answer: "I can't generate an AI reply right now. Please try again shortly.", engine: "CONVERSATIONAL_FALLBACK" });
+    render(<RailSaathi {...props} />); open(); submit("hi kese ho tum");
+    expect(await screen.findByText("AI temporarily unavailable")).toBeTruthy();
+    expect(screen.queryByText("RailSync factual fallback")).toBeNull();
+  });
+
   it("stages an actual verified preview without applying it", async () => {
     const onPreview = vi.fn(); const onOpenPlanning = vi.fn();
     const preview = { ...plan, plan_identity: { plan_id: "P2", parent_plan_id: "P1" } };
@@ -164,7 +171,7 @@ it("uses the existing Apply preview control only after an explicit click", async
   const onApplyPlan = vi.fn();
   const preview = { ...plan, proof_state: "FEASIBLE_BOUNDED", plan_identity: { plan_id: "P2", parent_plan_id: "P1" } };
   render(<OperationalPanels territory={props.territory} plan={plan} tasks={[task]} selectedTaskId="T1" selectedBlock={block} assistantPreview={preview} onApplyPlan={onApplyPlan} />);
-  fireEvent.click(screen.getByText("Plan Tools · RailSaathi preview ready"));
+  fireEvent.click(screen.getByText(/Review & alternatives.*RailSaathi preview ready/));
   const button = await screen.findByRole("button", { name: "Apply preview as new draft" });
   expect(onApplyPlan).not.toHaveBeenCalled();
   fireEvent.click(button);

@@ -1,0 +1,155 @@
+{
+  "row": {
+    "case": "golden_01_shared_machine",
+    "method": "FULL",
+    "budget_seconds": 30,
+    "end_to_end_seconds": 0.07626410000011674,
+    "outcome": "VALIDATED_SUCCESS",
+    "required_requested": 4,
+    "required_scheduled": 4,
+    "required_missing_ids": [],
+    "unchanged_future_possessions": 1,
+    "future_possession_denominator": 3,
+    "total_start_displacement_minutes": 120,
+    "maximum_start_displacement_minutes": 60,
+    "tier_reached": "FULL_TERRITORY",
+    "mutable_count": 3,
+    "mutable_fraction": 1.0,
+    "attempt_count": 1,
+    "proof_state": "FULLY_OPTIMAL",
+    "last_proven_stage": "start_minutes",
+    "solver_status": "OPTIMAL",
+    "validation_status": "PASS",
+    "snapshot_preparation_seconds": 0.006403399999953763,
+    "scope_seconds": 0.0,
+    "model_build_seconds": 0.006067200000188677,
+    "solve_seconds": 0.058732599999984814,
+    "merge_seconds": 5.4500000032930984e-05,
+    "validation_seconds": 0.0023783999999977823
+  },
+  "plan": {
+    "status": "success",
+    "blocks": [
+      {
+        "block_id": "P_H",
+        "section_id": "S_H",
+        "start_time": "2026-09-21T08:00:00+05:30",
+        "end_time": "2026-09-21T08:45:00+05:30",
+        "tasks": [
+          "H_ST"
+        ],
+        "integrated": false,
+        "status": "COMPLETED",
+        "locked": false,
+        "actual_start_time": "2026-09-21T08:00:00+05:30",
+        "actual_end_time": "2026-09-21T08:45:00+05:30"
+      },
+      {
+        "block_id": "P_I",
+        "section_id": "S_I",
+        "start_time": "2026-09-21T08:30:00+05:30",
+        "end_time": "2026-09-21T09:15:00+05:30",
+        "tasks": [
+          "I_ENG"
+        ],
+        "integrated": false,
+        "status": "IN_PROGRESS",
+        "locked": false,
+        "actual_start_time": "2026-09-21T08:35:00+05:30",
+        "remaining_minutes_by_task": {
+          "I_ENG": 30
+        },
+        "remaining_handback_minutes": 30
+      },
+      {
+        "block_id": "P_A",
+        "section_id": "S_A",
+        "start_time": "2026-09-21T10:00:00+05:30",
+        "end_time": "2026-09-21T10:45:00+05:30",
+        "tasks": [
+          "A_ENG"
+        ],
+        "integrated": false,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Single-task possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "footprint_id": "CAP:TRK_A",
+        "section_ids": [
+          "S_A"
+        ],
+        "capacity_resource_ids": [
+          "TRK_A"
+        ],
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      },
+      {
+        "block_id": "P_U",
+        "section_id": "S_N0",
+        "start_time": "2026-09-21T10:00:00+05:30",
+        "end_time": "2026-09-21T10:45:00+05:30",
+        "tasks": [
+          "U_ST",
+          "U_TRD"
+        ],
+        "integrated": true,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Tasks share one synchronized possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "section_ids": [
+          "S_N0",
+          "S_N1"
+        ],
+        "capacity_resource_ids": [
+          "TRK_N0",
+          "TRK_N1"
+        ],
+        "footprint_id": "CAP:TRK_N0+TRK_N1",
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      },
+      {
+        "block_id": "P_B",
+        "section_id": "S_B",
+        "start_time": "2026-09-21T11:00:00+05:30",
+        "end_time": "2026-09-21T11:45:00+05:30",
+        "tasks": [
+          "B_ENG"
+        ],
+        "integrated": false,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Single-task possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "footprint_id": "CAP:TRK_B",
+        "section_ids": [
+          "S_B"
+        ],
+        "capacity_resource_ids": [
+          "TRK_B"
+        ],
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      }
+    ],
+    "unscheduled_tasks": [],
+    "metrics": {
+      "baseline_block_hours": 0,
+      "optimized_block_hours": 3.75,
+      "baseline_affected_trains": 0,
+      "optimized_affected_trains": 0,
+      "integrated_blocks": 1
+    }
+  }
+}

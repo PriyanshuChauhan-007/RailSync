@@ -24,6 +24,8 @@ try:
     from .preferences import stability_objectives, risk_objectives
     from .metrics import summarize_plan
     from .runtime import PlanProofState, validate_time_limit
+    from .recovery_validation import validate_complete_plan
+    from .priority import PriorityWeights, score_task
 except ImportError:  # Preserve direct-script and existing test imports.
     from time_utils import parse_datetime, datetime_to_minutes, minutes_to_datetime
     from candidate_windows import CandidateWindow, OperationalAllowances, generate_footprint_windows
@@ -36,6 +38,8 @@ except ImportError:  # Preserve direct-script and existing test imports.
     from preferences import stability_objectives, risk_objectives
     from metrics import summarize_plan
     from runtime import PlanProofState, validate_time_limit
+    from recovery_validation import validate_complete_plan
+    from priority import PriorityWeights, score_task
 
 
 DEFAULT_HORIZON_START = "2026-09-01T00:00:00"
@@ -281,7 +285,12 @@ def optimize_schedule(
     stage_time_limit_seconds: float | None = None,
     previous_blocks: list[dict[str, Any]] | None = None,
     fixed_task_starts: dict[str, str] | None = None,
+    fixed_absent_task_ids: set[str] | None = None,
     risk_penalties: dict[tuple[str, str], float] | None = None,
+    priority_weights: PriorityWeights = PriorityWeights(),
+    snapshot_as_of: str | None = None,
+    fixed_reservations: dict[str, dict[str, list[tuple[int, int]]]] | None = None,
+    preserve_membership: bool = False,
 ) -> dict[str, Any]:
     """Reserve setup/work/release in feasible windows; return full possession blocks."""
     planning_started = perf_counter()
@@ -307,6 +316,9 @@ def optimize_schedule(
     sections = data.get("sections", [])
     maintenance_tasks = normalize_tasks(maintenance_tasks, sections)
     fixed_task_starts = fixed_task_starts or {}
+    fixed_absent_task_ids = fixed_absent_task_ids or set()
+    if set(fixed_task_starts) & fixed_absent_task_ids:
+        raise ValueError("A task cannot be fixed present and absent")
     unknown_fixed_tasks = sorted(set(fixed_task_starts) - {task["task_id"] for task in maintenance_tasks})
     if unknown_fixed_tasks:
         raise ValueError(f"Fixed plan references unknown tasks: {unknown_fixed_tasks}.")
@@ -315,6 +327,11 @@ def optimize_schedule(
     horizon_minutes = datetime_to_minutes(horizon_end_dt, horizon_start_dt)
     if horizon_minutes <= 0:
         raise ValueError("horizon_end must be later than horizon_start.")
+    cutoff_minutes = (datetime_to_minutes(snapshot_as_of, horizon_start_dt)
+                      if snapshot_as_of is not None else None)
+    if cutoff_minutes is not None and not 0 <= cutoff_minutes <= horizon_minutes:
+        raise ValueError("Execution snapshot is outside the planning horizon.")
+    fixed_reservations = fixed_reservations or {}
 
     if resource_context is not None:
         resource_context.validate_times(horizon_start_dt)
@@ -347,6 +364,12 @@ def optimize_schedule(
         end = model.NewIntVar(0, horizon_minutes, f"task_{task_index}_end")
 
         model.Add(end == start + duration).OnlyEnforceIf(scheduled)
+        if task.get("required") is True:
+            model.Add(scheduled == 1)
+        if task_id in fixed_absent_task_ids:
+            model.Add(scheduled == 0)
+        if cutoff_minutes is not None:
+            model.Add(start >= cutoff_minutes).OnlyEnforceIf(scheduled)
         model.Add(start == 0).OnlyEnforceIf(scheduled.Not())
         model.Add(end == 0).OnlyEnforceIf(scheduled.Not())
         if duration > horizon_minutes:
@@ -372,6 +395,18 @@ def optimize_schedule(
                 task_id=task_id, window_id=window.window_id, feasible=feasibility.feasible,
                 reasons=[reason.value for reason in feasibility.reasons],
                 resource_checks={k: v.value for k, v in feasibility.resource_checks.items()},
+                section_id=window.section_id,
+                footprint_id=window.footprint_id,
+                section_ids=list(window.section_ids),
+                capacity_resource_ids=list(window.capacity_resource_ids),
+                nominal_start=window.nominal_start,
+                nominal_end=window.nominal_end,
+                usable_start=window.usable_start,
+                usable_end=window.usable_end,
+                nominal_minutes=window.nominal_minutes,
+                usable_minutes=window.usable_minutes,
+                margin_before_minutes=window.margin_before_minutes,
+                margin_after_minutes=window.margin_after_minutes,
             ))
             if not feasibility.feasible:
                 continue
@@ -428,21 +463,55 @@ def optimize_schedule(
     possession_variables = build_possessions(
         model, maintenance_tasks, task_variables, horizon_minutes, allowances,
         compatibility_policy, facts["pair_checks"], resource_context,
+        fixed_capacity_intervals=fixed_reservations.get("infrastructure"),
     )
+    if preserve_membership and previous_blocks:
+        task_index = {task["task_id"]: index for index, task in enumerate(maintenance_tasks)}
+        for previous in previous_blocks:
+            indices = {task_index[task_id] for task_id in previous["tasks"] if task_id in task_index}
+            if not indices:
+                continue
+            if len(indices) != len(previous["tasks"]):
+                raise ValueError("Previous possession has missing members in recovery model")
+            anchor = min(indices)
+            group_present = task_variables[maintenance_tasks[anchor]["task_id"]]["scheduled"]
+            for member_index in indices:
+                model.Add(task_variables[maintenance_tasks[member_index]["task_id"]]["scheduled"] == group_present)
+            for block_index, possession in enumerate(possession_variables):
+                for member_index, member_var in possession["members"].items():
+                    if block_index == anchor and member_index in indices:
+                        model.Add(member_var == group_present)
+                    elif block_index == anchor or member_index in indices:
+                        model.Add(member_var == 0)
     slack_objectives = add_boundary_slack(
         model, possession_variables, windows_by_section, horizon_start_dt, horizon_minutes,
     )
-    add_capacity_constraints(model, maintenance_tasks, task_variables, resource_context)
+    add_capacity_constraints(model, maintenance_tasks, task_variables, resource_context,
+                             origin=horizon_start_dt, fixed_reservations=fixed_reservations)
     stability_stages = stability_objectives(model, maintenance_tasks, task_variables,
         possession_variables, previous_blocks, horizon_start_dt, horizon_minutes)
+    facts["priority_scores"] = {
+        task["task_id"]: score_task(
+            task,
+            len({fact["window_id"] for fact in facts["task_windows"]
+                 if fact["task_id"] == task["task_id"] and fact["feasible"]}),
+            priority_weights,
+        ).as_dict()
+        for task in maintenance_tasks
+    }
     risk_stages = risk_objectives(model, possession_variables, windows_by_section,
         train_occupancy, risk_penalties, horizon_minutes)
     solver = cp_model.CpSolver()
     solver.parameters.num_search_workers = 1
+    solver.parameters.random_seed = 42
+    facts["model_build_seconds"] = perf_counter() - planning_started
+    solve_started = perf_counter()
     solve_result = solve_priorities(
         model, solver, maintenance_tasks, task_variables, possession_variables,
         facts["priority_stages"], slack_objectives, deadline=deadline,
         stability_stages=stability_stages, risk_stages=risk_stages,
+        priority_scores={task_id: result["priority_score"]
+                         for task_id, result in facts["priority_scores"].items()},
     )
     solver_status = solve_result.solver_status
     solver = solve_result.solver
@@ -480,12 +549,22 @@ def optimize_schedule(
     scheduled_results.sort(key=lambda item: (item[0], item[2], sorted(t["task_id"] for t in item[3])))
     blocks = []
     reservations = []
+    previous_ids = {frozenset(block["tasks"]): block["block_id"] for block in previous_blocks or []}
+    previous_by_signature = {frozenset(block["tasks"]): block for block in previous_blocks or []}
+    used_block_ids = set(previous_ids.values())
     for index, (start, end, section, members) in enumerate(scheduled_results, 1):
         start_time = minutes_to_datetime(start, horizon_start_dt)
         end_time = minutes_to_datetime(end, horizon_start_dt)
         departments = {t.get("department") for t in members if t.get("department")}
+        signature = frozenset(task["task_id"] for task in members)
+        block_id = previous_ids.get(signature)
+        if block_id is None:
+            block_id = f"BLK{index:03d}"
+            while block_id in used_block_ids:
+                block_id = f"REC{index:03d}_{len(used_block_ids)}"
+            used_block_ids.add(block_id)
         block = dict(
-            block_id=f"BLK{index:03d}", section_id=section,
+            block_id=block_id, section_id=section,
             start_time=start_time, end_time=end_time,
             tasks=sorted(t["task_id"] for t in members), integrated=len(departments) >= 2,
             affected_trains=_affected_train_ids(
@@ -499,6 +578,12 @@ def optimize_schedule(
                 "Tasks share one synchronized possession" if len(members) > 1 else "Single-task possession",
             ],
         )
+        parent = previous_by_signature.get(signature)
+        if parent is not None:
+            for key in ("status", "locked", "section_ids", "capacity_resource_ids",
+                        "track_ids", "power_isolation_zone_id", "footprint_id"):
+                if key in parent and parent[key] is not None:
+                    block[key] = parent[key]
         if any(member.get("_rich_footprint") for member in members):
             explicit_tracks = [
                 track_id
@@ -533,7 +618,7 @@ def optimize_schedule(
             if not legal:
                 raise ValueError(f"Infeasible reservation for {task['task_id']}.")
             reservations.append((task, start, start + task_requirements(task, allowances).required_minutes))
-    validate_capacities(reservations, resource_context)
+    validate_capacities(reservations, resource_context, origin=horizon_start_dt)
     for task in maintenance_tasks:
         task_id = task["task_id"]
         if task_id not in unscheduled_tasks:
@@ -555,7 +640,20 @@ def optimize_schedule(
         compatibility_policy=compatibility_policy,
         sections=sections,
     )
+    facts["solver_seconds"] = perf_counter() - solve_started
+    validation_started = perf_counter()
+    complete_validation = validate_complete_plan(
+        data, blocks, horizon_start_dt.isoformat(), horizon_end_dt.isoformat(),
+        resources=resource_context, allowances=allowances,
+        unscheduled_task_ids=unscheduled_tasks,
+        snapshot_as_of=snapshot_as_of,
+    )
+    facts["complete_validation"] = complete_validation.as_dict()
+    facts["independent_validation_seconds"] = perf_counter() - validation_started
+    if not complete_validation.valid:
+        raise ValueError(f"Independent complete-plan validation failed: {facts['complete_validation']}")
     facts["service_metrics"] = summarize_plan(maintenance_tasks, blocks, windows, allowances)
+    facts["optimizer_total_seconds"] = perf_counter() - planning_started
     for key, expression in zip(
         ("minimum_boundary_slack_minutes", "total_boundary_slack_minutes"), slack_objectives
     ):

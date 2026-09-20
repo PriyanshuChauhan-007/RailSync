@@ -398,7 +398,7 @@ p {
 /* ---------- Problem ---------- */
 
 .problem {
-  background: var(--navy);
+  background: #0c1d32;
   color: #e8e4dc;
   padding: 0;
 }
@@ -520,7 +520,7 @@ p {
 .pipeline-progress {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   list-style: none;
   margin: 0;
   padding: 0;
@@ -535,8 +535,7 @@ p {
   color: var(--muted);
 }
 
-.pipeline-progress li:nth-child(2),
-.pipeline-progress li:nth-child(3) {
+.pipeline-progress li:not(:first-child):not(:last-child) {
   align-items: center;
   text-align: center;
 }
@@ -664,7 +663,7 @@ p {
 .pipeline-complete {
   min-height: 350px;
   display: grid;
-  grid-template-columns: minmax(260px, 1.35fr) 48px minmax(190px, 1fr) 48px minmax(190px, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
   gap: 16px;
   padding: 30px;
@@ -680,6 +679,7 @@ p {
 }
 
 .pipeline-complete-card {
+  position: relative;
   min-height: 210px;
   display: flex;
   flex-direction: column;
@@ -691,6 +691,16 @@ p {
   border-top: 2px solid var(--navy);
   background: #f8f7f3;
   color: var(--navy);
+}
+
+.pipeline-complete-card:not(:last-child)::after {
+  position: absolute;
+  top: 50%;
+  right: -17px;
+  z-index: 2;
+  color: var(--text-muted);
+  content: "→";
+  transform: translateY(-50%);
 }
 
 .pipeline-complete-card svg {
@@ -745,6 +755,19 @@ p {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+.landing-example-note {
+  width: fit-content;
+  margin: 18px 0 0;
+  padding: 6px 9px;
+  border: 1px solid var(--border-primary);
+  background: var(--surface-secondary);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
 }
 
 /* ---------- Corridor ---------- */
@@ -1101,6 +1124,8 @@ p {
     grid-template-columns: 1fr;
     gap: 12px;
   }
+
+  .pipeline-complete-card:not(:last-child)::after { display: none; }
 
   .pipeline-inputs {
     grid-template-columns: 1fr 20px 1fr;

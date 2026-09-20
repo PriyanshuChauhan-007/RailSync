@@ -1,0 +1,31 @@
+{
+  "row": {
+    "case": "golden_03_no_service_floor",
+    "method": "RESTRICTED",
+    "budget_seconds": 30,
+    "end_to_end_seconds": 0.053672999999889726,
+    "outcome": "INFEASIBLE",
+    "required_requested": 5,
+    "required_scheduled": null,
+    "required_missing_ids": null,
+    "unchanged_future_possessions": null,
+    "future_possession_denominator": 4,
+    "total_start_displacement_minutes": null,
+    "maximum_start_displacement_minutes": null,
+    "tier_reached": "FULL_TERRITORY",
+    "mutable_count": null,
+    "mutable_fraction": null,
+    "attempt_count": 3,
+    "proof_state": null,
+    "last_proven_stage": null,
+    "solver_status": "infeasible",
+    "validation_status": "NOT_RUN_NO_CANDIDATE",
+    "snapshot_preparation_seconds": null,
+    "scope_seconds": null,
+    "model_build_seconds": null,
+    "solve_seconds": null,
+    "merge_seconds": null,
+    "validation_seconds": null
+  },
+  "plan": null
+}

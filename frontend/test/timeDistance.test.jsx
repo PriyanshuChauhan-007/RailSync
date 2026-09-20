@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
 import TimeDistanceDiagram from "../src/components/planning/TimeDistanceDiagram.jsx";
 import { buildTimeDistanceModel, boundView, fitActivityView } from "../src/utils/timeDistanceModel.js";
+import { buildTicks, intervalDensity, intervalLabelFits } from "../src/utils/timeline.js";
 
 afterEach(cleanup);
 const horizon = { start_time: "2026-01-01T04:00:00", end_time: "2026-01-01T06:00:00" };
@@ -16,6 +18,28 @@ const tasks = [{ task_id: "E1", department: "ENG", task_type: "Inspection" }, { 
 const props = { territory, occupancy, blocks, tasks, horizon };
 
 describe("time-distance presentation", () => {
+  it("keeps timeline ticks readable across short and long horizons", () => {
+    expect(buildTicks(horizon)).toHaveLength(3);
+    const month = buildTicks({ start_time: "2026-01-01T00:00:00", end_time: "2026-02-01T00:00:00" });
+    expect(month.length).toBeGreaterThanOrEqual(5);
+    expect(month.length).toBeLessThanOrEqual(9);
+    expect(month[0].left).toBe("0%");
+    expect(month.at(-1).left).toBe("100%");
+    expect(intervalDensity("2026-01-01T04:00:00", "2026-01-01T04:02:00", horizon)).toBe("narrow");
+    expect(intervalLabelFits("2026-01-01T04:20:00", "2026-01-01T04:45:00", horizon, "Rail Weld Inspection")).toBe(false);
+    expect(intervalLabelFits("2026-01-01T04:20:00", "2026-01-01T05:20:00", horizon, "Engineering + S&T")).toBe(true);
+  });
+
+  it("uses operational text markers instead of decorative train PNGs", () => {
+    for (const path of [
+      "src/components/planning/MaintenanceTimeline.jsx",
+      "src/components/analysis/PairedPossessionTimeline.jsx",
+      "src/components/planning/RecoveryTimeline.jsx",
+    ]) {
+      expect(readFileSync(path, "utf8")).not.toContain("rail-train-top-view.png");
+    }
+  });
+
   it("renders recorded trains and one shared possession, supports focus and persistent selection", () => {
     const onSelectBlock = vi.fn();
     const { rerender } = render(<TimeDistanceDiagram {...props} onSelectBlock={onSelectBlock} />);

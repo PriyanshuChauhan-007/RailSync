@@ -69,7 +69,7 @@ export default function RiskControls({ config, onChange, trains, territory, disa
       <details className="risk-controls" aria-label="Experimental ML configuration">
         <summary>
           <span className="risk-status-pill">
-            <span className="risk-status-label">Risk assistance</span>
+            <span className="risk-status-label">Advanced · Experimental risk assistance</span>
             <strong className={`risk-status-value ${statusClass}`}>{statusValue}</strong>
           </span>
           <small>Experimental settings</small>

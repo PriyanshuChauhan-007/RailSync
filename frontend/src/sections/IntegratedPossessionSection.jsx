@@ -12,6 +12,7 @@ export default function IntegratedPossessionSection() {
           activities into fewer, longer possessions instead of shutting the line
           down repeatedly.
         </SectionHeading>
+        <p className="landing-example-note">Illustrative coordination example · not active plan results</p>
 
         <div className="possession-comparison-wrap" aria-label="Comparison between separate and integrated possessions">
           {/* BEFORE */}

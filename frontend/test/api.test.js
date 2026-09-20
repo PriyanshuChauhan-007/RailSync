@@ -38,6 +38,7 @@ test("Territory discovery uses the shared backend registry endpoint", async () =
 test("Recovery sends immutable current plan, horizon and disruption to its own endpoint", async () => {
   const original = globalThis.fetch;
   const base = { blocks: [{ block_id:"B",tasks:["TASK"] }],unscheduled_tasks:["U"],
+    plan_identity: { plan_id: "fixture-v1" },
     planning_context: { territory_id:"fixture",horizon_start:"start",horizon_end:"end" } };
   const snapshot = structuredClone(base);
   const disruption = { type:"TRAIN_DELAY",train_id:"T",delay_minutes:25 };
@@ -48,6 +49,7 @@ test("Recovery sends immutable current plan, horizon and disruption to its own e
       const request = JSON.parse(options.body);
       assert.deepEqual(request.current_plan,{ blocks:base.blocks,unscheduled_tasks:base.unscheduled_tasks });
       assert.equal(request.horizon_start,"start");
+      assert.equal(request.parent_plan_id,"fixture-v1");
       assert.deepEqual(request.disruption,disruption);
       return { ok:true,json:async () => ({ recovered_plan:{ blocks:[] } }) };
     };

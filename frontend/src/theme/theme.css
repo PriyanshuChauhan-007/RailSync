@@ -1,23 +1,34 @@
-/* One palette for the application; existing railway tokens remain aliases. */
+/* Semantic roles are the source of truth; railway-era names remain aliases. */
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --surface: #ffffff;
+  --page-bg: #f7f8f8;
+  --surface-primary: #ffffff;
   --surface-secondary: #f3f6f8;
   --surface-elevated: #ffffff;
-  --text: #183347;
+  --surface-subtle: #edf3f7;
+  --text-primary: #183347;
+  --text-secondary: #3f5568;
   --text-muted: #536576;
-  --border: #dce2e7;
-  --nav-background: #ffffff;
-  --input-background: #ffffff;
-  --selected-background: #edf3f7;
+  --border-primary: #cfd8df;
+  --border-subtle: #e5eaee;
   --accent: #1e5a8a;
+  --accent-muted: #dceaf4;
+  --success: #2d6a4f;
   --on-accent: #ffffff;
-  --confirm: #2d6a4f;
-  --confirm-surface: #edf4ef;
   --warning: #a55f14;
-  --warning-surface: #fff6e7;
   --danger: #b42318;
+  --info: #386a97;
+
+  --background: var(--page-bg);
+  --surface: var(--surface-primary);
+  --text: var(--text-primary);
+  --border: var(--border-primary);
+  --nav-background: var(--surface-primary);
+  --input-background: var(--surface-primary);
+  --selected-background: var(--surface-subtle);
+  --confirm: var(--success);
+  --confirm-surface: #edf4ef;
+  --warning-surface: #fff6e7;
   --danger-surface: #fff0ed;
   --chart-grid: #dce2e7;
   --chart-label: #536576;
@@ -26,26 +37,47 @@
   --chart-possession-fill: #e6f0ea;
   --chart-buffer: #c7974a;
   --focus: #b9792e;
+  --navy: var(--text-primary);
+  --navy-mid: var(--text-secondary);
+  --ink: var(--text-primary);
+  --muted: var(--text-muted);
+  --line: var(--border-primary);
+  --white: var(--surface-primary);
+  --paper: var(--surface-secondary);
+  --train: var(--accent);
+  --block: var(--warning);
+  --critical: var(--danger);
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: #0e1925;
-  --surface: #152432;
+  --page-bg: #0e1925;
+  --surface-primary: #152432;
   --surface-secondary: #1b2d3d;
   --surface-elevated: #213649;
-  --text: #e3edf4;
+  --surface-subtle: #243f53;
+  --text-primary: #e3edf4;
+  --text-secondary: #c7d7e3;
   --text-muted: #afc0ce;
-  --border: #344a5d;
+  --border-primary: #496176;
+  --border-subtle: #2d4254;
+  --accent: #82b7e1;
+  --accent-muted: #243f53;
+  --success: #89c9a5;
+  --on-accent: #0e1925;
+  --warning: #e4b771;
+  --danger: #f0aaa0;
+  --info: #83bce6;
+
+  --background: var(--page-bg);
+  --surface: var(--surface-primary);
+  --text: var(--text-primary);
+  --border: var(--border-primary);
   --nav-background: #12212f;
   --input-background: #10202e;
-  --selected-background: #243f53;
-  --accent: #82b7e1;
-  --on-accent: #0e1925;
-  --confirm: #89c9a5;
+  --selected-background: var(--surface-subtle);
+  --confirm: var(--success);
   --confirm-surface: #203c32;
-  --warning: #e4b771;
   --warning-surface: #3d3323;
-  --danger: #f0aaa0;
   --danger-surface: #422e32;
   --chart-grid: #344a5d;
   --chart-label: #b5c9d7;
@@ -54,9 +86,9 @@
   --chart-possession-fill: #203c32;
   --chart-buffer: #cda766;
   --focus: #edc27c;
-  --navy: var(--text);
-  --navy-mid: #c7dbe9;
-  --ink: var(--text);
+  --navy: var(--text-primary);
+  --navy-mid: var(--text-secondary);
+  --ink: var(--text-primary);
   --muted: var(--text-muted);
   --line: var(--border);
   --white: var(--surface);
@@ -65,32 +97,18 @@
   --block: var(--warning);
   --critical: var(--danger);
 }
-body { background: var(--background); }
+body { background: var(--page-bg); color: var(--text-primary); }
 .nav-appearance-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .theme-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text); font: 600 13px var(--font-sans); cursor: pointer; white-space: nowrap; }
 .theme-toggle span { font-size: 18px; line-height: 1; }
 :is(button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
-/* Cover legacy literal surfaces without copying their layout styles. */
-[data-theme="dark"] :is(.navbar-solid, .navbar.open, .nav-panel.open, .footer, .railsync-site-footer,
-  .planner-timeline-chart, .planner-timeline-track, .timeline-axis-row, .timeline-legend,
-  .planner-task-row, .planner-field-readonly, .optimizer-status, .optimizer-unscheduled,
-  .optimizer-result-summary dl div, .operations-list li, .block-details-dept-pill,
-  .analysis-outcome-card, .comparison-table, .comparison-table th, .comparison-table td,
-  .comparison-technical-details summary, .comparison-table-row.is-header,
-  .scenario-field-readonly, .recovery-card, .recovery-technical-details,
-  .integration-gain-card, .outstanding-card, .paired-lane-track, .recovery-track,
-  .recovery-technical-details > summary, .risk-result, .risk-result-grid > div,
-  .time-distance-scroll, .time-distance-card, [role="tooltip"], .timeline-tooltip,
-  .pipeline-stage, .pipeline-complete, .pipeline-complete-card, .possession-pane, .row-track,
-  .solution .timeline, .how, .corridor, .solution, .final-cta, .integrated-possession-section,
-  .landing-territory-launcher) {
-  background: var(--surface) !important; color: var(--text); border-color: var(--border) !important;
-}
 [data-theme="dark"] :is(.planning-workspace, .analysis-page, .scenario-page) :is(button, select, input, textarea),
 [data-theme="dark"] .landing :is(select, input),
 [data-theme="dark"] .theme-toggle { background-color: var(--input-background); color: var(--text); border-color: var(--border); }
 [data-theme="dark"] :is(.workspace-navigation button, .nav-brand) { background: transparent; color: var(--text); }
+[data-theme="dark"] :is(.navbar-overlay.scrolled, .navbar-solid, .navbar.open) { background: rgba(18, 33, 47, .96); color: var(--text); border-color: var(--border); }
+[data-theme="dark"] :is(.navbar-overlay.scrolled, .navbar-solid, .navbar.open) :is(.nav-links a, .nav-links button.link, .nav-brand) { color: var(--text); }
 [data-theme="dark"] :is(.rs-btn-primary, .planner-optimize-button, .plan-view-switch button[aria-pressed="true"]) { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 [data-theme="dark"] :is(.planner-task-row.is-selected, .planner-task-row:hover, .operations-tabs button.is-active) { background: var(--selected-background); border-color: var(--accent); }
 [data-theme="dark"] :is(.block-pill-dept, .compact-tools .operations-card > summary,

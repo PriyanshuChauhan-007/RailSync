@@ -1,0 +1,27 @@
+{
+  "provenance": "SYNTHETIC_HAND_CHECKABLE_EXAMPLE",
+  "inputs": {
+    "task_id": "SYNTHETIC_EXAMPLE",
+    "criticality": 10,
+    "urgency": 8,
+    "overdue_days": 15,
+    "feasible_window_count": 1
+  },
+  "weights": {
+    "criticality": 40,
+    "urgency": 30,
+    "overdue": 20,
+    "next_window_scarcity": 10
+  },
+  "result": {
+    "priority_score": 84,
+    "priority_band": "CRITICAL",
+    "factor_breakdown": {
+      "criticality": 40,
+      "urgency": 24,
+      "overdue": 10,
+      "next_window_scarcity": 10
+    },
+    "human_readable_explanation": "Critical priority (84/100): criticality +40, urgency +24, next window scarcity +10, overdue +10."
+  }
+}

@@ -40,6 +40,7 @@ def compare_plans(
                              priority_stages=diagnostics["priority_stages"],
                              task_windows=diagnostics["task_windows"],
                              pair_checks=diagnostics["pair_checks"],
+                             priority_scores=diagnostics["priority_scores"],
                              outcomes=diagnostics["outcomes"],
                              proof_state=diagnostics["proof_state"],
                              last_stage_reached=diagnostics["last_stage_reached"],

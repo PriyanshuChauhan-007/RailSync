@@ -133,11 +133,8 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
       </dl> : <p>Loading resources…</p>}</div>
     </details>
     <details className="operations-card">
-      <summary>Plan Tools{assistantPreview ? " · RailSaathi preview ready" : ""}</summary>
+      <summary>Review &amp; alternatives{identity ? ` · ${readable(identity.state)} · ${(plan?.alternatives ?? []).length} options` : ""}{assistantPreview ? " · RailSaathi preview ready" : ""}</summary>
       <div className="tool-body">
-        <h3>Rolling planning</h3>
-        <div className="operations-tabs">{[["monthly", "Monthly"], ["weekly", "Weekly"], ["day_of", "Day-of"]].map(([key, label]) => <button key={key} type="button" className={tab === key ? "is-active" : ""} onClick={() => setTab(key)}>{label}</button>)}</div>
-        <ul className="operations-list">{rollingRows.map((row, index) => <li key={row.period ?? row.date ?? index}><strong>{row.period ?? row.date}</strong><p>{readable(row.planning_state)} · {row.demand_count ?? row.candidate_task_ids?.length ?? row.blocks?.length ?? 0} items</p></li>)}</ul>
         <h3>Plan lifecycle</h3>
         {identity ? <><p><span className="lifecycle-badge">{readable(identity.state)}</span> Version {identity.version}</p>
           <div className="operations-actions">
@@ -148,6 +145,9 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
           </div></> : <p>Generate a plan to start a draft.</p>}
         <h3>Plan alternatives</h3>
         <ul className="operations-list">{(plan?.alternatives ?? []).map((alternative) => <li key={alternative.alternative_id}><strong>{alternative.label}</strong><p>{alternative.metrics.possession_minutes} possession min · {alternative.metrics.scheduled_task_count} tasks · {proofLabel(alternative.proof_state)}</p><small>{alternative.tradeoff}</small></li>)}</ul>
+        <h3>Rolling planning</h3>
+        <div className="operations-tabs">{[["monthly", "Monthly"], ["weekly", "Weekly"], ["day_of", "Day-of"]].map(([key, label]) => <button key={key} type="button" className={tab === key ? "is-active" : ""} onClick={() => setTab(key)}>{label}</button>)}</div>
+        <ul className="operations-list">{rollingRows.map((row, index) => <li key={row.period ?? row.date ?? index}><strong>{row.period ?? row.date}</strong><p>{readable(row.planning_state)} · {row.demand_count ?? row.candidate_task_ids?.length ?? row.blocks?.length ?? 0} items</p></li>)}</ul>
         <h3>What-if preview</h3>
         <p>{selectedTask ? `Test ${selectedTask.task_type} at ${selectedTask.duration_minutes + 10} minutes (+10).` : "Select a maintenance task first."}</p>
         <div className="operations-actions"><button type="button" disabled={busy || !selectedTask} onClick={previewWhatIf}>Run what-if</button>{whatIf ? <button type="button" onClick={() => onApplyPlan(whatIf)}>Apply preview as new draft</button> : null}</div>
@@ -156,15 +156,15 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
       </div>
     </details>
     <details className="operations-card">
-      <summary>Data &amp; Assumptions</summary>
+      <summary>Advanced · Data inputs</summary>
       <div className="tool-body">
         <dl className="resource-counts"><div><dt>Train traffic</dt><dd>Public timetable-derived</dd></div><div><dt>Maintenance demand</dt><dd>Prototype scenario</dd></div><div><dt>Optimization</dt><dd>RailSync CP-SAT</dd></div></dl>
         <DataAssumptions territory={territory} />
-        <h3>Import Maintenance Demand</h3>
+        <h3>Import maintenance demand</h3>
         <p>Preview and validate CSV, Excel or JSON demand.</p>
         <label className="import-file-label">Select demand file<input className="import-file-input" aria-label="Import maintenance demand" type="file" accept=".csv,.xlsx,.json" onChange={importFile} /></label>
         {importResult ? <p role="status">{importResult.valid ? `${importResult.preview.length} rows valid; preview only.` : `${importResult.errors.length} validation errors.`}</p> : null}
-        {operational ? <p>{operational.sources.datasets.length} datasets · {operational.sources.service_source_urls.length} timetable sources</p> : null}
+        {operational ? <p>{operational.sources.datasets.length} dataset{operational.sources.datasets.length === 1 ? "" : "s"} · {operational.sources.service_source_urls.length} timetable source{operational.sources.service_source_urls.length === 1 ? "" : "s"}</p> : null}
       </div>
     </details>
     {loadError ? <p role="alert">{loadError.message}</p> : null}

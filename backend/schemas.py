@@ -43,7 +43,12 @@ class ScheduledBlock(BaseModel):
     capacity_resource_ids: Optional[List[str]] = None
     track_ids: List[str] = Field(default_factory=list)
     power_isolation_zone_id: Optional[str] = None
-    status: Literal["DRAFT", "FROZEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"] = "DRAFT"
+    status: Literal["DRAFT", "FROZEN", "PLANNED", "APPROVED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] = "DRAFT"
+    locked: bool = False
+    actual_start_time: Optional[str] = None
+    actual_end_time: Optional[str] = None
+    remaining_minutes_by_task: Optional[Dict[str, int]] = None
+    remaining_handback_minutes: Optional[int] = None
 
 class OptimizeMetrics(BaseModel):
     baseline_block_hours: float
@@ -87,6 +92,9 @@ class CrewUnavailableScenario(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["CREW_UNAVAILABLE"]
     crew_type: str
+    event_id: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
     effective_time: Optional[str] = None
 
 
@@ -94,6 +102,9 @@ class MachineUnavailableScenario(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["MACHINE_UNAVAILABLE"]
     machine_type: str
+    event_id: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
     effective_time: Optional[str] = None
 
 
@@ -101,6 +112,9 @@ class PowerCancelledScenario(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["POWER_ISOLATION_CANCELLED"]
     section_ids: List[str] = Field(min_length=1)
+    event_id: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
     effective_time: Optional[str] = None
 
 
@@ -156,6 +170,8 @@ class ReoptimizeRequest(BaseModel):
     horizon_start: str
     horizon_end: str
     current_plan: CurrentPlan
+    parent_plan_id: Optional[str] = None
+    snapshot_as_of: Optional[str] = None
     disruption: DisruptionScenario
     risk_mode: Literal["STATIC", "ML_ASSISTED"] = "STATIC"
     risk_profiles: List[RiskProfileBinding] = Field(default_factory=list, max_length=100)
@@ -303,6 +319,79 @@ class OptimizeAnalysis(BaseModel):
     unscheduled_tasks: List[UnscheduledTaskDiagnostic]
 
 
+class TaskPriorityDiagnostic(BaseModel):
+    task_id: str
+    task_type: str
+    department: str
+    section_id: str
+    criticality: int
+    urgency: int
+    overdue_days: int
+    deadline: str
+    category: Literal["CRITICAL", "HIGH", "MEDIUM", "ROUTINE"]
+    solver_outcome: str
+    priority_score: int
+    priority_band: Literal["CRITICAL", "HIGH", "MEDIUM", "ROUTINE"]
+    factor_breakdown: Dict[str, int]
+    human_readable_explanation: str
+
+
+class OperationalConflictDiagnostic(BaseModel):
+    conflict_id: str
+    task_id: str
+    train_id: str
+    section_id: str
+    train_entry_time: str
+    train_exit_time: str
+    protected_start: str
+    protected_end: str
+    train_occupancy_minutes: int
+    protected_interval_minutes: int
+    minimum_clearance_minutes: int
+    reason_code: Literal["TRAIN_OCCUPANCY_SAFETY_EXCLUSION"]
+    severity: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+
+
+class OperationalCandidateWindow(BaseModel):
+    task_id: str
+    window_id: str
+    section_id: str
+    footprint_id: Optional[str] = None
+    section_ids: List[str]
+    capacity_resource_ids: List[str]
+    nominal_start: str
+    nominal_end: str
+    usable_start: str
+    usable_end: str
+    nominal_minutes: int
+    usable_minutes: int
+    margin_before_minutes: int
+    margin_after_minutes: int
+    feasible: bool
+    reasons: List[str]
+    resource_checks: Dict[str, str]
+    solver_selected: bool
+    outcome: str
+
+
+class CoordinationOpportunity(BaseModel):
+    opportunity_id: str
+    task_ids: List[str]
+    section_id: str
+    footprint_id: Optional[str] = None
+    departments: List[str]
+    compatibility_status: Literal["COMPATIBLE", "CONDITIONAL"]
+    reason_codes: List[str]
+    solver_selected_together: bool
+
+
+class OperationalDiagnostics(BaseModel):
+    task_priorities: List[TaskPriorityDiagnostic]
+    conflicts: List[OperationalConflictDiagnostic]
+    candidate_windows: List[OperationalCandidateWindow]
+    coordination_opportunities: List[CoordinationOpportunity]
+
+
 class OptimizeResponse(BaseModel):
     status: str
     blocks: List[ScheduledBlock]
@@ -313,6 +402,7 @@ class OptimizeResponse(BaseModel):
     comparison: ComparisonSummary
     planning_context: PlanningContext
     analysis: OptimizeAnalysis
+    operational_diagnostics: OperationalDiagnostics
     risk: Dict[str, Any] = Field(default_factory=dict)
     plan_identity: PlanIdentity
     alternatives: List[Dict[str, Any]] = Field(default_factory=list)
@@ -322,6 +412,7 @@ class RecoveryMetrics(BaseModel):
     retained_blocks: int
     shifted_blocks: int
     cancelled_blocks: int
+    deferred_blocks: int = 0
     new_blocks: int
     retained_tasks: int
     shifted_tasks: int
@@ -344,6 +435,7 @@ class RecoveredPlan(BaseModel):
 
 class ReoptimizeResponse(BaseModel):
     status: str
+    recovery_id: str
     territory_id: str
     horizon_start: str
     horizon_end: str
@@ -361,3 +453,11 @@ class ReoptimizeResponse(BaseModel):
     risk: Dict[str, Any]
     immutable_task_ids: List[str] = Field(default_factory=list)
     escalation_required: bool = False
+    selected_tier: Optional[str] = None
+    recovery_attempts: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class RecoveryAdoptRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    recovery_id: str = Field(min_length=1)
+    parent_plan_id: Optional[str] = None

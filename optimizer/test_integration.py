@@ -69,11 +69,11 @@ def test_lexicographic_optima_recorded_in_order():
     result = run(pair(), diagnostics=facts)
     assert [f["objective"] for f in facts["priority_stages"]] == [
         "criticality", "urgency", "overdue_days", "task_count",
-        "possession_minutes", "block_count", "minimum_boundary_slack_minutes",
+        "priority_score", "possession_minutes", "block_count", "minimum_boundary_slack_minutes",
         "total_boundary_slack_minutes", "start_minutes",
     ]
     assert all(f["status"] == "OPTIMAL" for f in facts["priority_stages"])
-    assert [f["optimum"] for f in facts["priority_stages"]] == [0, 0, 0, 2, 135, 1, 22, 22, 44]
+    assert [f["optimum"] for f in facts["priority_stages"]] == [0, 0, 0, 2, 20, 135, 1, 22, 22, 44]
     assert result["metrics"]["optimized_block_hours"] == 2.25
 
 
@@ -221,6 +221,9 @@ def test_three_department_demo_safety_and_explanations():
     repeated = demonstration()
     for output in (demo, repeated):
         output["diagnostics"].pop("planning_elapsed_seconds")
+        for key in ("model_build_seconds", "solver_seconds",
+                    "independent_validation_seconds", "optimizer_total_seconds"):
+            output["diagnostics"].pop(key)
         for stage in output["diagnostics"]["priority_stages"]:
             for key in (
                 "runtime_seconds",

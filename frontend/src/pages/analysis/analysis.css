@@ -1,7 +1,7 @@
 .analysis-page {
   min-height: 100vh;
   padding-top: var(--nav-h);
-  background: #FFFFFF;
+  background: var(--page-bg);
   color: var(--ink);
 }
 
@@ -105,7 +105,7 @@
   margin-bottom: 20px;
   padding: 18px 20px;
   border-left: 3px solid var(--confirm);
-  background: #f2f7f3;
+  background: var(--confirm-surface);
 }
 
 .analysis-outcome strong {
@@ -126,7 +126,7 @@
   padding: 22px 24px;
   border: 1px solid rgba(45, 106, 79, 0.3);
   border-left: 4px solid var(--confirm);
-  background: #f2f7f3;
+  background: var(--confirm-surface);
 }
 
 .outcome-primary-stat {
@@ -200,7 +200,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--navy);
-  background: #FFFFFF;
+  background: var(--surface-primary);
 }
 
 .comparison-technical-body {
@@ -210,7 +210,7 @@
 
 .analysis-outcome.is-neutral {
   border-left-color: var(--muted);
-  background: #FFFFFF;
+  background: var(--surface-primary);
 }
 
 .analysis-outcome.is-neutral strong {
@@ -248,7 +248,7 @@
 .comparison-table-row.is-header {
   padding-top: 13px;
   padding-bottom: 13px;
-  background: #FFFFFF;
+  background: var(--surface-primary);
   font-size: 12px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -317,9 +317,9 @@
 .paired-lane-track {
   position: relative;
   height: 48px;
-  border-top: 1px solid #e7e4dd;
-  border-bottom: 1px solid #e7e4dd;
-  background: #fdfdfb;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-secondary);
   overflow: hidden;
 }
 
@@ -333,7 +333,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: #e9e6df;
+  background: var(--chart-grid);
 }
 
 .paired-block {
@@ -397,7 +397,7 @@
 .outstanding-list article {
   padding: 20px;
   border-top: 2px solid var(--confirm);
-  background: #FFFFFF;
+  background: var(--surface-primary);
 }
 
 .gain-heading {
@@ -511,8 +511,8 @@
 
 .outstanding-reason-badge {
   padding: 4px 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--danger-surface);
+  border: 1px solid var(--danger);
   color: var(--critical);
   font-size: 12px;
   font-weight: 600;

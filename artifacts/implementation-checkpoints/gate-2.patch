@@ -1,0 +1,377 @@
+--- a/optimizer/priority.py
++++ b/optimizer/priority.py
+@@ -0,0 +1,87 @@
++"""Transparent maintenance priority score; never a feasibility constraint."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Any, Mapping
++
++
++@dataclass(frozen=True)
++class PriorityWeights:
++    """Point ceilings; the default four factors total exactly 100 points."""
++
++    criticality: int = 40
++    urgency: int = 30
++    overdue: int = 20
++    next_window_scarcity: int = 10
++
++    def __post_init__(self):
++        values = vars(self).values()
++        if any(type(value) is not int or value < 0 for value in values):
++            raise ValueError("Priority weights must be non-negative integers")
++        if sum(values) != 100:
++            raise ValueError("Priority weights must sum to 100")
++
++
++@dataclass(frozen=True)
++class PriorityResult:
++    priority_score: int
++    priority_band: str
++    factor_breakdown: dict[str, int]
++    human_readable_explanation: str
++
++    def as_dict(self) -> dict[str, Any]:
++        return dict(
++            priority_score=self.priority_score,
++            priority_band=self.priority_band,
++            factor_breakdown=dict(self.factor_breakdown),
++            human_readable_explanation=self.human_readable_explanation,
++        )
++
++
++def _integer_factor(task: Mapping[str, Any], name: str) -> int:
++    value = task.get(name, 0)
++    if type(value) is not int or value < 0:
++        raise ValueError(f"{name} must be a non-negative integer")
++    return value
++
++
++def _points(weight: int, value: int, maximum: int) -> int:
++    return (weight * min(value, maximum) + maximum // 2) // maximum
++
++
++def score_task(
++    task: Mapping[str, Any],
++    feasible_window_count: int,
++    weights: PriorityWeights = PriorityWeights(),
++) -> PriorityResult:
++    """Score existing fields and counted feasible windows, with no prediction.
++
++    Criticality and urgency are 0..10 input scales; overdue saturates at
++    30 days. Scarcity gives full points for one legal window, half for two,
++    and none for zero or three-plus. Zero legal windows never earns priority
++    for infeasible work. Every factor is an integer point contribution.
++    """
++    if type(feasible_window_count) is not int or feasible_window_count < 0:
++        raise ValueError("feasible_window_count must be a non-negative integer")
++    criticality = _integer_factor(task, "criticality")
++    urgency = _integer_factor(task, "urgency")
++    overdue = _integer_factor(task, "overdue_days")
++    scarcity = (weights.next_window_scarcity if feasible_window_count == 1 else
++                weights.next_window_scarcity // 2 if feasible_window_count == 2 else 0)
++    factors = {
++        "criticality": _points(weights.criticality, criticality, 10),
++        "urgency": _points(weights.urgency, urgency, 10),
++        "overdue": _points(weights.overdue, overdue, 30),
++        "next_window_scarcity": scarcity,
++    }
++    score = sum(factors.values())
++    band = "CRITICAL" if score >= 80 else "HIGH" if score >= 60 else "MEDIUM" if score >= 35 else "ROUTINE"
++    ranked = sorted(((name, points) for name, points in factors.items() if points),
++                    key=lambda item: (-item[1], item[0]))
++    if ranked:
++        reasons = ", ".join(f"{name.replace('_', ' ')} +{points}" for name, points in ranked)
++        explanation = f"{band.title()} priority ({score}/100): {reasons}."
++    else:
++        explanation = "Routine priority (0/100): no scored factor is present."
++    return PriorityResult(score, band, factors, explanation)
+--- a/optimizer/test_priority.py
++++ b/optimizer/test_priority.py
+@@ -0,0 +1,57 @@
++"""Hand-checkable, deterministic maintenance priority evidence."""
++
++import pytest
++
++from optimizer.priority import PriorityWeights, score_task
++from optimizer.optimizer import optimize_schedule
++
++
++def task(**changes):
++    value = dict(task_id="A", section_id="S", duration_minutes=35,
++                 criticality=10, urgency=8, overdue_days=15)
++    value.update(changes)
++    return value
++
++
++def test_worked_priority_example_and_breakdown_sum():
++    result = score_task(task(), feasible_window_count=1)
++    assert result.priority_score == 84
++    assert result.priority_band == "CRITICAL"
++    assert result.factor_breakdown == {
++        "criticality": 40, "urgency": 24, "overdue": 10, "next_window_scarcity": 10,
++    }
++    assert sum(result.factor_breakdown.values()) == result.priority_score
++    assert "criticality" in result.human_readable_explanation.lower()
++
++
++def test_repeated_inputs_and_monotonic_factors():
++    baseline = score_task(task(criticality=4, overdue_days=4), feasible_window_count=2)
++    assert baseline == score_task(task(criticality=4, overdue_days=4), feasible_window_count=2)
++    assert score_task(task(criticality=5, overdue_days=4), feasible_window_count=2).priority_score >= baseline.priority_score
++    assert score_task(task(criticality=4, overdue_days=5), feasible_window_count=2).priority_score >= baseline.priority_score
++    assert abs(score_task(task(criticality=4, overdue_days=5), feasible_window_count=2).priority_score - baseline.priority_score) <= 2
++
++
++def test_weights_configurable_and_urgency_only_baseline():
++    critical = score_task(task(criticality=10, urgency=1), feasible_window_count=3)
++    urgent = score_task(task(criticality=1, urgency=10), feasible_window_count=3)
++    assert critical.priority_score > urgent.priority_score
++    urgency_only = PriorityWeights(criticality=0, urgency=100, overdue=0, next_window_scarcity=0)
++    assert score_task(task(criticality=10, urgency=1), 3, urgency_only).priority_score < score_task(
++        task(criticality=1, urgency=10), 3, urgency_only
++    ).priority_score
++    with pytest.raises(ValueError, match="sum to 100"):
++        PriorityWeights(criticality=50, urgency=50, overdue=20, next_window_scarcity=0)
++
++
++def test_priority_never_makes_an_impossible_task_feasible():
++    data = {"maintenance_tasks": [task(deadline="2026-09-21T08:05:00")],
++            "train_occupancy": []}
++    facts = {}
++    plan = optimize_schedule(
++        data, "2026-09-21T08:00:00", "2026-09-21T09:00:00", diagnostics=facts,
++    )
++    assert plan["unscheduled_tasks"] == ["A"]
++    assert facts["priority_scores"]["A"]["priority_score"] <= 100
++    stages = [stage["stage"] for stage in facts["priority_stages"]]
++    assert stages.index("task_count") < stages.index("priority_score")
+--- a/backend/test_priority_api.py
++++ b/backend/test_priority_api.py
+@@ -0,0 +1,17 @@
++from fastapi.testclient import TestClient
++
++from backend.main import app
++
++
++def test_planning_exposes_hand_checkable_priority_breakdown():
++    response = TestClient(app).post(
++        "/api/optimize", json={"territory_id": "saktigarh_memari_public_demo"}
++    )
++    assert response.status_code == 200
++    priorities = response.json()["operational_diagnostics"]["task_priorities"]
++    assert priorities
++    for task in priorities:
++        assert 0 <= task["priority_score"] <= 100
++        assert sum(task["factor_breakdown"].values()) == task["priority_score"]
++        assert task["priority_band"] in {"CRITICAL", "HIGH", "MEDIUM", "ROUTINE"}
++        assert task["human_readable_explanation"]
+--- a/docs/PRIORITY_ENGINE.md
++++ b/docs/PRIORITY_ENGINE.md
+@@ -0,0 +1,16 @@
++# Explainable maintenance priority
++
++RailSync computes a deterministic 0-100 priority score from recorded task fields and the count of feasible candidate windows. The score is an explanation and a late solver objective stage. It never makes an infeasible reservation legal or overrides required-work constraints.
++
++| Factor | Default points | Normalization |
++|---|---:|---|
++| Criticality | 40 | `min(criticality, 10) / 10` |
++| Urgency | 30 | `min(urgency, 10) / 10` |
++| Overdue age | 20 | `min(overdue_days, 30) / 30` |
++| Next-window scarcity | 10 | one feasible window = 10; two = 5; zero or three-plus = 0 |
++
++Each proportional contribution is rounded to the nearest integer using integer arithmetic. The four weights must be nonnegative integers summing to 100 and can be changed through `PriorityWeights`. Input factor values must be nonnegative integers. Priority bands are `CRITICAL` (80-100), `HIGH` (60-79), `MEDIUM` (35-59), and `ROUTINE` (0-34).
++
++The CP-SAT hierarchy remains criticality, urgency, overdue age, task count, then priority score, then the existing stability and efficiency stages. This placement keeps service delivery ahead of the new tie-break. A lower stage runs only after the preceding stage is proven optimal.
++
++The [synthetic worked example](../artifacts/priority/example.json) has criticality 10, urgency 8, overdue age 15 days, and one feasible window. It scores `40 + 24 + 10 + 10 = 84/100`. This is an arithmetic example, not model-accuracy evidence or a measured operational outcome.
+--- a/artifacts/priority/example.json
++++ b/artifacts/priority/example.json
+@@ -0,0 +1,27 @@
++{
++  "provenance": "SYNTHETIC_HAND_CHECKABLE_EXAMPLE",
++  "inputs": {
++    "task_id": "SYNTHETIC_EXAMPLE",
++    "criticality": 10,
++    "urgency": 8,
++    "overdue_days": 15,
++    "feasible_window_count": 1
++  },
++  "weights": {
++    "criticality": 40,
++    "urgency": 30,
++    "overdue": 20,
++    "next_window_scarcity": 10
++  },
++  "result": {
++    "priority_score": 84,
++    "priority_band": "CRITICAL",
++    "factor_breakdown": {
++      "criticality": 40,
++      "urgency": 24,
++      "overdue": 10,
++      "next_window_scarcity": 10
++    },
++    "human_readable_explanation": "Critical priority (84/100): criticality +40, urgency +24, next window scarcity +10, overdue +10."
++  }
++}
+--- a/optimizer/possessions.py
++++ b/optimizer/possessions.py
+@@ -121,6 +121,7 @@
+     solver_factory=None,
+     stability_stages=(),
+     risk_stages=(),
++    priority_scores=None,
+ ):
+     """Solve stages within one deadline and retain the last usable incumbent."""
+     stages = []
+@@ -134,6 +135,13 @@
+         stages.append((field, True, sum(weights)))
+     stages += [
+         ("task_count", True, sum(v["scheduled"] for v in variables.values())),
++    ]
++    if priority_scores is not None:
++        stages.append(("priority_score", True, sum(
++            priority_scores[task["task_id"]] * variables[task["task_id"]]["scheduled"]
++            for task in tasks
++        )))
++    stages += [
+         *stability_stages,
+         ("possession_minutes", False, sum(b["size"] for b in blocks)),
+         ("block_count", False, sum(b["present"] for b in blocks)),
+--- a/optimizer/comparison.py
++++ b/optimizer/comparison.py
+@@ -40,6 +40,7 @@
+                              priority_stages=diagnostics["priority_stages"],
+                              task_windows=diagnostics["task_windows"],
+                              pair_checks=diagnostics["pair_checks"],
++                             priority_scores=diagnostics["priority_scores"],
+                              outcomes=diagnostics["outcomes"],
+                              proof_state=diagnostics["proof_state"],
+                              last_stage_reached=diagnostics["last_stage_reached"],
+--- a/optimizer/test_integration.py
++++ b/optimizer/test_integration.py
+@@ -69,11 +69,11 @@
+     result = run(pair(), diagnostics=facts)
+     assert [f["objective"] for f in facts["priority_stages"]] == [
+         "criticality", "urgency", "overdue_days", "task_count",
+-        "possession_minutes", "block_count", "minimum_boundary_slack_minutes",
++        "priority_score", "possession_minutes", "block_count", "minimum_boundary_slack_minutes",
+         "total_boundary_slack_minutes", "start_minutes",
+     ]
+     assert all(f["status"] == "OPTIMAL" for f in facts["priority_stages"])
+-    assert [f["optimum"] for f in facts["priority_stages"]] == [0, 0, 0, 2, 135, 1, 22, 22, 44]
++    assert [f["optimum"] for f in facts["priority_stages"]] == [0, 0, 0, 2, 20, 135, 1, 22, 22, 44]
+     assert result["metrics"]["optimized_block_hours"] == 2.25
+ 
+ 
+--- a/optimizer/test_comparison.py
++++ b/optimizer/test_comparison.py
+@@ -109,7 +109,7 @@
+     assert calls[0][1]["allow_integration"] is False
+     assert calls[1][1]["allow_integration"] is True
+     for mode in ("baseline", "optimized"):
+-        assert len(result[mode]["priority_stages"]) == 9
++        assert len(result[mode]["priority_stages"]) == 10
+         assert all(s["status"] == "OPTIMAL" for s in result[mode]["priority_stages"])
+     assert result["both_proven_optimal"]
+ 
+--- a/optimizer/optimizer.py
++++ b/optimizer/optimizer.py
+@@ -25,6 +25,7 @@
+     from .metrics import summarize_plan
+     from .runtime import PlanProofState, validate_time_limit
+     from .recovery_validation import validate_complete_plan
++    from .priority import PriorityWeights, score_task
+ except ImportError:  # Preserve direct-script and existing test imports.
+     from time_utils import parse_datetime, datetime_to_minutes, minutes_to_datetime
+     from candidate_windows import CandidateWindow, OperationalAllowances, generate_footprint_windows
+@@ -38,6 +39,7 @@
+     from metrics import summarize_plan
+     from runtime import PlanProofState, validate_time_limit
+     from recovery_validation import validate_complete_plan
++    from priority import PriorityWeights, score_task
+ 
+ 
+ DEFAULT_HORIZON_START = "2026-09-01T00:00:00"
+@@ -284,6 +286,7 @@
+     previous_blocks: list[dict[str, Any]] | None = None,
+     fixed_task_starts: dict[str, str] | None = None,
+     risk_penalties: dict[tuple[str, str], float] | None = None,
++    priority_weights: PriorityWeights = PriorityWeights(),
+ ) -> dict[str, Any]:
+     """Reserve setup/work/release in feasible windows; return full possession blocks."""
+     planning_started = perf_counter()
+@@ -449,6 +452,15 @@
+     add_capacity_constraints(model, maintenance_tasks, task_variables, resource_context)
+     stability_stages = stability_objectives(model, maintenance_tasks, task_variables,
+         possession_variables, previous_blocks, horizon_start_dt, horizon_minutes)
++    facts["priority_scores"] = {
++        task["task_id"]: score_task(
++            task,
++            len({fact["window_id"] for fact in facts["task_windows"]
++                 if fact["task_id"] == task["task_id"] and fact["feasible"]}),
++            priority_weights,
++        ).as_dict()
++        for task in maintenance_tasks
++    }
+     risk_stages = risk_objectives(model, possession_variables, windows_by_section,
+         train_occupancy, risk_penalties, horizon_minutes)
+     solver = cp_model.CpSolver()
+@@ -457,6 +469,8 @@
+         model, solver, maintenance_tasks, task_variables, possession_variables,
+         facts["priority_stages"], slack_objectives, deadline=deadline,
+         stability_stages=stability_stages, risk_stages=risk_stages,
++        priority_scores={task_id: result["priority_score"]
++                         for task_id, result in facts["priority_scores"].items()},
+     )
+     solver_status = solve_result.solver_status
+     solver = solve_result.solver
+--- a/backend/planning_service.py
++++ b/backend/planning_service.py
+@@ -12,6 +12,7 @@
+ from optimizer.capacity import movement_capacity_resources, normalize_tasks, section_index
+ from optimizer.comparison import compare_plans
+ from optimizer.feasibility import task_requirements
++from optimizer.priority import score_task
+ from optimizer.runtime import DEMO_SOLVE_LIMIT_SECONDS
+ from .operations_service import register_plan
+ 
+@@ -343,6 +344,14 @@
+         for block in optimized["plan"]["blocks"]
+         for task_id in block["tasks"]
+     }
++    priority_scores = optimized.get("priority_scores") or {
++        task["task_id"]: score_task(
++            task,
++            len({fact["window_id"] for fact in optimized.get("task_windows", [])
++                 if fact["task_id"] == task["task_id"] and fact["feasible"]}),
++        ).as_dict()
++        for task in tasks
++    }
+     task_priorities = [
+         {
+             "task_id": task["task_id"],
+@@ -355,6 +364,7 @@
+             "deadline": task["deadline"],
+             "category": _priority_category(task),
+             "solver_outcome": optimized["outcomes"].get(task["task_id"], "UNKNOWN"),
++            **priority_scores[task["task_id"]],
+         }
+         for task in tasks
+     ]
+--- a/backend/schemas.py
++++ b/backend/schemas.py
+@@ -315,6 +315,10 @@
+     deadline: str
+     category: Literal["CRITICAL", "HIGH", "MEDIUM", "ROUTINE"]
+     solver_outcome: str
++    priority_score: int
++    priority_band: Literal["CRITICAL", "HIGH", "MEDIUM", "ROUTINE"]
++    factor_breakdown: Dict[str, int]
++    human_readable_explanation: str
+ 
+ 
+ class OperationalConflictDiagnostic(BaseModel):

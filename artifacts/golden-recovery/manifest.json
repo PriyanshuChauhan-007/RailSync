@@ -1,0 +1,15 @@
+{
+  "provenance": "SYNTHETIC_GOLDEN_RECOVERY_FIXTURE",
+  "solver": "OR-Tools CP-SAT",
+  "solver_version": "9.15.6755",
+  "workers": 1,
+  "seed": 42,
+  "hints": "disabled",
+  "reference_budget_seconds": 30,
+  "timed_budget_seconds": 5,
+  "warmups_per_method_case": 1,
+  "measured_repetitions_per_method_case": 5,
+  "order": "alternating FULL/RESTRICTED by repetition",
+  "full_definition": "existing recover_schedule full reoptimization path",
+  "restricted_definition": "same recover_schedule and model with fixing constraints"
+}

@@ -178,7 +178,16 @@ export function reoptimizePlan(plan, disruption, { signal, risk_mode = "STATIC",
       horizon_start: plan.planning_context.horizon_start,
       horizon_end: plan.planning_context.horizon_end,
       current_plan: { blocks: plan.blocks, unscheduled_tasks: plan.unscheduled_tasks },
+      parent_plan_id: plan.plan_identity?.plan_id,
       disruption, risk_mode, risk_profiles,
     }),
+  });
+}
+
+export function adoptRecoveredPlan(recoveryId, parentPlanId, { signal } = {}) {
+  return request("/recovery/adopt", {
+    method: "POST", signal,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ recovery_id: recoveryId, parent_plan_id: parentPlanId }),
   });
 }

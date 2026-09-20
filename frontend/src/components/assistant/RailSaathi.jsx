@@ -8,6 +8,7 @@ const LABELS = {
   GEMINI_PLAN_CONTEXT: "AI explanation · current RailSync context",
   CP_SAT_VERIFIED_WHAT_IF: "CP-SAT verified preview",
   FACTUAL_FALLBACK: "RailSync factual fallback",
+  CONVERSATIONAL_FALLBACK: "AI temporarily unavailable",
 };
 
 function RailIcon() {

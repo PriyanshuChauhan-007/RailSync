@@ -11,6 +11,7 @@ import { territoryLabel } from "../utils/planningLabels.js";
 import OperationalPanels from "../components/planning/OperationalPanels.jsx";
 import OptimizerControls from "../components/planning/OptimizerControls.jsx";
 import PlannerCorridor from "../components/planning/PlannerCorridor.jsx";
+import PriorityFeasibility from "../components/planning/PriorityFeasibility.jsx";
 import {
   getTasks,
   getTerritory,
@@ -153,6 +154,10 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   const selectedBlock = useMemo(
     () => plan?.blocks.find((block) => block.block_id === selectedBlockId) ?? null,
     [plan, selectedBlockId],
+  );
+  const selectedTask = useMemo(
+    () => dataState.tasks.find((task) => task.task_id === selectedTaskId) ?? null,
+    [dataState.tasks, selectedTaskId],
   );
 
   const selectedBlockDiagnostic = useMemo(
@@ -381,6 +386,7 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               blocks={(plan?.blocks ?? []).filter((block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(selectedSection))}
               horizon={horizon} hasPlan={Boolean(plan)} selectedBlockId={selectedBlockId}
               onSelectBlock={selectBlock} territory={dataState.territory} tasks={dataState.tasks}
+              selectedTaskId={selectedTaskId} diagnostics={plan?.operational_diagnostics}
             /> : <TimeDistanceDiagram
               territory={dataState.territory}
               occupancy={dataState.trains}
@@ -419,6 +425,11 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
                 />
               </aside>
             </div>
+            <PriorityFeasibility
+              task={selectedTask}
+              diagnostics={plan?.operational_diagnostics}
+              territory={dataState.territory}
+            />
             <BlockDetails
               block={selectedBlock}
               diagnostic={selectedBlockDiagnostic}

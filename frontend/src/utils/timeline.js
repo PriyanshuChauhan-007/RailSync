@@ -23,15 +23,33 @@ export function buildTicks(horizon) {
   if (!horizon) return [];
   const start = timestampValue(horizon.start_time);
   const end = timestampValue(horizon.end_time);
-  const hours = Math.max(1, Math.round((end - start) / 3_600_000));
-  return Array.from({ length: hours + 1 }, (_, index) => {
-    const timestamp = new Date(start + ((end - start) * index) / hours);
+  const hours = Math.max(1, (end - start) / 3_600_000);
+  const intervals = Math.min(8, Math.max(1, Math.ceil(hours)));
+  return Array.from({ length: intervals + 1 }, (_, index) => {
+    const timestamp = new Date(start + ((end - start) * index) / intervals);
     return {
       key: timestamp.toISOString(),
-      label: timestamp.toTimeString().slice(0, 5),
-      left: `${(index / hours) * 100}%`,
+      label: hours > 24
+        ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short" }).format(timestamp)
+        : timestamp.toTimeString().slice(0, 5),
+      left: `${(index / intervals) * 100}%`,
     };
   });
+}
+
+export function intervalDensity(startTime, endTime, horizon) {
+  const total = Math.max(1, durationMinutes(horizon.start_time, horizon.end_time));
+  const percentage = (durationMinutes(startTime, endTime) / total) * 100;
+  if (percentage >= 8) return "wide";
+  if (percentage >= 3) return "medium";
+  return "narrow";
+}
+
+export function intervalLabelFits(startTime, endTime, horizon, label) {
+  const total = Math.max(1, durationMinutes(horizon.start_time, horizon.end_time));
+  const percentage = (durationMinutes(startTime, endTime) / total) * 100;
+  const usableCharacters = Math.floor(Math.max(0, percentage - 1) * 0.85);
+  return String(label ?? "").trim().length <= usableCharacters;
 }
 
 export function rangeStyle(startTime, endTime, horizon) {

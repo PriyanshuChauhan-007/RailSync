@@ -10,7 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
 from . import copilot_service, operations_service, planning_service, recovery_service
-from .schemas import OptimizeRequest, OptimizeResponse, ReoptimizeRequest, ReoptimizeResponse
+from .schemas import (
+    OptimizeRequest,
+    OptimizeResponse,
+    RecoveryAdoptRequest,
+    ReoptimizeRequest,
+    ReoptimizeResponse,
+)
 from ml.inference import status as ml_status
 
 from data import TerritoryNotPopulatedError, UnknownTerritoryError, list_territories
@@ -28,6 +34,11 @@ app.add_middleware(
 
 
 def _http_error(error: Exception) -> HTTPException:
+    if isinstance(error, operations_service.StalePlanError):
+        return HTTPException(
+            status_code=409,
+            detail={"code": "STALE_PLAN", "message": str(error)},
+        )
     if isinstance(error, UnknownTerritoryError):
         return HTTPException(
             status_code=404,
@@ -210,7 +221,8 @@ def transition_plan(plan_id: str, payload: dict = Body(...)):
 def transition_block(plan_id: str, block_id: str, payload: dict = Body(...)):
     try:
         return operations_service.transition_block(
-            plan_id, block_id, payload.get("target_status", ""), payload.get("actor", "planner")
+            plan_id, block_id, payload.get("target_status", ""), payload.get("actor", "planner"),
+            payload.get("execution"),
         )
     except ValueError as error:
         raise HTTPException(status_code=422, detail={"code": "INVALID_BLOCK_TRANSITION", "message": str(error)}) from error
@@ -347,6 +359,14 @@ def run_optimization(request: OptimizeRequest | None = None):
 def run_reoptimization(request: ReoptimizeRequest):
     try:
         return recovery_service.reoptimize(request)
+    except Exception as error:
+        raise _http_error(error) from error
+
+
+@app.post("/api/recovery/adopt", response_model=OptimizeResponse)
+def adopt_recovery(request: RecoveryAdoptRequest):
+    try:
+        return recovery_service.adopt_recovery(request)
     except Exception as error:
         raise _http_error(error) from error
 

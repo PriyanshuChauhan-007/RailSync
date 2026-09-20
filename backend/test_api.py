@@ -309,6 +309,46 @@ def test_integrated_and_unscheduled_explanations_are_factual(
     )
 
 
+def test_operational_diagnostics_are_derived_from_registered_inputs_and_solver(
+    optimized_response: dict,
+) -> None:
+    territory = load_territory(FIXTURE_ID)
+    diagnostics = optimized_response["operational_diagnostics"]
+    priorities = {item["task_id"]: item for item in diagnostics["task_priorities"]}
+    source_tasks = {item["task_id"]: item for item in territory.maintenance_tasks}
+
+    assert set(priorities) == set(source_tasks)
+    for task_id, priority in priorities.items():
+        source = source_tasks[task_id]
+        assert priority["criticality"] == source["criticality"]
+        assert priority["urgency"] == source["urgency"]
+        assert priority["overdue_days"] == source["overdue_days"]
+        assert priority["deadline"] == source["deadline"]
+        assert priority["category"] in {"CRITICAL", "HIGH", "MEDIUM", "ROUTINE"}
+        assert "score" not in priority
+
+    windows = diagnostics["candidate_windows"]
+    assert windows
+    assert all(item["usable_start"] <= item["usable_end"] for item in windows)
+    assert all(item["usable_minutes"] >= 0 for item in windows)
+    assert any(item["solver_selected"] for item in windows)
+    assert {item["outcome"] for item in windows}.issubset({
+        "SELECTED", "LOWER_PRIORITY_THAN_SELECTED_WORK", "NO_FEASIBLE_TASK_WINDOW",
+        "NOT_SELECTED_UNPROVEN_OPTIMUM",
+    })
+
+    recorded_trains = {item["train_id"] for item in territory.train_occupancy}
+    assert diagnostics["conflicts"]
+    assert {item["train_id"] for item in diagnostics["conflicts"]}.issubset(recorded_trains)
+    assert all(item["reason_code"] == "TRAIN_OCCUPANCY_SAFETY_EXCLUSION" for item in diagnostics["conflicts"])
+    assert all(item["minimum_clearance_minutes"] == 30 for item in diagnostics["conflicts"])
+
+    opportunities = diagnostics["coordination_opportunities"]
+    assert opportunities
+    assert all(len(item["task_ids"]) == 2 for item in opportunities)
+    assert all(item["compatibility_status"] in {"COMPATIBLE", "CONDITIONAL"} for item in opportunities)
+
+
 def test_unknown_resource_diagnostic_remains_unknown() -> None:
     task = load_territory(FIXTURE_ID).maintenance_tasks[0]
     result = comparison_side(scheduled_tasks=[task["task_id"]])

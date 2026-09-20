@@ -70,7 +70,7 @@ export default function ComparisonSummary({ analysis }) {
     <section className="analysis-comparison" aria-labelledby="comparison-heading">
       <div className="analysis-section-heading">
         <span>Fair technical comparison</span>
-        <h2 id="comparison-heading">DID RAILSYNC IMPROVE THE PLAN?</h2>
+        <h2 id="comparison-heading">Comparison methodology</h2>
         <p>{fairness.statement}</p>
       </div>
 

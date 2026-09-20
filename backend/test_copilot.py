@@ -35,12 +35,14 @@ def ask(value):
     return response.json()
 
 
-def test_no_key_factual_fallback(plan, monkeypatch):
+def test_no_key_uses_neutral_conversational_fallback(plan, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     mocked = Mock(side_effect=AssertionError("Must not contact Gemini"))
     monkeypatch.setattr(service, "_gemini_response", mocked)
     result = ask(payload(plan))
-    assert result["engine"] == "FACTUAL_FALLBACK"
-    assert plan["blocks"][0]["start_time"] in result["answer"]
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert plan["blocks"][0]["start_time"] not in result["answer"]
+    assert "try again" in result["answer"].lower()
     assert result["grounding"]["plan_id"] == plan["plan_identity"]["plan_id"]
     assert not result["grounding"]["solver_verified"]
     mocked.assert_not_called()
@@ -59,13 +61,25 @@ def test_context_uses_registered_block_not_forged_client_facts(plan):
     assert len(json.dumps(context)) < 35000
 
 
+def test_selected_task_context_includes_registered_operational_diagnostics(plan):
+    territory = planning_service.load_planning_territory(TERRITORY)
+    request = service.CopilotRequest(**payload(plan))
+    context = service.build_context(territory, request, service.resolve_plan(request))
+    selected_task_id = request.selected_task_id
+
+    assert context["selected_task_diagnostics"]["priority"]["task_id"] == selected_task_id
+    assert all(item["task_id"] == selected_task_id for item in context["selected_task_diagnostics"]["candidate_windows"])
+    assert all(item["task_id"] == selected_task_id for item in context["selected_task_diagnostics"]["conflicts"])
+    assert all(selected_task_id in item["task_ids"] for item in context["selected_task_diagnostics"]["coordination_opportunities"])
+
+
 def test_gemini_sdk_simple_hinglish_explanation_and_no_secret(plan, monkeypatch):
     from google import genai
     captured = []
     def create(**kwargs):
         captured.append(kwargs)
         return SimpleNamespace(candidates=[SimpleNamespace(finish_reason="STOP")],
-                               text='{"intent":"EXPLANATION"}' if kwargs["config"].response_mime_type else "Is prototype plan ka recorded window yahan dikh raha hai.")
+                               text="Is prototype plan ka recorded window yahan dikh raha hai.")
     fake_client = Mock()
     fake_client.__enter__ = Mock(return_value=SimpleNamespace(models=SimpleNamespace(generate_content=create)))
     fake_client.__exit__ = Mock(return_value=False)
@@ -77,27 +91,25 @@ def test_gemini_sdk_simple_hinglish_explanation_and_no_secret(plan, monkeypatch)
     assert result["engine"] == "GEMINI_PLAN_CONTEXT"
     assert "prototype" in result["answer"]
     assert all(call["model"] == "test-model" and call["config"].automatic_function_calling.disable for call in captured)
-    assert captured[1]["contents"][0].parts[0].text == "Hinglish please"
+    assert captured[0]["contents"][0].parts[0].text == "Hinglish please"
     assert "test-secret-never-return" not in str(captured) + json.dumps(result)
     assert constructor.call_args.kwargs["http_options"].retry_options.attempts == 1
     assert constructor.call_args.kwargs["http_options"].timeout == 15000
     assert constructor.call_args.kwargs["vertexai"] is False
-    assert fake_client.__exit__.call_count == 2
+    assert fake_client.__exit__.call_count == 1
     monkeypatch.delenv("GEMINI_MODEL")
     ask(payload(plan))
     assert captured[-1]["model"] == "gemini-3.6-flash"
 
 
-@pytest.mark.parametrize("phase", ["route", "answer"])
-def test_gemini_failure_returns_fallback_without_stack_or_key(plan, monkeypatch, phase):
+def test_gemini_failure_returns_neutral_fallback_without_stack_or_key(plan, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "secret-test")
     def fail(*args, **kwargs):
-        if phase == "answer" and kwargs.get("route"):
-            return '{"intent":"EXPLANATION"}'
         raise RuntimeError("secret-test sensitive stack")
     monkeypatch.setattr(service, "_gemini_response", fail)
     result = ask(payload(plan))
-    assert result["engine"] == "FACTUAL_FALLBACK"
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert "Public Timetable Demo" not in result["answer"]
     assert "secret-test" not in json.dumps(result)
 
 
@@ -116,14 +128,32 @@ def test_unsupported_actions_never_fabricate_or_run_wrong_solver(plan, monkeypat
     solver.assert_not_called()
 
 
-def test_indirect_action_classification_cannot_invent_parameters(plan, monkeypatch):
+def test_ambiguous_followup_cannot_invent_solver_result(plan, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test")
-    mocked = Mock(return_value='{"intent":"ACTION"}')
+    mocked = Mock(return_value="I cannot assess a reduced crew without a solver-backed scenario.")
     monkeypatch.setattr(service, "_gemini_response", mocked)
+    solver = Mock(side_effect=AssertionError("No inferred parameters"))
+    monkeypatch.setattr(planning_service, "optimize_registered_territory", solver)
     result = ask(payload(plan, question="And with only half the people?"))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert result["action_preview"] is None
+    assert mocked.call_count == 1
+    assert "Scheduling changes require a supplied solver result" in mocked.call_args.args[0]
+    solver.assert_not_called()
+
+
+def test_explicit_scheduling_mutation_stays_in_deterministic_safety_path(plan, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(side_effect=AssertionError("Unsupported mutations do not enter the provider"))
+    solver = Mock(side_effect=AssertionError("No inferred solver parameters"))
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    monkeypatch.setattr(planning_service, "optimize_registered_territory", solver)
+    result = ask(payload(plan, question="Move this task somewhere better"))
     assert result["engine"] == "FACTUAL_FALLBACK"
     assert "Scenario Lab" in result["answer"]
-    assert mocked.call_count == 1
+    assert result["action_preview"] is None
+    provider.assert_not_called()
+    solver.assert_not_called()
 
 
 def test_polite_explanation_is_not_misclassified_as_action(plan, monkeypatch):
@@ -137,6 +167,112 @@ def test_polite_explanation_is_not_misclassified_as_action(plan, monkeypatch):
     assert mocked.call_args.kwargs.get("route") is None
 
 
+@pytest.mark.parametrize("question", [
+    "hi kese ho tum", "kal kaafi hectic tha", "mujhe samajh nahi aa raha",
+    "acha ek baat bata", "do you remember what I just said?",
+    "isko simple language me explain karo", "why would someone use this?",
+    "Purple notebooks made the afternoon unexpectedly quiet.",
+    "2 + 2?", "why is this window later?", "can you share your thoughts on this block?",
+    "explain why the task was moved",
+    "Please tell me a short story", "Write a short story",
+    "Use formal language in a story", "Why do people use formal language?",
+    "What's the normal way to unwind?", "What if my week had more coffee?",
+    "What if my lunch took 15 minutes longer?",
+    "hello", "what can you do?", "tum jante ho mai kaun hu", "RailSync kya hai?",
+])
+def test_unmatched_free_form_defaults_to_conversational_provider(monkeypatch, question):
+    """Exercise the real /api/copilot endpoint, not a phrase-classifier helper."""
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="A natural conversational response.")
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    result = ask(payload(question=question))
+    assert provider.call_count == 1
+    assert provider.call_args.kwargs == {}
+    assert "Verified server context" in provider.call_args.args[0]
+    assert result["preference_update"] is None
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert result["answer"] == "A natural conversational response."
+    assert "Public Timetable Demo" not in result["answer"]
+
+
+def test_arbitrary_conversation_receives_preferences_and_verified_context(plan, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="A context-aware conversational response.")
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    prefs = {"language": "hinglish", "tone": "casual", "detail": "concise"}
+    result = ask(payload(plan, question="ye current plan kaisa lag raha hai?", user_preferences=prefs))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert provider.call_count == 1
+    instructions = provider.call_args.args[0]
+    assert "Mix Hindi and English naturally" in instructions
+    assert "casual, conversational tone" in instructions
+    assert "Keep your response brief" in instructions
+    assert plan["plan_identity"]["plan_id"] in instructions
+    assert "Verified server context" in instructions
+    assert "selected_task_diagnostics" in instructions
+    selected_window = next(item for item in plan["operational_diagnostics"]["candidate_windows"] if item["task_id"] == plan["blocks"][0]["tasks"][0])
+    assert selected_window["window_id"] in instructions
+
+
+def test_selected_block_is_context_not_default_intent(plan, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="I'm here; what would you like to talk about?")
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    result = ask(payload(plan, question="kal kaafi hectic tha"))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert result["answer"] == "I'm here; what would you like to talk about?"
+    assert result["selected_block"]["block_id"] == plan["blocks"][0]["block_id"]
+    assert plan["blocks"][0]["block_id"] in provider.call_args.args[0]
+    assert provider.call_count == 1
+
+
+def test_unseen_social_message_receives_saved_preferences(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="That sounds like a busy day.")
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    result = ask(payload(question="kal kaafi hectic tha", user_preferences={"language": "hinglish", "tone": "casual", "detail": "concise"}))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert provider.call_count == 1
+    instructions = provider.call_args.args[0]
+    assert "Mix Hindi and English naturally" in instructions
+    assert "casual, conversational tone" in instructions
+    assert "Keep your response brief" in instructions
+
+
+@pytest.mark.parametrize("question", [
+    "Please tell me a short story", "Why do people use formal language?",
+])
+def test_incidental_style_words_do_not_override_saved_preferences(monkeypatch, question):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="A conversational answer.")
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    result = ask(payload(question=question, user_preferences={"tone": "casual", "detail": "detailed"}))
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert result["preference_update"] is None
+    instructions = provider.call_args.args[0]
+    assert "casual, conversational tone" in instructions
+    assert "comprehensive and detailed explanation" in instructions
+    assert "formal, professional tone" not in instructions
+    assert "Keep your response brief" not in instructions
+
+
+@pytest.mark.parametrize("provider_available", [False, True])
+def test_arbitrary_conversation_failure_is_neutral_not_dataset_summary(monkeypatch, provider_available):
+    if provider_available:
+        monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    else:
+        monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    provider = Mock(side_effect=TimeoutError("provider unavailable"))
+    monkeypatch.setattr(service, "_gemini_response", provider)
+    result = ask(payload(question="hi kese ho tum", user_preferences={"language": "hinglish", "tone": "casual", "detail": "concise"}))
+    assert provider.call_count == int(provider_available)
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert "try karo" in result["answer"].lower()
+    assert "Public Timetable Demo" not in result["answer"]
+    assert "sections" not in result["answer"]
+    assert "maintenance tasks" not in result["answer"]
+
+
 def test_multi_field_persistent_preference_and_one_turn_short(plan, monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     multi = ask(payload(plan, question="Abse casual Hinglish me answer karna aur answers short rakhna"))
@@ -145,10 +281,13 @@ def test_multi_field_persistent_preference_and_one_turn_short(plan, monkeypatch)
     assert "Abse" in multi["answer"] or "abse" in multi["answer"]
     one_turn = ask(payload(plan, question="Keep this answer short"))
     assert one_turn["preference_update"] is None
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="The selected window is recorded in the current plan.")
+    monkeypatch.setattr(service, "_gemini_response", provider)
     one_turn_hinglish = ask(payload(plan, question="Isko Hinglish me samjhao"))
     assert one_turn_hinglish["preference_update"] is None
-    assert plan["blocks"][0]["block_id"] in one_turn_hinglish["answer"]
-    assert "window" in one_turn_hinglish["answer"]
+    assert one_turn_hinglish["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert "Mix Hindi and English naturally" in provider.call_args.args[0]
     assert ask(payload(plan, question="Abse Hinglish me samjhao"))["preference_update"]["detected"]["language"] == "hinglish"
 
 
@@ -163,18 +302,19 @@ def test_saved_style_applies_to_identity_and_preference_summary_without_provider
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     prefs = {"language": "hinglish", "tone": "casual", "detail": "concise"}
     identity = ask(payload(question="tum jante ho mai kaun hu?", user_preferences=prefs))
-    assert identity["engine"] == "FACTUAL_FALLBACK"
-    assert "tumhari identity nahi pata" in identity["answer"]
+    assert identity["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert "try karo" in identity["answer"].lower()
     summary = ask(payload(question="What are my current preferences?", user_preferences=prefs))
     assert "Abhi style Hinglish" in summary["answer"]
 
 
-def test_gemini_failure_keeps_styled_deterministic_identity_fallback(monkeypatch):
+def test_gemini_failure_keeps_styled_neutral_identity_fallback(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
     monkeypatch.setattr(service, "_gemini_response", Mock(side_effect=TimeoutError("provider unavailable")))
     result = ask(payload(question="tum jante ho mai kaun hu?", user_preferences={"language": "hinglish", "tone": "casual", "detail": "concise"}))
-    assert result["engine"] == "FACTUAL_FALLBACK"
-    assert "tumhari identity nahi pata" in result["answer"]
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert "try karo" in result["answer"].lower()
+    assert "Public Timetable Demo" not in result["answer"]
 
 
 def test_ordinary_followup_uses_gemini_with_bounded_history_and_current_context(plan, monkeypatch):
@@ -236,7 +376,8 @@ def test_gemini_incomplete_or_blocked_response_uses_fallback(plan, monkeypatch, 
     monkeypatch.setattr(genai, "Client", Mock(return_value=fake_client))
     monkeypatch.setenv("GEMINI_API_KEY", "test-only-secret")
     result = ask(payload(plan))
-    assert result["engine"] == "FACTUAL_FALLBACK"
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert "Public Timetable Demo" not in result["answer"]
     assert not result["grounding"]["solver_verified"]
     fake_client.__exit__.assert_called_once()
 
@@ -260,9 +401,9 @@ def test_gemini_only_explains_real_solver_result(plan, monkeypatch):
 
 def test_gemini_key_echo_is_discarded(plan, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-only-secret")
-    monkeypatch.setattr(service, "_gemini_response", Mock(side_effect=['{"intent":"EXPLANATION"}', "test-only-secret"]))
+    monkeypatch.setattr(service, "_gemini_response", Mock(return_value="test-only-secret"))
     result = ask(payload(plan))
-    assert result["engine"] == "FACTUAL_FALLBACK"
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
     assert "test-only-secret" not in json.dumps(result)
 
 
@@ -322,11 +463,13 @@ def test_invalid_history_roles_and_limits_rejected():
 
 
 @pytest.mark.parametrize("question", ["Hi", "hello", "hey", "how are you?", "who are you?", "what can you do?", "thanks", "bye"])
-def test_casual_chat_is_local_and_domain_focused(monkeypatch, question):
+def test_casual_chat_without_provider_is_neutral(monkeypatch, question):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     mocked = Mock(side_effect=AssertionError("No provider needed"))
     monkeypatch.setattr(service, "_gemini_response", mocked)
     result = ask(payload(question=question))
-    assert "RailSync" in result["answer"]
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert "Public Timetable Demo" not in result["answer"]
     assert result["action_preview"] is None
     mocked.assert_not_called()
 
@@ -352,9 +495,12 @@ def test_equivalent_optional_defaults_are_normalized(plan):
     assert ask(payload(plan, current_plan=current))["selected_block"]["block_id"] == plan["blocks"][0]["block_id"]
 
 
-@pytest.mark.parametrize("question,expected", [("Explain this simply", "reserves"), ("Ye block is time pe kyu rakha?", "prototype plan mein"), ("Explain technically", "Prototype allowances")])
-def test_fallback_matches_explanation_style(plan, question, expected):
-    assert expected in ask(payload(plan, question=question))["answer"]
+@pytest.mark.parametrize("question", ["hi kese ho tum", "Explain this simply", "Ye block is time pe kyu rakha?", "Explain technically"])
+def test_selected_block_does_not_become_default_answer_on_provider_failure(plan, monkeypatch, question):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    result = ask(payload(plan, question=question))
+    assert result["engine"] == "CONVERSATIONAL_FALLBACK"
+    assert plan["blocks"][0]["block_id"] not in result["answer"]
 
 
 # ── Intent routing: conversational questions must NOT trigger Scenario Lab ────
@@ -419,7 +565,7 @@ def test_default_model_is_gemini_3_6_flash(plan, monkeypatch):
         captured.append(kwargs)
         return SimpleNamespace(
             candidates=[SimpleNamespace(finish_reason="STOP")],
-            text='{"intent":"EXPLANATION"}' if kwargs["config"].response_mime_type else "Test answer.",
+            text="Test answer.",
         )
 
     fake_client = Mock()
@@ -477,18 +623,16 @@ DOMAIN_QUESTIONS_NO_PLAN = [
 ]
 
 @pytest.mark.parametrize("question", DOMAIN_QUESTIONS_NO_PLAN)
-def test_general_domain_questions_no_plan_needed(question):
-    """General RailSync domain questions should be answered without requiring a plan."""
+def test_general_domain_questions_no_plan_needed(monkeypatch, question):
+    """Domain conversation uses verified project context, without requiring a plan."""
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    provider = Mock(return_value="RailSync uses recorded context to explain railway planning.")
+    monkeypatch.setattr(service, "_gemini_response", provider)
     result = ask({"territory_id": TERRITORY, "question": question, "conversation_version": 1})
-    answer_text = result["answer"]
-    assert "I don't have enough current plan data" not in answer_text, (
-        f"Domain question {question!r} produced missing-plan fallback"
-    )
-    assert "Scenario Lab" not in answer_text, (
-        f"Domain question {question!r} triggered Scenario Lab"
-    )
-    # Answer should contain some meaningful content
-    assert len(answer_text) > 30, f"Answer too short for {question!r}: {answer_text!r}"
+    assert result["engine"] == "GEMINI_PLAN_CONTEXT"
+    assert result["answer"] == "RailSync uses recorded context to explain railway planning."
+    assert provider.call_count == 1
+    assert "Verified server context" in provider.call_args.args[0]
 
 
 # ── Preference detection (unit tests, no plan required) ─────────────────────

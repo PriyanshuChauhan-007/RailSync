@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="footer railsync-site-footer">
       <div>
         <strong>RailSync</strong>
-        <p>AI-Powered Railway Maintenance Block Planning</p>
+        <p>CP-SAT Railway Maintenance Block Planning</p>
       </div>
       <span>SIH 2026 · Transportation &amp; Logistics</span>
       <nav aria-label="Footer">

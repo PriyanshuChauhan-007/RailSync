@@ -9,6 +9,7 @@ from ml import inference
 
 client = TestClient(app)
 TERRITORY = "eastern_hdn_test_fixture"
+PUBLIC_DEMO = "saktigarh_memari_public_demo"
 
 
 @pytest.fixture(scope="module")
@@ -22,6 +23,7 @@ def payload(base,delay=10):
     return dict(territory_id=TERRITORY,horizon_start=base["planning_context"]["horizon_start"],
                 horizon_end=base["planning_context"]["horizon_end"],
                 current_plan=dict(blocks=deepcopy(base["blocks"]),unscheduled_tasks=base["unscheduled_tasks"]),
+                parent_plan_id=base["plan_identity"]["plan_id"],
                 disruption=dict(type="TRAIN_DELAY",train_id="EHDN_TR103",delay_minutes=delay))
 
 
@@ -50,6 +52,71 @@ def test_real_recovery_preserves_base_and_has_factual_metrics(base_plan):
     assert result["recovery_metrics"]["total_shift_minutes"] == sum(c["shift_minutes"] or 0 for c in result["task_changes"])
 
 
+def test_public_demo_default_event_visibly_changes_the_plan():
+    base_response = client.post("/api/optimize", json={"territory_id": PUBLIC_DEMO})
+    assert base_response.status_code == 200, base_response.text
+    base = base_response.json()
+    request = {
+        "territory_id": PUBLIC_DEMO,
+        "horizon_start": base["planning_context"]["horizon_start"],
+        "horizon_end": base["planning_context"]["horizon_end"],
+        "current_plan": {
+            "blocks": base["blocks"],
+            "unscheduled_tasks": base["unscheduled_tasks"],
+        },
+        "parent_plan_id": base["plan_identity"]["plan_id"],
+        "disruption": {
+            "type": "TRAIN_DELAY",
+            "train_id": "37814",
+            "delay_minutes": 25,
+            "effective_time": base["planning_context"]["horizon_start"],
+        },
+    }
+
+    recovery_response = client.post("/api/reoptimize", json=request)
+    assert recovery_response.status_code == 200, recovery_response.text
+    metrics = recovery_response.json()["recovery_metrics"]
+    assert metrics["shifted_blocks"] + metrics["cancelled_blocks"] + metrics["new_blocks"] > 0
+
+
+def test_adopting_recovery_returns_one_coherent_registered_plan(base_plan):
+    recovery_response = client.post("/api/reoptimize", json=payload(base_plan, 25))
+    assert recovery_response.status_code == 200, recovery_response.text
+    recovery = recovery_response.json()
+
+    adoption_response = client.post(
+        "/api/recovery/adopt",
+        json={
+            "recovery_id": recovery["recovery_id"],
+            "parent_plan_id": base_plan["plan_identity"]["plan_id"],
+        },
+    )
+    assert adoption_response.status_code == 200, adoption_response.text
+    adopted = adoption_response.json()
+
+    assert adopted["plan_identity"]["parent_plan_id"] == base_plan["plan_identity"]["plan_id"]
+    assert adopted["plan_identity"]["plan_id"] != base_plan["plan_identity"]["plan_id"]
+    assert adopted["blocks"] == recovery["recovered_plan"]["blocks"]
+    assert adopted["unscheduled_tasks"] == recovery["recovered_plan"]["unscheduled_tasks"]
+    assert adopted["analysis"]["railsync"]["blocks"] == adopted["blocks"]
+    assert adopted["analysis"]["railsync"]["metrics"] == recovery["recovered_plan"]["service_metrics"]
+
+
+def test_recovery_adoption_is_single_use():
+    base_response = client.post("/api/optimize", json={"territory_id": TERRITORY})
+    assert base_response.status_code == 200
+    base_plan = base_response.json()
+    recovery = client.post("/api/reoptimize", json=payload(base_plan)).json()
+    request = {
+        "recovery_id": recovery["recovery_id"],
+        "parent_plan_id": base_plan["plan_identity"]["plan_id"],
+    }
+    assert client.post("/api/recovery/adopt", json=request).status_code == 200
+    replay = client.post("/api/recovery/adopt", json=request)
+    assert replay.status_code == 422
+    assert replay.json()["detail"]["code"] == "INVALID_PLANNING_REQUEST"
+
+
 def test_zero_delay_has_no_invented_changes(base_plan):
     result = client.post("/api/reoptimize",json=payload(base_plan,0)).json()
     assert result["recovered_plan"]["blocks"] == base_plan["blocks"]
@@ -62,7 +129,8 @@ def test_disruption_can_remove_work_without_calling_it_saved_closure(base_plan):
     request["disruption"]["train_id"]="EHDN_TR105"
     result=client.post("/api/reoptimize",json=request).json()
     assert result["newly_unscheduled_task_ids"] == ["EHDN_ENG002"]
-    assert result["recovery_metrics"]["cancelled_blocks"] == 1
+    assert result["recovery_metrics"]["cancelled_blocks"] == 0
+    assert result["recovery_metrics"]["deferred_blocks"] == 1
     assert result["recovery_metrics"]["unscheduled_tasks_after_disruption"] == 2
     assert "closure_saved_minutes" not in result
 
@@ -85,11 +153,11 @@ def test_invalid_disruption(base_plan,disruption):
 def test_invalid_current_plan_and_horizon(base_plan):
     request=payload(base_plan)
     request["current_plan"]["blocks"][0]["tasks"]=["FAKE"]
-    assert client.post("/api/reoptimize",json=request).status_code == 422
+    assert client.post("/api/reoptimize",json=request).status_code == 409
     request=payload(base_plan);request["horizon_end"]="2026-09-02T06:00:00"
     assert client.post("/api/reoptimize",json=request).status_code == 422
     request=payload(base_plan);request["current_plan"]["blocks"][0]["start_time"]="2026-09-01T00:00:00"
-    assert client.post("/api/reoptimize",json=request).status_code == 422
+    assert client.post("/api/reoptimize",json=request).status_code == 409
 
 
 def test_bounded_solver_response_remains_bounded(base_plan,monkeypatch):
@@ -112,7 +180,7 @@ def test_bounded_solver_response_remains_bounded(base_plan,monkeypatch):
 
 def test_solver_failure_is_not_fake_recovery(base_plan,monkeypatch):
     def fail(*args,**kwargs): raise RuntimeError("Recovery has no usable incumbent")
-    monkeypatch.setattr(recovery_service,"recover_schedule",fail)
+    monkeypatch.setattr(recovery_service,"recover_with_escalation",fail)
     response=client.post("/api/reoptimize",json=payload(base_plan))
     assert response.status_code == 503
     assert "recovered_plan" not in response.json()

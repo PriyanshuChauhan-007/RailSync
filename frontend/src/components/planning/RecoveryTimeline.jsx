@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { buildTicks, rangeStyle, timeLabel } from "../../utils/timeline.js";
+import { buildTicks, intervalDensity, intervalLabelFits, rangeStyle, timeLabel } from "../../utils/timeline.js";
 import { sectionLabel, trainLabel, canonicalTrainId } from "../../utils/planningLabels.js";
+import { OperationalTrainMarker, TimelineGrid } from "../timeline/TimelinePrimitives.jsx";
 
 export default function RecoveryTimeline({ result, territory, tasks, originalTrains }) {
   const [selected, setSelected] = useState("");
@@ -31,7 +32,7 @@ export default function RecoveryTimeline({ result, territory, tasks, originalTra
       <div>{ticks.map((tick) => <time key={tick.key}>{tick.label}</time>)}</div></div>
       {lanes.map((lane) => <div className="recovery-lane" key={lane.label}>
         <strong>{lane.label}</strong><div className="recovery-track">
-          {ticks.map((tick) => <i key={tick.key} style={{ left: tick.left }} />)}
+          <TimelineGrid ticks={ticks} />
           {lane.rows.filter((row) => (row.section_ids?.length ? row.section_ids : [row.section_id]).includes(sectionId)).map((row,index) => {
             const change = !lane.train && result.block_changes.find((item) => (lane.changed ? item.after_block_id : item.before_block_id) === row.block_id);
             const state = lane.train ? lane.changed && disruptedTrainIds.has(row.train_id) ? "DISRUPTED" : "TRAIN" : change?.state ?? "UNKNOWN";
@@ -39,9 +40,12 @@ export default function RecoveryTimeline({ result, territory, tasks, originalTra
             const humanTrain = lane.train ? trainLabel(row.train_id, territory) : "";
             const canonicalTrain = lane.train ? canonicalTrainId(row.train_id) : "";
             const label = lane.train ? humanTrain : row.tasks.map((id) => names.get(id) ?? id).join(" + ");
-            return <span key={`${row.train_id ?? row.block_id}-${index}`} className={`recovery-bar state-${state.toLowerCase()}`}
+            const density = intervalDensity(start, end, horizon);
+            const stateLabel = `${state === "RETAINED" ? "Unchanged" : state.toLowerCase()} · ${label}`;
+            const showLabel = !lane.train && intervalLabelFits(start, end, horizon, stateLabel);
+            return <span key={`${row.train_id ?? row.block_id}-${index}`} className={`recovery-bar marker-${density} state-${state.toLowerCase()}`}
               style={rangeStyle(start,end,horizon)} title={lane.train ? `${humanTrain} (${canonicalTrain}): ${timeLabel(start)}–${timeLabel(end)}` : `${label}: ${timeLabel(start)}–${timeLabel(end)} · ${state}`}>
-              {lane.train ? (state === "DISRUPTED" ? `Delayed · ${humanTrain}` : humanTrain) : `${state === "RETAINED" ? "Unchanged" : state.toLowerCase()} · ${label}`}
+              {lane.train ? <OperationalTrainMarker train={row} territory={territory} compact /> : showLabel ? stateLabel : ""}
             </span>;
           })}
         </div>

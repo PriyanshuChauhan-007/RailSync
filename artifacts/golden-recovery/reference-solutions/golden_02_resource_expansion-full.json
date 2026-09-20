@@ -1,0 +1,181 @@
+{
+  "row": {
+    "case": "golden_02_resource_expansion",
+    "method": "FULL",
+    "budget_seconds": 30,
+    "end_to_end_seconds": 0.09746929999982967,
+    "outcome": "VALIDATED_SUCCESS",
+    "required_requested": 5,
+    "required_scheduled": 5,
+    "required_missing_ids": [],
+    "unchanged_future_possessions": 1,
+    "future_possession_denominator": 4,
+    "total_start_displacement_minutes": 180,
+    "maximum_start_displacement_minutes": 60,
+    "tier_reached": "FULL_TERRITORY",
+    "mutable_count": 4,
+    "mutable_fraction": 1.0,
+    "attempt_count": 1,
+    "proof_state": "FULLY_OPTIMAL",
+    "last_proven_stage": "start_minutes",
+    "solver_status": "OPTIMAL",
+    "validation_status": "PASS",
+    "snapshot_preparation_seconds": 0.007649399999991147,
+    "scope_seconds": 0.0,
+    "model_build_seconds": 0.007270999999946071,
+    "solve_seconds": 0.07759779999992134,
+    "merge_seconds": 3.5600000046542846e-05,
+    "validation_seconds": 0.0022711000001436332
+  },
+  "plan": {
+    "status": "success",
+    "blocks": [
+      {
+        "block_id": "P_H",
+        "section_id": "S_H",
+        "start_time": "2026-09-21T08:00:00+05:30",
+        "end_time": "2026-09-21T08:45:00+05:30",
+        "tasks": [
+          "H_ST"
+        ],
+        "integrated": false,
+        "status": "COMPLETED",
+        "locked": false,
+        "actual_start_time": "2026-09-21T08:00:00+05:30",
+        "actual_end_time": "2026-09-21T08:45:00+05:30"
+      },
+      {
+        "block_id": "P_I",
+        "section_id": "S_I",
+        "start_time": "2026-09-21T08:30:00+05:30",
+        "end_time": "2026-09-21T09:15:00+05:30",
+        "tasks": [
+          "I_ENG"
+        ],
+        "integrated": false,
+        "status": "IN_PROGRESS",
+        "locked": false,
+        "actual_start_time": "2026-09-21T08:35:00+05:30",
+        "remaining_minutes_by_task": {
+          "I_ENG": 30
+        },
+        "remaining_handback_minutes": 30
+      },
+      {
+        "block_id": "P_A",
+        "section_id": "S_A",
+        "start_time": "2026-09-21T10:00:00+05:30",
+        "end_time": "2026-09-21T10:45:00+05:30",
+        "tasks": [
+          "A_ENG"
+        ],
+        "integrated": false,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Single-task possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "footprint_id": "CAP:TRK_A",
+        "section_ids": [
+          "S_A"
+        ],
+        "capacity_resource_ids": [
+          "TRK_A"
+        ],
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      },
+      {
+        "block_id": "P_U",
+        "section_id": "S_N0",
+        "start_time": "2026-09-21T10:00:00+05:30",
+        "end_time": "2026-09-21T10:45:00+05:30",
+        "tasks": [
+          "U_ST",
+          "U_TRD"
+        ],
+        "integrated": true,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Tasks share one synchronized possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "section_ids": [
+          "S_N0",
+          "S_N1"
+        ],
+        "capacity_resource_ids": [
+          "TRK_N0",
+          "TRK_N1"
+        ],
+        "footprint_id": "CAP:TRK_N0+TRK_N1",
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      },
+      {
+        "block_id": "P_B",
+        "section_id": "S_B",
+        "start_time": "2026-09-21T11:00:00+05:30",
+        "end_time": "2026-09-21T11:45:00+05:30",
+        "tasks": [
+          "B_ENG"
+        ],
+        "integrated": false,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Single-task possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "footprint_id": "CAP:TRK_B",
+        "section_ids": [
+          "S_B"
+        ],
+        "capacity_resource_ids": [
+          "TRK_B"
+        ],
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      },
+      {
+        "block_id": "P_C",
+        "section_id": "S_C",
+        "start_time": "2026-09-21T12:00:00+05:30",
+        "end_time": "2026-09-21T12:45:00+05:30",
+        "tasks": [
+          "C_ST"
+        ],
+        "integrated": false,
+        "affected_trains": [],
+        "explanation": [
+          "Scheduled inside a safety-adjusted window available across the full capacity footprint",
+          "Single-task possession"
+        ],
+        "status": "APPROVED",
+        "locked": false,
+        "footprint_id": "CAP:TRK_C",
+        "section_ids": [
+          "S_C"
+        ],
+        "capacity_resource_ids": [
+          "TRK_C"
+        ],
+        "track_ids": [],
+        "power_isolation_zone_id": null
+      }
+    ],
+    "unscheduled_tasks": [],
+    "metrics": {
+      "baseline_block_hours": 0,
+      "optimized_block_hours": 4.5,
+      "baseline_affected_trains": 0,
+      "optimized_affected_trains": 0,
+      "integrated_blocks": 1
+    }
+  }
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "tier": "LOCAL",
+    "mutable_block_ids": [
+      "P_A",
+      "P_B"
+    ],
+    "status": "INFEASIBLE",
+    "solver_status": "infeasible"
+  },
+  {
+    "tier": "EXPANDED",
+    "mutable_block_ids": [
+      "P_A",
+      "P_B",
+      "P_C"
+    ],
+    "status": "INFEASIBLE",
+    "solver_status": "infeasible"
+  },
+  {
+    "tier": "FULL_TERRITORY",
+    "mutable_block_ids": [
+      "P_A",
+      "P_B",
+      "P_C",
+      "P_U"
+    ],
+    "status": "INFEASIBLE",
+    "solver_status": "infeasible"
+  }
+]

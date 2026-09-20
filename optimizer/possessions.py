@@ -19,7 +19,8 @@ except ImportError:
     from runtime import LexicographicSolveResult, OBJECTIVE_STAGE_NAMES, PlanProofState
 
 
-def build_possessions(model, tasks, variables, horizon, allowances, policy, facts, resources):
+def build_possessions(model, tasks, variables, horizon, allowances, policy, facts, resources,
+                      fixed_capacity_intervals=None):
     """One potential block per anchor task, avoiding enumeration of all subsets.
 
     The lowest-index member anchors a block. Every task can still own a separate
@@ -77,6 +78,11 @@ def build_possessions(model, tasks, variables, horizon, allowances, policy, fact
                            members=members))
     for i, task in enumerate(tasks):
         model.Add(sum(assignments[i]) == variables[task["task_id"]]["scheduled"])
+    for resource_id, spans in (fixed_capacity_intervals or {}).items():
+        for index, (left, right) in enumerate(spans):
+            capacity_intervals.setdefault(resource_id, []).append(
+                model.NewIntervalVar(left, right - left, right,
+                                     f"fixed_capacity_{resource_id}_{index}"))
     for intervals in capacity_intervals.values():
         model.AddNoOverlap(intervals)
     return blocks
@@ -121,6 +127,7 @@ def solve_priorities(
     solver_factory=None,
     stability_stages=(),
     risk_stages=(),
+    priority_scores=None,
 ):
     """Solve stages within one deadline and retain the last usable incumbent."""
     stages = []
@@ -134,6 +141,13 @@ def solve_priorities(
         stages.append((field, True, sum(weights)))
     stages += [
         ("task_count", True, sum(v["scheduled"] for v in variables.values())),
+    ]
+    if priority_scores is not None:
+        stages.append(("priority_score", True, sum(
+            priority_scores[task["task_id"]] * variables[task["task_id"]]["scheduled"]
+            for task in tasks
+        )))
+    stages += [
         *stability_stages,
         ("possession_minutes", False, sum(b["size"] for b in blocks)),
         ("block_count", False, sum(b["present"] for b in blocks)),

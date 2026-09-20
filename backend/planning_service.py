@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from data import LoadedTerritory, load_territory
 from ml.inference import planning_risk
 from optimizer.candidate_windows import OperationalAllowances
+from optimizer.capacity import movement_capacity_resources, normalize_tasks, section_index
 from optimizer.comparison import compare_plans
 from optimizer.feasibility import task_requirements
+from optimizer.priority import score_task
 from optimizer.runtime import DEMO_SOLVE_LIMIT_SECONDS
 from .operations_service import register_plan
 
@@ -322,6 +324,125 @@ def _analysis(
     }
 
 
+def _priority_category(task: dict[str, Any]) -> str:
+    if task.get("criticality", 0) >= 9 or task.get("overdue_days", 0) >= 14:
+        return "CRITICAL"
+    if task.get("criticality", 0) >= 7 or task.get("urgency", 0) >= 7:
+        return "HIGH"
+    if task.get("criticality", 0) >= 4 or task.get("urgency", 0) >= 4:
+        return "MEDIUM"
+    return "ROUTINE"
+
+
+def _operational_diagnostics(
+    territory: LoadedTerritory, optimized: dict[str, Any]
+) -> dict[str, Any]:
+    tasks = normalize_tasks(territory.maintenance_tasks, territory.sections)
+    task_by_id = {task["task_id"]: task for task in tasks}
+    blocks_by_task = {
+        task_id: block
+        for block in optimized["plan"]["blocks"]
+        for task_id in block["tasks"]
+    }
+    priority_scores = optimized.get("priority_scores") or {
+        task["task_id"]: score_task(
+            task,
+            len({fact["window_id"] for fact in optimized.get("task_windows", [])
+                 if fact["task_id"] == task["task_id"] and fact["feasible"]}),
+        ).as_dict()
+        for task in tasks
+    }
+    task_priorities = [
+        {
+            "task_id": task["task_id"],
+            "task_type": task["task_type"],
+            "department": task["department"],
+            "section_id": task["section_id"],
+            "criticality": task.get("criticality", 0),
+            "urgency": task.get("urgency", 0),
+            "overdue_days": task.get("overdue_days", 0),
+            "deadline": task["deadline"],
+            "category": _priority_category(task),
+            "solver_outcome": optimized["outcomes"].get(task["task_id"], "UNKNOWN"),
+            **priority_scores[task["task_id"]],
+        }
+        for task in tasks
+    ]
+
+    candidate_windows = []
+    for fact in optimized["task_windows"]:
+        block = blocks_by_task.get(fact["task_id"])
+        solver_selected = bool(
+            block
+            and fact["usable_start"] <= block["start_time"]
+            and block["end_time"] <= fact["usable_end"]
+        )
+        candidate_windows.append({
+            **fact,
+            "solver_selected": solver_selected,
+            "outcome": optimized["outcomes"].get(fact["task_id"], "UNKNOWN"),
+        })
+
+    horizon = territory.manifest.planning_horizon
+    horizon_start = datetime.fromisoformat(horizon["start_time"])
+    horizon_end = datetime.fromisoformat(horizon["end_time"])
+    sections = section_index(territory.sections)
+    conflicts = []
+    for task in tasks:
+        required = set(task["_capacity_resource_ids"])
+        severity = _priority_category(task)
+        if severity == "ROUTINE":
+            severity = "LOW"
+        for index, train in enumerate(territory.train_occupancy, 1):
+            if not required.intersection(movement_capacity_resources(train, sections)):
+                continue
+            entry = datetime.fromisoformat(train["entry_time"])
+            exit_time = datetime.fromisoformat(train["exit_time"])
+            protected_start = max(horizon_start, entry - timedelta(minutes=DEMO_ALLOWANCES.safety_before_minutes))
+            protected_end = min(horizon_end, exit_time + timedelta(minutes=DEMO_ALLOWANCES.safety_after_minutes))
+            if protected_start >= protected_end:
+                continue
+            conflicts.append({
+                "conflict_id": f"CF_{task['task_id']}_{train['train_id']}_{train['section_id']}_{index:03d}",
+                "task_id": task["task_id"],
+                "train_id": train["train_id"],
+                "section_id": train["section_id"],
+                "train_entry_time": train["entry_time"],
+                "train_exit_time": train["exit_time"],
+                "protected_start": protected_start.isoformat(),
+                "protected_end": protected_end.isoformat(),
+                "train_occupancy_minutes": round((exit_time - entry).total_seconds() / 60),
+                "protected_interval_minutes": round((protected_end - protected_start).total_seconds() / 60),
+                "minimum_clearance_minutes": DEMO_ALLOWANCES.safety_before_minutes + DEMO_ALLOWANCES.safety_after_minutes,
+                "reason_code": "TRAIN_OCCUPANCY_SAFETY_EXCLUSION",
+                "severity": severity,
+            })
+
+    opportunities = []
+    for fact in optimized["pair_checks"]:
+        if fact["status"] not in {"COMPATIBLE", "CONDITIONAL"}:
+            continue
+        first, second = (task_by_id[task_id] for task_id in fact["tasks"])
+        first_block = blocks_by_task.get(first["task_id"])
+        selected_together = bool(first_block and second["task_id"] in first_block["tasks"])
+        opportunities.append({
+            "opportunity_id": f"CO_{first['task_id']}_{second['task_id']}",
+            "task_ids": fact["tasks"],
+            "section_id": first["section_id"],
+            "footprint_id": first.get("_footprint_id"),
+            "departments": sorted({first["department"], second["department"]}),
+            "compatibility_status": fact["status"],
+            "reason_codes": fact["reasons"],
+            "solver_selected_together": selected_together,
+        })
+    return {
+        "task_priorities": task_priorities,
+        "conflicts": conflicts,
+        "candidate_windows": candidate_windows,
+        "coordination_opportunities": opportunities,
+    }
+
+
 def _response(
     territory: LoadedTerritory,
     compared: dict[str, Any],
@@ -376,6 +497,7 @@ def _response(
             "solver_time_limit_seconds_per_plan": DEMO_SOLVE_LIMIT_SECONDS,
         },
         "analysis": _analysis(territory, compared),
+        "operational_diagnostics": _operational_diagnostics(territory, optimized),
         "alternatives": [
             {
                 "alternative_id": "rail-separate",
@@ -403,6 +525,7 @@ def _response(
             "tasks": territory.maintenance_tasks,
             "planning_context": response["planning_context"],
             "analysis": response["analysis"],
+            "operational_diagnostics": response["operational_diagnostics"],
             "proof_state": response["proof_state"],
             "config": copilot_config or {},
         },

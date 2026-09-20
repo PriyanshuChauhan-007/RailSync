@@ -18,6 +18,7 @@ export default function SolutionPreview() {
           When a section is occupied, RailSync does not schedule a block. When a
           feasible gap exists, maintenance is placed there.
         </SectionHeading>
+        <p className="landing-example-note">Static public-demo walkthrough · not active session data</p>
 
         <div className="timeline" ref={ref}>
           <div className="timeline-meta">

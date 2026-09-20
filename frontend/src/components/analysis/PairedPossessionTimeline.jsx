@@ -1,15 +1,7 @@
 import { useMemo, useState } from "react";
 import { departmentLabel, sectionLabel, trainLabel } from "../../utils/planningLabels.js";
-import trainMarker from "../../assets/rail-train-top-view.png";
-import { buildTicks, rangeStyle, timeLabel } from "../../utils/timeline.js";
-
-function TimelineGrid({ ticks }) {
-  return (
-    <span className="analysis-timeline-grid" aria-hidden="true">
-      {ticks.map((tick) => <i key={tick.key} style={{ left: tick.left }} />)}
-    </span>
-  );
-}
+import { buildTicks, intervalDensity, intervalLabelFits, rangeStyle, timeLabel } from "../../utils/timeline.js";
+import { OperationalTrainMarker, TimelineGrid } from "../timeline/TimelinePrimitives.jsx";
 
 export default function PairedPossessionTimeline({ analysis, territory, tasks, horizon, occupancy = [] }) {
   const taskById = useMemo(
@@ -59,8 +51,8 @@ export default function PairedPossessionTimeline({ analysis, territory, tasks, h
           <div>{ticks.map((tick) => <time key={tick.key}>{tick.label}</time>)}</div>
         </div>
         {occupancy.filter((train) => train.section_id === sectionId).map((train) => <div className="paired-lane analysis-train-row" key={`${train.train_id}-${train.entry_time}`}>
-          <div className="paired-lane-label" title={trainLabel(train.train_id, territory)}><img src={trainMarker} className="analysis-train-marker" alt="" /><strong>{train.train_id}</strong></div>
-          <div className="paired-lane-track"><TimelineGrid ticks={ticks} /><span className="analysis-train-interval" style={rangeStyle(train.entry_time, train.exit_time, horizon)} title={`${trainLabel(train.train_id, territory)} · ${timeLabel(train.entry_time)}–${timeLabel(train.exit_time)}`} /></div>
+          <div className="paired-lane-label"><OperationalTrainMarker train={train} territory={territory} /></div>
+          <div className="paired-lane-track"><TimelineGrid ticks={ticks} className="analysis-timeline-grid" /><span className="analysis-train-interval" style={rangeStyle(train.entry_time, train.exit_time, horizon)} title={`${trainLabel(train.train_id, territory)} · ${timeLabel(train.entry_time)}–${timeLabel(train.exit_time)}`} /></div>
         </div>)}
         {planners.map(([label, allBlocks, className]) => {
           const blocks = allBlocks.filter((block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(sectionId));
@@ -71,19 +63,22 @@ export default function PairedPossessionTimeline({ analysis, territory, tasks, h
                 <small>{blocks.length} possession{blocks.length === 1 ? "" : "s"}</small>
               </div>
               <div className="paired-lane-track">
-                <TimelineGrid ticks={ticks} />
+                <TimelineGrid ticks={ticks} className="analysis-timeline-grid" />
                 {blocks.map((block) => {
                   const taskDetails = block.tasks.map((id) => taskById.get(id)).filter(Boolean);
                   const taskNames = taskDetails.map((task) => task.task_type).join(" + ");
                   const departments = [...new Set(taskDetails.map((task) => departmentLabel(task.department)))];
+                  const density = intervalDensity(block.start_time, block.end_time, horizon);
+                  const visibleLabel = block.integrated ? departments.join(" + ") : taskNames;
+                  const showLabel = intervalLabelFits(block.start_time, block.end_time, horizon, visibleLabel);
                   return (
                     <span
                       key={block.block_id}
-                      className={`paired-block ${className} ${block.integrated ? "is-integrated" : ""}`}
+                      className={`paired-block ${className} marker-${density} ${block.integrated ? "is-integrated" : ""}`}
                       style={rangeStyle(block.start_time, block.end_time, horizon)}
                       title={`${taskNames}: ${timeLabel(block.start_time)}–${timeLabel(block.end_time)}`}
                     >
-                      {block.integrated ? departments.join(" + ") : taskNames}
+                      {showLabel ? visibleLabel : ""}
                     </span>
                   );
                 })}
