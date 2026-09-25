@@ -5,7 +5,6 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { db } from './src/db/index.ts';
-import { seedCorridorsToDatabase } from './src/db/seed.ts';
 import { corridors } from './src/db/schema.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -1483,13 +1482,6 @@ app.get('/api/db/status', async (_req: Request, res: Response) => {
 async function startServer() {
   const PORT = 3000;
   const isProd = process.env.NODE_ENV === 'production';
-
-  // Asynchronously synchronize corridor data to Cloud SQL PostgreSQL if configured
-  if (process.env.SQL_HOST && process.env.SQL_DB_NAME) {
-    seedCorridorsToDatabase().catch((err) => {
-      console.warn("PostgreSQL initial seeding notice:", err.message);
-    });
-  }
 
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
