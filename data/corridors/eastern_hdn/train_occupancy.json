@@ -1,0 +1,50 @@
+[
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC01",
+    "entry_time": "2026-09-10T16:50:00",
+    "exit_time": "2026-09-10T17:05:00",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC02",
+    "entry_time": "2026-09-10T17:05:00",
+    "exit_time": "2026-09-10T17:20:00",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC03",
+    "entry_time": "2026-09-10T17:20:00",
+    "exit_time": "2026-09-10T18:00:00",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
+  },
+  {
+    "train_id": "12302",
+    "section_id": "ER_SEC06",
+    "entry_time": "2026-09-10T08:00:00",
+    "exit_time": "2026-09-10T08:35:00",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
+  },
+  {
+    "train_id": "12302",
+    "section_id": "ER_SEC05",
+    "entry_time": "2026-09-10T08:35:00",
+    "exit_time": "2026-09-10T08:50:00",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
+  },
+  {
+    "train_id": "COAL_BOXN_41",
+    "section_id": "ER_SEC04",
+    "entry_time": "2026-09-10T11:00:00",
+    "exit_time": "2026-09-10T11:55:00",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "HEAVY_FREIGHT"
+  }
+]

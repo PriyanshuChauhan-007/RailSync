@@ -166,5 +166,47 @@
       "OKA",
       "NZM"
     ]
+  },
+  {
+    "train_id": "12050",
+    "service_number": "12050",
+    "service_name": "Gatimaan Express (NZM–AGC)",
+    "origin_station_id": "NZM",
+    "destination_station_id": "AGC",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "NZM",
+      "OKA",
+      "TKD",
+      "FDB",
+      "FDN",
+      "BVH",
+      "AST",
+      "PWL"
+    ]
+  },
+  {
+    "train_id": "22436",
+    "service_number": "22436",
+    "service_name": "Vande Bharat Express",
+    "origin_station_id": "NDLS",
+    "destination_station_id": "BSB",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "NZM",
+      "OKA",
+      "TKD",
+      "FDB",
+      "FDN",
+      "BVH",
+      "AST",
+      "PWL"
+    ]
   }
 ]

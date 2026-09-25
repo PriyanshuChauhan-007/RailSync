@@ -1,0 +1,39 @@
+[
+  {
+    "task_id": "DFC_TASK_01",
+    "section_id": "DFC_SEC02",
+    "department": "ENGINEERING",
+    "task_type": "Heavy Haul Track Tamping (09-3X Dynamic)",
+    "duration_minutes": 150,
+    "criticality": 9,
+    "crew_type": "PWAY_MACHINE_GANG",
+    "machine_type": "TAMPER_09_3X",
+    "requires_power_block": false,
+    "compatibility_group": "DFC_MAINT"
+  },
+  {
+    "task_id": "DFC_TASK_02",
+    "section_id": "DFC_SEC02",
+    "department": "S&T",
+    "task_type": "European Train Control System (ETCS L-2) Loop Calibration",
+    "duration_minutes": 60,
+    "criticality": 8,
+    "crew_type": "SIGNAL_GANG",
+    "machine_type": null,
+    "requires_power_block": false,
+    "compatibility_group": "DFC_MAINT"
+  },
+  {
+    "task_id": "DFC_TASK_03",
+    "section_id": "DFC_SEC02",
+    "department": "TRD",
+    "task_type": "High Reach 2x25 kV AT Traction Catenary Inspection",
+    "duration_minutes": 120,
+    "criticality": 8,
+    "crew_type": "TRD_GANG",
+    "machine_type": "TOWER_WAGON",
+    "requires_power_block": true,
+    "power_isolation_zone_id": "ES_KHURJA_DFC",
+    "compatibility_group": "DFC_MAINT"
+  }
+]

@@ -638,5 +638,21 @@
     "exit_time": "2026-09-10T09:49:00",
     "direction": "SOUTHBOUND",
     "traffic_type": "PASSENGER_TIMETABLE"
+  },
+  {
+    "train_id": "12951",
+    "section_id": "WR_SEC01",
+    "entry_time": "2026-09-10T17:40:00",
+    "exit_time": "2026-09-10T17:52:00",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
+  },
+  {
+    "train_id": "12951",
+    "section_id": "WR_SEC02",
+    "entry_time": "2026-09-10T17:52:00",
+    "exit_time": "2026-09-10T18:01:00",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER"
   }
 ]

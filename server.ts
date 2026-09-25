@@ -643,7 +643,7 @@ app.get('/api/territories', (req: Request, res: Response) => {
           if (!includeTest && (manifest.status !== 'POPULATED' || isTest)) {
             continue;
           }
-          const provenanceLabels = manifest.provenance.map(p => p.label).sort();
+          const provenanceLabels = (manifest.provenance || [{ label: 'PUBLIC_TIMETABLE_DERIVED' }]).map((p: any) => p.label).sort();
           if (!includeTest && !provenanceLabels.includes('PUBLIC_TIMETABLE_DERIVED')) {
             continue;
           }

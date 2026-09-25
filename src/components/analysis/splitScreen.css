@@ -1,0 +1,314 @@
+/* A/B Split-Screen Comparison View Styling */
+
+.ir-split-screen-section {
+  background: #08111e;
+  border: 1px solid #1a2f4c;
+  border-radius: 8px;
+  padding: 22px 24px;
+  margin-bottom: 28px;
+  color: #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.ir-split-header {
+  margin-bottom: 22px;
+  border-bottom: 1px solid #1a2f4c;
+  padding-bottom: 16px;
+}
+
+.ir-split-badge-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ir-badge-ratio {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.ir-split-header h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.ir-split-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  max-width: 860px;
+  line-height: 1.5;
+}
+
+.ir-split-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 20px;
+}
+
+.ir-split-column {
+  border-radius: 8px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ir-split-column.is-siloed {
+  background: #0d121c;
+  border: 1px solid #3b1d24;
+}
+
+.ir-split-column.is-optimized {
+  background: #081724;
+  border: 1px solid #164e63;
+}
+
+.ir-column-header h3 {
+  margin: 6px 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.ir-column-header p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.ir-col-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.ir-col-tag.is-danger {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.ir-col-tag.is-success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+}
+
+.ir-kpi-callout {
+  padding: 12px 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.ir-kpi-callout.is-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ir-kpi-callout.is-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.ir-kpi-figure {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.is-danger .ir-kpi-figure {
+  color: #f87171;
+}
+
+.is-success .ir-kpi-figure {
+  color: #34d399;
+}
+
+.ir-kpi-desc {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.ir-block-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ir-timeline-card {
+  background: #09101d;
+  border: 1px solid #1c2e47;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.ir-timeline-card h4 {
+  margin: 6px 0 2px;
+  font-size: 13px;
+  color: #f8fafc;
+}
+
+.ir-timeline-card p {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.ir-tc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.ir-dept-badge {
+  font-weight: 800;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ir-dept-badge.pway {
+  background: #7c2d12;
+  color: #fdba74;
+}
+
+.ir-dept-badge.snt {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.ir-dept-badge.trd {
+  background: #581c87;
+  color: #d8b4fe;
+}
+
+.ir-dept-badge.integrated {
+  background: #064e3b;
+  color: #6ee7b7;
+  border: 1px solid #10b981;
+}
+
+.ir-tc-time {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.ir-gap-notice {
+  text-align: center;
+  font-size: 10px;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px dashed rgba(245, 158, 11, 0.3);
+}
+
+.ir-nested-crews {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: #040c17;
+  border-radius: 4px;
+}
+
+.ir-nested-crew {
+  font-size: 11px;
+  color: #93c5fd;
+  display: flex;
+  align-items: center;
+}
+
+.ir-buffer-foot {
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.ir-detentions-box {
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.ir-detentions-box.is-danger {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid #ef4444;
+}
+
+.ir-detentions-box.is-success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid #10b981;
+}
+
+.ir-detentions-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ir-detentions-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ir-detentions-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.ir-train-badge {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.ir-train-badge.red {
+  background: #7f1d1d;
+  color: #fca5a5;
+  border: 1px solid #ef4444;
+}
+
+.ir-train-badge.green {
+  background: #064e3b;
+  color: #a7f3d0;
+  border: 1px solid #10b981;
+}
+
+.ir-detention-summary {
+  font-size: 12px;
+  font-weight: 700;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 6px;
+}

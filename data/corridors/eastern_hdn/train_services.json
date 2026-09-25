@@ -1,0 +1,38 @@
+[
+  {
+    "train_id": "12301",
+    "service_number": "12301",
+    "service_name": "Howrah–New Delhi Rajdhani Express",
+    "origin_station_id": "HWH",
+    "destination_station_id": "NDLS",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": ["HWH", "SRP", "BDC", "BWN", "PAN", "DGR", "ASN"]
+  },
+  {
+    "train_id": "12302",
+    "service_number": "12302",
+    "service_name": "New Delhi–Howrah Rajdhani Express",
+    "origin_station_id": "NDLS",
+    "destination_station_id": "HWH",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": ["ASN", "DGR", "PAN", "BWN", "BDC", "SRP", "HWH"]
+  },
+  {
+    "train_id": "COAL_BOXN_41",
+    "service_number": "COAL_41",
+    "service_name": "Raniganj Coal Heavy Freight Rake",
+    "origin_station_id": "ASN",
+    "destination_station_id": "HWH",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://www.indianrailways.gov.in",
+    "timetable_validity": "Freight Working Time Table",
+    "station_sequence": ["ASN", "DGR", "PAN", "BWN", "BDC", "SRP", "HWH"]
+  }
+]

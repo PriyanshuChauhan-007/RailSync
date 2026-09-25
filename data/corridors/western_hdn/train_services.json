@@ -218,5 +218,27 @@
       "VTN",
       "VR"
     ]
+  },
+  {
+    "train_id": "12951",
+    "service_number": "12951",
+    "service_name": "Mumbai Central–New Delhi Tejas Rajdhani Express",
+    "origin_station_id": "MMCT",
+    "destination_station_id": "NDLS",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "VR",
+      "VTN",
+      "SAH",
+      "KLV",
+      "PLG",
+      "UOI",
+      "BOR",
+      "VGN",
+      "DRD"
+    ]
   }
 ]

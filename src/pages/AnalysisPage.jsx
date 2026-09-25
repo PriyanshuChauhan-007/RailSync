@@ -1,6 +1,7 @@
 import Navbar from "../components/layout/Navbar.jsx";
 import Footer from "../components/layout/Footer.jsx";
 import ComparisonSummary, { ComparisonDetails } from "../components/analysis/ComparisonSummary.jsx";
+import SplitScreenComparison from "../components/analysis/SplitScreenComparison.jsx";
 import DataAssumptions from "../components/analysis/DataAssumptions.jsx";
 import IntegrationGains from "../components/analysis/IntegrationGains.jsx";
 import OutstandingWork from "../components/analysis/OutstandingWork.jsx";
@@ -35,6 +36,9 @@ export default function AnalysisPage({ session, onNavigate, onHome }) {
             Compare possession time and maintenance delivered under the same operating constraints.
           </p>
         </header>
+
+        {/* Primary SIH Benchmark Pitch: A/B Split-Screen Comparison */}
+        <SplitScreenComparison plan={plan} territory={territory} analysis={plan?.analysis} />
 
         {!plan ? (
           <section className="analysis-empty" aria-labelledby="analysis-empty-heading">

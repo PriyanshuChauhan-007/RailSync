@@ -1,0 +1,61 @@
+/* Authentic IR 24-Hour Master Clock Badge for Navbar */
+
+.nav-ir-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-secondary, rgba(15, 23, 42, 0.7));
+  border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text, #f1f5f9);
+  height: auto;
+  white-space: normal;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.nav-ir-clock:hover {
+  border-color: var(--accent, #38bdf8);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.nav-clock-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: nav-clock-blink 2s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes nav-clock-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+.nav-clock-time {
+  font-weight: 700;
+  color: var(--text, #f8fafc);
+}
+
+.nav-clock-label {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent, #38bdf8);
+  background: rgba(56, 189, 248, 0.12);
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .nav-clock-label {
+    display: none;
+  }
+}

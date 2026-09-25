@@ -1,0 +1,11 @@
+{
+  "crew_capacities": {
+    "PWAY_MACHINE_GANG": 2,
+    "SIGNAL_GANG": 2,
+    "TRD_GANG": 2
+  },
+  "machine_capacities": {
+    "BCM_08_32": 1,
+    "TOWER_WAGON": 1
+  }
+}

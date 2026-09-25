@@ -1,0 +1,204 @@
+/* RailSaathi Explainable AI (XAI) Optimization Audit Report Styling */
+
+.ir-audit-report-panel {
+  background: #08111e;
+  border: 1px solid #1a2f4c;
+  border-left: 4px solid #38bdf8;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  color: #e2e8f0;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+.ir-audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #162a45;
+  padding-bottom: 14px;
+}
+
+.ir-audit-subhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ir-badge-audit {
+  background: #1e3a8a;
+  color: #93c5fd;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.ir-audit-ref {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+}
+
+.ir-audit-title-block h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.ir-audit-title-block p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  max-width: 820px;
+  line-height: 1.45;
+}
+
+.ir-audit-stamp {
+  border: 2px dashed #0284c7;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-align: center;
+  background: rgba(2, 132, 199, 0.08);
+  transform: rotate(-1deg);
+}
+
+.ir-stamp-border {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  display: block;
+}
+
+.ir-audit-rationales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.ir-rationale-item {
+  display: flex;
+  gap: 12px;
+  background: #091527;
+  border: 1px solid #192e4a;
+  padding: 12px 14px;
+  border-radius: 6px;
+}
+
+.ir-rationale-num {
+  width: 28px;
+  height: 28px;
+  background: #1e3a8a;
+  color: #93c5fd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.ir-rationale-body strong {
+  display: block;
+  font-size: 12px;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.ir-rationale-body p {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.ir-rationale-body p strong {
+  display: inline;
+  color: #38bdf8;
+}
+
+.ir-audit-proof-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  background: #050c17;
+  border: 1px solid #14243b;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.ir-proof-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ir-proof-metric span {
+  font-size: 9px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.ir-proof-metric strong {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+.ir-audit-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid #162a45;
+  padding-top: 12px;
+}
+
+.ir-signoff-text span {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-right: 6px;
+}
+
+.ir-signoff-text strong {
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.ir-audit-btn {
+  background: #111e33;
+  border: 1px solid #203554;
+  color: #93c5fd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  height: auto;
+  white-space: normal;
+}
+
+.ir-audit-btn:hover {
+  background: #1e3a63;
+  color: #fff;
+  border-color: #3b82f6;
+}

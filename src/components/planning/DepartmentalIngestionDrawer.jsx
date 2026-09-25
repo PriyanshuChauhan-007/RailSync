@@ -2,21 +2,21 @@ import { useState } from "react";
 import "./ingestionDrawer.css";
 
 const TMS_RECORDS = [
-  { id: "TMS-NDLS-042", section: "NZM-TKD", chainage: "km 14.2–15.8", type: "USFD IMR Rail Flaw", tqi: 44.8, status: "OVERDUE (14d)", priority: "P1 (Critical)", dept: "P-WAY", duration: 120 },
-  { id: "TMS-NDLS-078", section: "TKD-FDB", chainage: "km 22.4–24.1", type: "Joint Sleepers Deep Screening (BCM)", tqi: 38.2, status: "SCHEDULED", priority: "P2 (High)", dept: "P-WAY", duration: 180 },
-  { id: "TMS-NDLS-115", section: "FDB-BVH", chainage: "km 31.0–32.5", type: "Turnout Points Tamping (Unimat)", tqi: 41.5, status: "OVERDUE (6d)", priority: "P2 (High)", dept: "P-WAY", duration: 90 },
+  { id: "TMS-NDLS-042", section: "NZM-TKD", chainage: "km 14.2–15.8", type: "USFD IMR Rail Flaw", tqi: 44.8, gmt: "54.2 GMT/yr", status: "OVERDUE (14d)", priority: "P1 (Critical)", dept: "P-WAY", duration: 120, mlPrediction: "Critical Failure in 14 Days -> Urgency Weight: 92%" },
+  { id: "TMS-NDLS-078", section: "TKD-FDB", chainage: "km 22.4–24.1", type: "Joint Sleepers Deep Screening (BCM)", tqi: 38.2, gmt: "48.1 GMT/yr", status: "SCHEDULED", priority: "P2 (High)", dept: "P-WAY", duration: 180, mlPrediction: "TQI Exceeds 48.0 Threshold in 26 Days -> Urgency Weight: 76%" },
+  { id: "TMS-NDLS-115", section: "FDB-BVH", chainage: "km 31.0–32.5", type: "Turnout Points Tamping (Unimat)", tqi: 41.5, gmt: "51.0 GMT/yr", status: "OVERDUE (6d)", priority: "P2 (High)", dept: "P-WAY", duration: 90, mlPrediction: "Point Geometry Deterioration in 18 Days -> Urgency Weight: 86%" },
 ];
 
 const SMMS_RECORDS = [
-  { id: "SMMS-SIG-109", section: "NZM-TKD", asset: "Electric Point Machine 104A", test: "Quarterly Overhaul & Stroke Test", cycle: "Overdue by 18 days", priority: "P1 (Critical)", dept: "S&T", duration: 75 },
-  { id: "SMMS-SIG-144", section: "TKD-FDB", asset: "Digital Axle Counter (DAC) Head", test: "High-Frequency Calibration", cycle: "Periodic Maintenance", priority: "P2 (High)", dept: "S&T", duration: 60 },
-  { id: "SMMS-SIG-182", section: "FDB-BVH", asset: "Automatic Block Signal 12-A", test: "Aspect Lamp & Relay Insulation", cycle: "Overdue by 5 days", priority: "P2 (High)", dept: "S&T", duration: 45 },
+  { id: "SMMS-SIG-109", section: "NZM-TKD", asset: "Electric Point Machine 104A", test: "Quarterly Overhaul & Stroke Test", cycle: "Overdue by 18 days", priority: "P1 (Critical)", dept: "S&T", duration: 75, mlPrediction: "Point Detection Friction Trip in 11 Days -> Urgency Weight: 89%" },
+  { id: "SMMS-SIG-144", section: "TKD-FDB", asset: "Digital Axle Counter (DAC) Head", test: "High-Frequency Calibration", cycle: "Periodic Maintenance", priority: "P2 (High)", dept: "S&T", duration: 60, mlPrediction: "Resonance Drift in 32 Days -> Urgency Weight: 68%" },
+  { id: "SMMS-SIG-182", section: "FDB-BVH", asset: "Automatic Block Signal 12-A", test: "Aspect Lamp & Relay Insulation", cycle: "Overdue by 5 days", priority: "P2 (High)", dept: "S&T", duration: 45, mlPrediction: "Filament Resistance Spike in 15 Days -> Urgency Weight: 82%" },
 ];
 
 const TDMS_RECORDS = [
-  { id: "TDMS-OHE-088", section: "NZM-TKD", mast: "Mast 14/22 to 15/10", work: "Contact Wire Wear (8.1mm min) & Stagger Adjust", isolation: "25 kV Elementary Section ES-04", priority: "P1 (Critical)", dept: "TRD", duration: 120 },
-  { id: "TDMS-OHE-102", section: "TKD-FDB", mast: "Substation Bay 2", work: "Neutral Section PTFE Glide Replacement", isolation: "Ballabgarh TSS Section 2", priority: "P2 (High)", dept: "TRD", duration: 90 },
-  { id: "TDMS-OHE-133", section: "FDB-BVH", mast: "Mast 31/04 to 32/18", work: "Bracket Insulator High-Pressure Wash", isolation: "25 kV Elementary Section ES-09", priority: "P3 (Medium)", dept: "TRD", duration: 60 },
+  { id: "TDMS-OHE-088", section: "NZM-TKD", mast: "Mast 14/22 to 15/10", work: "Contact Wire Wear (8.1mm min) & Stagger Adjust", isolation: "25 kV Elementary Section ES-04", priority: "P1 (Critical)", dept: "TRD", duration: 120, mlPrediction: "Wire Wear Exceeds 8.0mm Limit in 16 Days -> Urgency Weight: 91%" },
+  { id: "TDMS-OHE-102", section: "TKD-FDB", mast: "Substation Bay 2", work: "Neutral Section PTFE Glide Replacement", isolation: "Ballabgarh TSS Section 2", priority: "P2 (High)", dept: "TRD", duration: 90, mlPrediction: "Arc Erosion Threshold in 24 Days -> Urgency Weight: 79%" },
+  { id: "TDMS-OHE-133", section: "FDB-BVH", mast: "Mast 31/04 to 32/18", work: "Bracket Insulator High-Pressure Wash", isolation: "25 kV Elementary Section ES-09", priority: "P3 (Medium)", dept: "TRD", duration: 60, mlPrediction: "Pollution Flashover Risk in 35 Days -> Urgency Weight: 60%" },
 ];
 
 const COA_RECORDS = [
@@ -119,7 +119,9 @@ export default function DepartmentalIngestionDrawer({
                       <th>Chainage km</th>
                       <th>Defect / Task Type</th>
                       <th>TQI Score</th>
-                      <th>Maintenance Status</th>
+                      <th>GMT Load</th>
+                      <th>Predictive ML Analytics (TQI &amp; GMT Degradation Model)</th>
+                      <th>Status</th>
                       <th>Priority</th>
                     </tr>
                   </thead>
@@ -131,6 +133,14 @@ export default function DepartmentalIngestionDrawer({
                         <td>{row.chainage}</td>
                         <td>{row.type}</td>
                         <td><span className="tqi-badge">{row.tqi}</span></td>
+                        <td><span className="tqi-badge" style={{ background: "#1e3a5f" }}>{row.gmt}</span></td>
+                        <td>
+                          <div className="ml-pred-badge">
+                            <span className="ml-pred-icon">🤖</span>
+                            <strong>{row.mlPrediction}</strong>
+                            <span className="ml-solver-tag">→ Input to CP-SAT Optimization Engine</span>
+                          </div>
+                        </td>
                         <td><span className={row.status.includes("OVERDUE") ? "status-overdue" : "status-ok"}>{row.status}</span></td>
                         <td><span className="p-pill p1">{row.priority}</span></td>
                       </tr>
@@ -155,6 +165,7 @@ export default function DepartmentalIngestionDrawer({
                       <th>Section</th>
                       <th>Gear / Asset</th>
                       <th>Maintenance / Testing</th>
+                      <th>Predictive ML Analytics</th>
                       <th>Inspection Cycle</th>
                       <th>Priority</th>
                     </tr>
@@ -166,6 +177,13 @@ export default function DepartmentalIngestionDrawer({
                         <td>{row.section}</td>
                         <td>{row.asset}</td>
                         <td>{row.test}</td>
+                        <td>
+                          <div className="ml-pred-badge">
+                            <span className="ml-pred-icon">🤖</span>
+                            <strong>{row.mlPrediction}</strong>
+                            <span className="ml-solver-tag">→ Input to CP-SAT Optimization Engine</span>
+                          </div>
+                        </td>
                         <td><span className={row.cycle.includes("Overdue") ? "status-overdue" : "status-ok"}>{row.cycle}</span></td>
                         <td><span className="p-pill p2">{row.priority}</span></td>
                       </tr>
@@ -190,6 +208,7 @@ export default function DepartmentalIngestionDrawer({
                       <th>Section</th>
                       <th>OHE Mast Range</th>
                       <th>Traction Work Description</th>
+                      <th>Predictive ML Analytics</th>
                       <th>Power Isolation Requirement</th>
                       <th>Priority</th>
                     </tr>
@@ -201,6 +220,13 @@ export default function DepartmentalIngestionDrawer({
                         <td>{row.section}</td>
                         <td>{row.mast}</td>
                         <td>{row.work}</td>
+                        <td>
+                          <div className="ml-pred-badge">
+                            <span className="ml-pred-icon">🤖</span>
+                            <strong>{row.mlPrediction}</strong>
+                            <span className="ml-solver-tag">→ Input to CP-SAT Optimization Engine</span>
+                          </div>
+                        </td>
                         <td><span className="power-cut-badge">{row.isolation}</span></td>
                         <td><span className="p-pill p2">{row.priority}</span></td>
                       </tr>

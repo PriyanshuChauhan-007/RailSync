@@ -1,0 +1,38 @@
+[
+  {
+    "train_id": "DFC_DBL_01",
+    "service_number": "DFC_01",
+    "service_name": "Double Stack Container Rake (Mundra–Dadri)",
+    "origin_station_id": "DADRI_DFC",
+    "destination_station_id": "TUNDLA_DFC",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://dfccil.com",
+    "timetable_validity": "DFC Operational Schedule",
+    "station_sequence": ["DADRI_DFC", "BORAKI_DFC", "KHURJA_DFC", "DAUD_KHAN_DFC", "TUNDLA_DFC"]
+  },
+  {
+    "train_id": "DFC_DBL_02",
+    "service_number": "DFC_02",
+    "service_name": "Double Stack Container Rake (Pipavav–Dadri)",
+    "origin_station_id": "TUNDLA_DFC",
+    "destination_station_id": "DADRI_DFC",
+    "direction": "NORTHBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://dfccil.com",
+    "timetable_validity": "DFC Operational Schedule",
+    "station_sequence": ["TUNDLA_DFC", "DAUD_KHAN_DFC", "KHURJA_DFC", "BORAKI_DFC", "DADRI_DFC"]
+  },
+  {
+    "train_id": "DFC_RO_RO_03",
+    "service_number": "DFC_03",
+    "service_name": "Roll-On Roll-Off (RO-RO) Truck Freight",
+    "origin_station_id": "DADRI_DFC",
+    "destination_station_id": "TUNDLA_DFC",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://dfccil.com",
+    "timetable_validity": "DFC Operational Schedule",
+    "station_sequence": ["DADRI_DFC", "BORAKI_DFC", "KHURJA_DFC", "DAUD_KHAN_DFC", "TUNDLA_DFC"]
+  }
+]

@@ -179,6 +179,36 @@
   font-size: 11px;
 }
 
+.ml-pred-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 4px 8px;
+  border-radius: 5px;
+  max-width: 320px;
+}
+
+.ml-pred-badge strong {
+  font-size: 11px;
+  color: #38bdf8;
+  line-height: 1.35;
+}
+
+.ml-pred-icon {
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.ml-solver-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
 .status-overdue {
   color: #f87171;
   font-weight: 700;

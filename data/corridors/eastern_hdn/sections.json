@@ -1,0 +1,62 @@
+[
+  {
+    "section_id": "ER_SEC01",
+    "from_station": "HWH",
+    "to_station": "SRP",
+    "track_ids": ["UP_MAIN", "DOWN_MAIN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 19.8,
+    "speed_limit_kmh": 110,
+    "track_circuits": ["TC_HWH_01", "TC_HWH_02"]
+  },
+  {
+    "section_id": "ER_SEC02",
+    "from_station": "SRP",
+    "to_station": "BDC",
+    "track_ids": ["UP_MAIN", "DOWN_MAIN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 20.2,
+    "speed_limit_kmh": 130,
+    "track_circuits": ["TC_SRP_01", "TC_SRP_02"]
+  },
+  {
+    "section_id": "ER_SEC03",
+    "from_station": "BDC",
+    "to_station": "BWN",
+    "track_ids": ["UP_MAIN", "DOWN_MAIN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 55.4,
+    "speed_limit_kmh": 130,
+    "track_circuits": ["TC_BDC_01", "TC_BDC_02"]
+  },
+  {
+    "section_id": "ER_SEC04",
+    "from_station": "BWN",
+    "to_station": "PAN",
+    "track_ids": ["UP_MAIN", "DOWN_MAIN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 36.1,
+    "speed_limit_kmh": 130,
+    "track_circuits": ["TC_BWN_01", "TC_BWN_02"]
+  },
+  {
+    "section_id": "ER_SEC05",
+    "from_station": "PAN",
+    "to_station": "DGR",
+    "track_ids": ["UP_MAIN", "DOWN_MAIN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 16.5,
+    "speed_limit_kmh": 130,
+    "track_circuits": ["TC_PAN_01", "TC_PAN_02"]
+  },
+  {
+    "section_id": "ER_SEC06",
+    "from_station": "DGR",
+    "to_station": "ASN",
+    "track_ids": ["UP_MAIN", "DOWN_MAIN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 42.8,
+    "speed_limit_kmh": 130,
+    "track_circuits": ["TC_DGR_01", "TC_DGR_02"]
+  }
+]

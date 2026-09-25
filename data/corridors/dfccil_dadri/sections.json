@@ -1,0 +1,42 @@
+[
+  {
+    "section_id": "DFC_SEC01",
+    "from_station": "DADRI_DFC",
+    "to_station": "BORAKI_DFC",
+    "track_ids": ["DFC_UP", "DFC_DOWN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 14.5,
+    "speed_limit_kmh": 100,
+    "track_circuits": ["TC_DFC_01", "TC_DFC_02"]
+  },
+  {
+    "section_id": "DFC_SEC02",
+    "from_station": "BORAKI_DFC",
+    "to_station": "KHURJA_DFC",
+    "track_ids": ["DFC_UP", "DFC_DOWN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 46.2,
+    "speed_limit_kmh": 100,
+    "track_circuits": ["TC_DFC_03", "TC_DFC_04"]
+  },
+  {
+    "section_id": "DFC_SEC03",
+    "from_station": "KHURJA_DFC",
+    "to_station": "DAUD_KHAN_DFC",
+    "track_ids": ["DFC_UP", "DFC_DOWN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 42.8,
+    "speed_limit_kmh": 100,
+    "track_circuits": ["TC_DFC_05", "TC_DFC_06"]
+  },
+  {
+    "section_id": "DFC_SEC04",
+    "from_station": "DAUD_KHAN_DFC",
+    "to_station": "TUNDLA_DFC",
+    "track_ids": ["DFC_UP", "DFC_DOWN"],
+    "direction_mode": "BIDIRECTIONAL",
+    "length_km": 68.4,
+    "speed_limit_kmh": 100,
+    "track_circuits": ["TC_DFC_07", "TC_DFC_08"]
+  }
+]

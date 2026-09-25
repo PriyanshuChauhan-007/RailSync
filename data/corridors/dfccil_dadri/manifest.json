@@ -1,7 +1,7 @@
 {
-  "territory_id": "eastern_hdn",
-  "display_name": "Eastern HDN · Howrah–Asansol",
-  "description": "Howrah to Asansol quadruple-track high density freight and premier trunk corridor.",
+  "territory_id": "dfccil_dadri",
+  "display_name": "DFC Freight Corridor · Dadri–Tundla",
+  "description": "Dedicated Freight Corridor heavy-haul automated block section with 2x25 kV traction.",
   "status": "POPULATED",
   "planning_ready": true,
   "provenance": [

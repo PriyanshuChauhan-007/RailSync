@@ -1,0 +1,39 @@
+[
+  {
+    "task_id": "ER_TASK_01",
+    "section_id": "ER_SEC04",
+    "department": "ENGINEERING",
+    "task_type": "Deep Screening Ballast Cleaning (BCM)",
+    "duration_minutes": 180,
+    "criticality": 9,
+    "crew_type": "PWAY_MACHINE_GANG",
+    "machine_type": "BCM_08_32",
+    "requires_power_block": false,
+    "compatibility_group": "PWAY_HEAVY"
+  },
+  {
+    "task_id": "ER_TASK_02",
+    "section_id": "ER_SEC04",
+    "department": "S&T",
+    "task_type": "Digital Axle Counter Head Tuning & Point Check",
+    "duration_minutes": 60,
+    "criticality": 8,
+    "crew_type": "SIGNAL_GANG",
+    "machine_type": null,
+    "requires_power_block": false,
+    "compatibility_group": "PWAY_HEAVY"
+  },
+  {
+    "task_id": "ER_TASK_03",
+    "section_id": "ER_SEC04",
+    "department": "TRD",
+    "task_type": "25 kV AC Catenary Dropper & Insulator Replacement",
+    "duration_minutes": 120,
+    "criticality": 8,
+    "crew_type": "TRD_GANG",
+    "machine_type": "TOWER_WAGON",
+    "requires_power_block": true,
+    "power_isolation_zone_id": "ES_BWN_01",
+    "compatibility_group": "PWAY_HEAVY"
+  }
+]
