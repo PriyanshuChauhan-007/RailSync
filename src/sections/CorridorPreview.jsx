@@ -1,222 +1,391 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import SectionHeading from "../components/ui/SectionHeading.jsx";
+import { demoCorridors } from "../components/schematic/demoCorridors.js";
 
-const CORRIDOR_STATIONS = [
-  { id: "NZM", name: "Hazrat Nizamuddin" },
-  { id: "OKA", name: "Okhla" },
-  { id: "TKD", name: "Tuglakabad" },
-  { id: "FDB", name: "Faridabad" },
-  { id: "FDN", name: "Faridabad New Town" },
-  { id: "BVH", name: "Ballabhgarh" },
-  { id: "AST", name: "Asaoti" },
-  { id: "PWL", name: "Palwal" },
-];
-
-const CORRIDOR_SECTIONS = [
-  "NR_SEC01", "NR_SEC02", "NR_SEC03", "NR_SEC04", "NR_SEC05", "NR_SEC06", "NR_SEC07",
-];
-
-function StationNode({ x, y, active, terminus }) {
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      <circle
-        r={terminus ? 7 : 5.5}
-        fill={active ? "#1e5a8a" : "#fcfcfa"}
-        stroke={active ? "#1e5a8a" : "#0c1d32"}
-        strokeWidth="2"
-      />
-      {terminus ? (
-        <circle r="2" fill={active ? "#fcfcfa" : "#0c1d32"} />
-      ) : null}
-    </g>
-  );
-}
-
-function StationLabelIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true">
-      <path d="m3 7 7-4 7 4M5 8v7m5-7v7m5-7v7M3 16h14" />
-    </svg>
-  );
-}
-
-export default function CorridorPreview({
-  stations = CORRIDOR_STATIONS,
-  sections = CORRIDOR_SECTIONS,
-}) {
+function SingleCorridorTrack({ corridor, activeSection, onSelectSection }) {
   const reduceMotion = useReducedMotion();
-  const [active, setActive] = useState(null);
+  const [hoveredStation, setHoveredStation] = useState(null);
+  const [hoveredSection, setHoveredSection] = useState(null);
+
+  const stations = corridor?.stations || [];
+  const sections = corridor?.sections || [];
+  const trains = corridor?.activeTrains || [];
+
   const count = stations.length;
-  const pad = 42;
+  const pad = 60;
   const width = 1100;
-  const y = 78;
+  const y = 82;
   const inner = width - pad * 2;
-  const xAt = (index) => pad + (inner * index) / (count - 1);
+  const xAt = (index) => pad + (inner * index) / Math.max(1, count - 1);
   const ease = [0.22, 1, 0.36, 1];
-  const sleepers = Array.from({ length: 24 }, (_, index) => pad + (inner * index) / 23);
+  const sleepers = Array.from({ length: 32 }, (_, index) => pad + (inner * index) / 31);
+
+  return (
+    <div className="corridor-single-panel" style={{ marginBottom: "28px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <div>
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              color: "var(--accent-blue)",
+              textTransform: "uppercase",
+            }}
+          >
+            {corridor.badge || "TRUNK CORRIDOR"} · {stations.length} STATIONS · {sections.length} SECTIONS
+          </span>
+          <h3 style={{ margin: "2px 0 0", fontSize: "18px", color: "var(--text-primary)" }}>
+            {corridor.name}
+          </h3>
+        </div>
+
+        {/* Premier Active Trains on Corridor */}
+        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          {trains.map((tr) => (
+            <span
+              key={tr.id}
+              className="p-pill"
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border-color)",
+                color: "var(--text-primary)",
+              }}
+            >
+              {tr.label}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div
+        className="corridor-track"
+        style={{
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "8px",
+          padding: "16px 14px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          overflowX: "auto",
+        }}
+      >
+        <svg
+          className="corridor-svg"
+          viewBox={`0 0 ${width} 165`}
+          style={{ width: "100%", minWidth: "980px", display: "block" }}
+          role="img"
+          aria-label={`Rail corridor schematic for ${corridor.name}`}
+        >
+          {/* Sleepers */}
+          {sleepers.map((x) => (
+            <line
+              key={x}
+              x1={x}
+              y1={y - 12}
+              x2={x}
+              y2={y + 16}
+              stroke="var(--chart-grid)"
+              strokeWidth="2.5"
+            />
+          ))}
+
+          {/* DOWN Main Track */}
+          <motion.line
+            x1={pad}
+            y1={y - 6}
+            x2={width - pad}
+            y2={y - 6}
+            stroke="var(--text-secondary)"
+            strokeWidth="3"
+            initial={{ pathLength: reduceMotion ? 1 : 0 }}
+            whileInView={{ pathLength: 1 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.4, ease }}
+          />
+
+          {/* UP Main Track */}
+          <motion.line
+            x1={pad}
+            y1={y + 8}
+            x2={width - pad}
+            y2={y + 8}
+            stroke="var(--accent)"
+            strokeWidth="3"
+            initial={{ pathLength: reduceMotion ? 1 : 0 }}
+            whileInView={{ pathLength: 1 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.4, delay: 0.1, ease }}
+          />
+
+          {/* Track Sections Hitboxes & Labels */}
+          {sections.map((section, index) => {
+            const x1 = xAt(Math.min(index, count - 2));
+            const x2 = xAt(Math.min(index + 1, count - 1));
+            const mid = (x1 + x2) / 2;
+            const secId = section.section_id;
+            const isHighlighted = hoveredSection === secId || activeSection === secId;
+
+            return (
+              <g
+                key={secId}
+                className="section-hit"
+                onMouseEnter={() => setHoveredSection(secId)}
+                onMouseLeave={() => setHoveredSection(null)}
+                onClick={() => onSelectSection?.(secId)}
+                style={{ cursor: "pointer" }}
+              >
+                <rect
+                  x={x1 + 6}
+                  y={y - 36}
+                  width={Math.max(20, x2 - x1 - 12)}
+                  height="72"
+                  fill={isHighlighted ? "rgba(2, 132, 199, 0.12)" : "transparent"}
+                  rx="4"
+                />
+                <text
+                  x={mid}
+                  y={y - 20}
+                  textAnchor="middle"
+                  fill={isHighlighted ? "var(--accent-blue)" : "var(--text-muted)"}
+                  fontSize="11"
+                  fontWeight="700"
+                  fontFamily="monospace"
+                >
+                  {secId}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Station Nodes and Vertical Stems */}
+          {stations.map((station, index) => {
+            const xPos = xAt(index);
+            const isHovered = hoveredStation === station.station_id;
+            const isTerminus = index === 0 || index === count - 1;
+
+            return (
+              <g
+                key={station.station_id}
+                transform={`translate(${xPos} 0)`}
+                onMouseEnter={() => setHoveredStation(station.station_id)}
+                onMouseLeave={() => setHoveredStation(null)}
+                style={{ cursor: "pointer" }}
+              >
+                {/* Station Stem Line */}
+                <line
+                  x1="0"
+                  y1={y - 4}
+                  x2="0"
+                  y2={index % 2 === 0 ? y - 42 : y + 42}
+                  stroke="var(--border-color)"
+                  strokeWidth="1.5"
+                  strokeDasharray="2 3"
+                />
+
+                {/* Station Ring Indicator */}
+                <circle
+                  cx="0"
+                  cy={y + 1}
+                  r={isTerminus ? 7 : 5}
+                  fill={isHovered ? "var(--accent-blue)" : "var(--bg-surface)"}
+                  stroke={isHovered ? "var(--accent-blue)" : "var(--text-primary)"}
+                  strokeWidth="2.5"
+                />
+                {isTerminus ? (
+                  <circle cx="0" cy={y + 1} r="2.5" fill="var(--text-primary)" />
+                ) : null}
+
+                {/* Station Name Above / Below */}
+                <text
+                  x="0"
+                  y={index % 2 === 0 ? y - 48 : y + 54}
+                  textAnchor="middle"
+                  fill="var(--text-primary)"
+                  fontSize="12"
+                  fontWeight="700"
+                >
+                  {station.station_name}
+                </text>
+
+                {/* Station KM Chainage */}
+                <text
+                  x="0"
+                  y={index % 2 === 0 ? y - 60 : y + 66}
+                  textAnchor="middle"
+                  fill="var(--text-muted)"
+                  fontSize="10"
+                  fontFamily="monospace"
+                >
+                  km {Number(station.km || index * 25).toFixed(1)}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Active Moving Trains Gliding Along Corridor */}
+          {trains.map((train, idx) => {
+            const isDown = train.direction === 1;
+            const trainY = isDown ? y - 6 : y + 8;
+            const basePct = isDown ? 25 + idx * 30 : 75 - idx * 28;
+            const trainX = pad + (inner * (basePct % 90)) / 100;
+
+            return (
+              <g key={train.id} transform={`translate(${trainX} ${trainY})`}>
+                <rect
+                  x="-35"
+                  y="-12"
+                  width="70"
+                  height="22"
+                  rx="4"
+                  fill={isDown ? "var(--card-bg)" : "var(--bg-surface)"}
+                  stroke="var(--accent-blue)"
+                  strokeWidth="1.5"
+                  filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))"
+                />
+                <text
+                  x="0"
+                  y="2"
+                  textAnchor="middle"
+                  fill="var(--text-primary)"
+                  fontSize="10"
+                  fontWeight="800"
+                >
+                  {train.id} {isDown ? "→" : "←"}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Bottom Station Quick Links */}
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            flexWrap: "wrap",
+            paddingTop: "10px",
+            borderTop: "1px solid var(--border-subtle)",
+            fontSize: "12px",
+            color: "var(--text-secondary)",
+          }}
+        >
+          {stations.map((st) => (
+            <span
+              key={st.station_id}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                background: hoveredStation === st.station_id ? "var(--surface-subtle)" : "transparent",
+              }}
+            >
+              <strong style={{ color: "var(--text-primary)" }}>{st.station_name}</strong>
+              <small style={{ color: "var(--text-muted)", fontFamily: "monospace" }}>({st.station_id})</small>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function CorridorPreview() {
+  const [selectedTab, setSelectedTab] = useState("all");
+  const [selectedSection, setSelectedSection] = useState(null);
+
+  const displayed = selectedTab === "all"
+    ? demoCorridors
+    : demoCorridors.filter((c) => c.territory_id === selectedTab);
 
   return (
     <section className="section corridor" id="corridor">
       <div className="section-inner">
-        <SectionHeading eyebrow="Corridor" title="Public route structure">
-          A representative Hazrat Nizamuddin–Palwal planning slice. Choose this Northern
-          territory, Western HDN, or the historical Eastern demo above.
+        <SectionHeading
+          eyebrow="Corridor Infrastructure"
+          title="Interactive Public Route Schematics"
+        >
+          Continuous chainage, dynamic track circuits, and active train services across all 4 operational corridors.
         </SectionHeading>
 
-        <div className="corridor-track">
-          <svg
-            className="corridor-svg"
-            viewBox={`0 0 ${width} 150`}
-            role="img"
-            aria-label="Rail corridor from Hazrat Nizamuddin to Palwal"
+        {/* Corridor Tab Filter */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px",
+            marginBottom: "20px",
+          }}
+          role="tablist"
+          aria-label="Filter corridor overview"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={selectedTab === "all"}
+            onClick={() => setSelectedTab("all")}
+            className="rs-btn-secondary"
+            style={{
+              padding: "8px 16px",
+              borderRadius: "20px",
+              fontWeight: 700,
+              fontSize: "12px",
+              background: selectedTab === "all" ? "var(--accent)" : "var(--bg-surface)",
+              color: selectedTab === "all" ? "var(--on-accent)" : "var(--text-primary)",
+              borderColor: selectedTab === "all" ? "var(--accent)" : "var(--border-color)",
+              cursor: "pointer",
+            }}
           >
-            {sleepers.map((x) => (
-              <line
-                key={x}
-                x1={x}
-                y1={y - 6}
-                x2={x}
-                y2={y + 14}
-                stroke="#ddd9d0"
-                strokeWidth="2"
-              />
-            ))}
+            All Corridors (4)
+          </button>
 
-            <motion.line
-              x1={pad}
-              y1={y}
-              x2={width - pad}
-              y2={y}
-              stroke="#0c1d32"
-              strokeWidth="3.5"
-              initial={{ pathLength: reduceMotion ? 1 : 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.4, ease }}
+          {demoCorridors.map((c) => (
+            <button
+              key={c.territory_id}
+              type="button"
+              role="tab"
+              aria-selected={selectedTab === c.territory_id}
+              onClick={() => setSelectedTab(c.territory_id)}
+              className="rs-btn-secondary"
+              style={{
+                padding: "8px 16px",
+                borderRadius: "20px",
+                fontWeight: 700,
+                fontSize: "12px",
+                background: selectedTab === c.territory_id ? "var(--accent)" : "var(--bg-surface)",
+                color: selectedTab === c.territory_id ? "var(--on-accent)" : "var(--text-primary)",
+                borderColor: selectedTab === c.territory_id ? "var(--accent)" : "var(--border-color)",
+                cursor: "pointer",
+              }}
+            >
+              {c.shortName || c.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Stacked or Isolated Corridors */}
+        <div className="corridors-container">
+          {displayed.map((corridor) => (
+            <SingleCorridorTrack
+              key={corridor.territory_id}
+              corridor={corridor}
+              activeSection={selectedSection}
+              onSelectSection={setSelectedSection}
             />
-            <motion.line
-              x1={pad}
-              y1={y + 8}
-              x2={width - pad}
-              y2={y + 8}
-              stroke="#1e5a8a"
-              strokeWidth="1.75"
-              initial={{ pathLength: reduceMotion ? 1 : 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.4, delay: 0, ease }}
-            />
-
-            {sections.map((sectionId, index) => {
-              const x1 = xAt(index);
-              const x2 = xAt(index + 1);
-              const mid = (x1 + x2) / 2;
-              const highlighted = active === sectionId;
-              return (
-                <g
-                  key={sectionId}
-                  className="section-hit"
-                  onMouseEnter={() => setActive(sectionId)}
-                  onMouseLeave={() => setActive(null)}
-                  onFocus={() => setActive(sectionId)}
-                  onBlur={() => setActive(null)}
-                >
-                  <rect
-                    x={x1 + 10}
-                    y={y - 36}
-                    width={x2 - x1 - 20}
-                    height="58"
-                    fill="transparent"
-                    tabIndex="0"
-                  />
-                  <line
-                    x1={x1 + 12}
-                    y1={y + 4}
-                    x2={x2 - 12}
-                    y2={y + 4}
-                    stroke={highlighted ? "#1e5a8a" : "transparent"}
-                    strokeWidth="12"
-                    opacity="0.16"
-                  />
-                  <motion.text
-                    x={mid}
-                    y={y - 24}
-                    textAnchor="middle"
-                    className="section-id"
-                    fill={highlighted ? "#1e5a8a" : "#8a8380"}
-                    initial={reduceMotion ? false : { opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true, amount: 0.4 }}
-                    transition={{ duration: 0.35, delay: 0 }}
-                  >
-                    {sectionId}
-                  </motion.text>
-                </g>
-              );
-            })}
-
-            {stations.map((station, index) => {
-              const highlighted =
-                active === station.id ||
-                active === sections[index] ||
-                active === sections[index - 1];
-              const terminus = index === 0 || index === count - 1;
-              return (
-                <g
-                  key={station.id}
-                  className="station-hit"
-                  tabIndex="0"
-                  onMouseEnter={() => setActive(station.id)}
-                  onMouseLeave={() => setActive(null)}
-                  onFocus={() => setActive(station.id)}
-                  onBlur={() => setActive(null)}
-                >
-                  <motion.g
-                    initial={reduceMotion ? false : { opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true, amount: 0.4 }}
-                    transition={{
-                      duration: 0.3,
-                      delay: 0,
-                    }}
-                  >
-                    <StationNode
-                      x={xAt(index)}
-                      y={y + 4}
-                      active={highlighted}
-                      terminus={terminus}
-                    />
-                  </motion.g>
-                </g>
-              );
-            })}
-          </svg>
-
-          <div className="station-list">
-            {stations.map((station) => (
-              <motion.span
-                key={station.id}
-                className={`station-name ${active === station.id ? "is-active" : ""}`}
-                tabIndex="0"
-                onMouseEnter={() => setActive(station.id)}
-                onMouseLeave={() => setActive(null)}
-                onFocus={() => setActive(station.id)}
-                onBlur={() => setActive(null)}
-                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.35 }}
-                transition={{
-                  duration: 0.35,
-                  delay: 0,
-                  ease,
-                }}
-              >
-                <StationLabelIcon />
-                {station.name}
-              </motion.span>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>
