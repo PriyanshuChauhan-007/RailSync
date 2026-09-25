@@ -1,68 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
 
-export default function TopMasterClock({
-  simulatedTime,
-  onTimeChange,
-  isPaused: externalPaused,
-  onTogglePause,
-}) {
-  const [internalSeconds, setInternalSeconds] = useState(() => {
-    const now = new Date();
-    return now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-  });
-  const [isPaused, setIsPaused] = useState(externalPaused ?? false);
-  const [multiplier, setMultiplier] = useState(1);
-  const timerRef = useRef(null);
-
-  // Sync with external paused state if provided
-  useEffect(() => {
-    if (externalPaused !== undefined) {
-      setIsPaused(externalPaused);
-    }
-  }, [externalPaused]);
-
-  // Tick simulation
-  useEffect(() => {
-    if (isPaused) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      return;
-    }
-
-    timerRef.current = setInterval(() => {
-      setInternalSeconds((prev) => {
-        const next = (prev + multiplier) % 86400;
-        return next;
-      });
-    }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPaused, multiplier]);
-
-  // Format 24-hour military time string
-  const hours = Math.floor(internalSeconds / 3600).toString().padStart(2, "0");
-  const minutes = Math.floor((internalSeconds % 3600) / 60).toString().padStart(2, "0");
-  const seconds = (internalSeconds % 60).toString().padStart(2, "0");
-  const formattedTime = `${hours}:${minutes}:${seconds} IST`;
-
-  const togglePause = () => {
-    const next = !isPaused;
-    setIsPaused(next);
-    onTogglePause?.(next);
-  };
-
-  const jumpTo = (hour, minute) => {
-    const sec = hour * 3600 + minute * 60;
-    setInternalSeconds(sec);
-    onTimeChange?.(sec);
-  };
-
-  const handleSliderChange = (e) => {
-    const sec = parseInt(e.target.value, 10);
-    setInternalSeconds(sec);
-    onTimeChange?.(sec);
-  };
+export default function TopMasterClock() {
+  const {
+    totalSec,
+    hours,
+    minutes,
+    formattedTime,
+    isPaused,
+    multiplier,
+    togglePause,
+    setMultiplier,
+    jumpTo,
+    handleSliderChange,
+  } = useSimulationTime();
 
   return (
     <div className="ir-master-clock-bar" role="region" aria-label="Indian Railways Master Operational Clock">
@@ -140,7 +90,7 @@ export default function TopMasterClock({
             min={0}
             max={86399}
             step={60}
-            value={internalSeconds}
+            value={totalSec}
             onChange={handleSliderChange}
             className="ir-clock-scrubber"
             aria-label="Scrub simulation time across 24-hour day"
@@ -151,3 +101,4 @@ export default function TopMasterClock({
     </div>
   );
 }
+

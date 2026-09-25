@@ -144,3 +144,48 @@ body { background: var(--page-bg); color: var(--text-primary); }
   .nav-appearance-actions { gap: 6px; }
   .nav-appearance-actions .workspace-home-button { font-size: 10px; padding: 7px; }
 }
+
+/* ============================================================
+   STRICT DARK MODE STYLING FOR DROPDOWNS
+   ============================================================ */
+select, option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+}
+
+select:hover, select:focus, option:hover, option:checked, option:focus {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+/* ============================================================
+   COMPONENT HEIGHTS & TEXT WRAPPING (NO CLIPPING)
+   ============================================================ */
+.rn-callout,
+.rn-callout-detail,
+.rs-example-note,
+.occ-telemetry-badge,
+.occ-telemetry-badge-sm,
+.section-card,
+.operations-card,
+.planning-workspace-intro p,
+.planner-kicker,
+.planning-title-row,
+.diagnostic-badge,
+.p-pill,
+.status-chip,
+.tqi-badge,
+.train-type-pill,
+.ir-kpi-card,
+.ir-badge-accent,
+button,
+.rs-btn-primary,
+.rs-btn-secondary,
+.train-marker-visual,
+.planner-timeline-bar.train {
+  min-height: fit-content;
+  height: auto;
+  white-space: normal;
+  word-break: break-word;
+}

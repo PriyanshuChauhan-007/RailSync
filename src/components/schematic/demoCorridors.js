@@ -1,10 +1,10 @@
 import { territoryLabel } from "../../utils/planningLabels.js";
 
-// Load public demo corridors from data directory with resilient relative paths
+// Load public corridors from data directory with resilient relative paths
 const files = import.meta.glob([
-  "../../../data/corridors/{saktigarh_memari_public_demo,western_hdn,delhi_agra}/*.json",
-  "../../../../data/corridors/{saktigarh_memari_public_demo,western_hdn,delhi_agra}/*.json",
-  "/data/corridors/{saktigarh_memari_public_demo,western_hdn,delhi_agra}/*.json"
+  "../../../data/corridors/{delhi_agra,eastern_hdn,western_hdn,dfccil_dadri}/*.json",
+  "../../../../data/corridors/{delhi_agra,eastern_hdn,western_hdn,dfccil_dadri}/*.json",
+  "/data/corridors/{delhi_agra,eastern_hdn,western_hdn,dfccil_dadri}/*.json"
 ], { eager: true, import: "default" });
 
 const read = (id, name) =>
@@ -13,7 +13,7 @@ const read = (id, name) =>
   files[`/data/corridors/${id}/${name}.json`] ??
   null;
 
-export const demoCorridors = ["saktigarh_memari_public_demo", "western_hdn", "delhi_agra"].map((id) => {
+export const demoCorridors = ["delhi_agra", "eastern_hdn", "western_hdn", "dfccil_dadri"].map((id) => {
   const manifest = read(id, "manifest") || { territory_id: id, display_name: id };
   return {
     ...manifest,
@@ -26,4 +26,3 @@ export const demoCorridors = ["saktigarh_memari_public_demo", "western_hdn", "de
     tasks: Array.isArray(read(id, "maintenance_tasks")) ? read(id, "maintenance_tasks") : []
   };
 });
-

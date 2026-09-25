@@ -15,6 +15,7 @@ import {
   timeLabel,
 } from "../../utils/timeline.js";
 import { OperationalTrainMarker, TimelineGrid } from "../timeline/TimelinePrimitives.jsx";
+import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
 
 export default function MaintenanceTimeline({
   sectionId,
@@ -29,6 +30,7 @@ export default function MaintenanceTimeline({
   selectedTaskId = "",
   diagnostics,
 }) {
+  const { totalSec, formattedTime } = useSimulationTime();
   const chartRef = useRef(null);
   const [selectedTrainKey, setSelectedTrainKey] = useState(null);
   const [tooltip, setTooltip] = useState(null);
@@ -41,6 +43,7 @@ export default function MaintenanceTimeline({
   }
 
   const ticks = buildTicks(horizon);
+  const simCursorPct = Math.min(100, Math.max(0, (totalSec / 86400) * 100));
   const taskById = useMemo(
     () => new Map(tasks.map((task) => [task.task_id, task])),
     [tasks],
@@ -291,10 +294,29 @@ export default function MaintenanceTimeline({
 
         <div className="timeline-axis-row" aria-hidden="true">
           <span />
-          <div className="planner-timeline-axis">
+          <div className="planner-timeline-axis" style={{ position: "relative" }}>
             {ticks.map((tick) => (
               <time key={tick.key}>{tick.label}</time>
             ))}
+            <div
+              style={{
+                position: "absolute",
+                left: `${simCursorPct}%`,
+                top: "-4px",
+                transform: "translateX(-50%)",
+                background: "#ef4444",
+                color: "#ffffff",
+                fontSize: "9px",
+                fontWeight: 700,
+                padding: "1px 5px",
+                borderRadius: "3px",
+                zIndex: 20,
+                whiteSpace: "nowrap",
+                boxShadow: "0 0 6px rgba(239, 68, 68, 0.8)",
+              }}
+            >
+              {formattedTime.slice(0, 5)}
+            </div>
           </div>
         </div>
 
@@ -339,6 +361,20 @@ export default function MaintenanceTimeline({
               </span>
               <div className="planner-timeline-track">
                 <TimelineGrid ticks={ticks} className="timeline-hour-lines" />
+                <div
+                  className="timeline-sim-cursor-line"
+                  style={{
+                    position: "absolute",
+                    left: `${simCursorPct}%`,
+                    top: 0,
+                    bottom: 0,
+                    width: "2px",
+                    background: "#ef4444",
+                    boxShadow: "0 0 6px rgba(239, 68, 68, 0.8)",
+                    zIndex: 10,
+                    pointerEvents: "none",
+                  }}
+                />
                 {lane.map((train) => {
                   const human = trainLabel(train.train_id, territory);
                   const canonical = canonicalTrainId(train.train_id);
@@ -391,6 +427,20 @@ export default function MaintenanceTimeline({
             <span className="timeline-lane-label">Possessions</span>
             <div className="planner-timeline-track">
               <TimelineGrid ticks={ticks} className="timeline-hour-lines" />
+              <div
+                className="timeline-sim-cursor-line"
+                style={{
+                  position: "absolute",
+                  left: `${simCursorPct}%`,
+                  top: 0,
+                  bottom: 0,
+                  width: "2px",
+                  background: "#ef4444",
+                  boxShadow: "0 0 6px rgba(239, 68, 68, 0.8)",
+                  zIndex: 10,
+                  pointerEvents: "none",
+                }}
+              />
               {blocks.map((block) => {
                 const blockTasks = block.tasks
                   .map((id) => taskById.get(id))

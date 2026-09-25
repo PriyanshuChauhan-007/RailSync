@@ -58,9 +58,10 @@ export function resourceStateLabel(state) {
 }
 export function territoryLabel(territory) {
   const names = {
-    saktigarh_memari_public_demo: "Eastern · Saktigarh → Memari",
-    western_hdn: "Western · Virar → Dahanu Road",
-    delhi_agra: "Northern · Hazrat Nizamuddin → Palwal",
+    delhi_agra: "[NR] Northern HDN (New Delhi – Agra Cantt)",
+    eastern_hdn: "[ER] Eastern HDN (Howrah – Asansol)",
+    western_hdn: "[WR] Western HDN (Mumbai Central – Surat)",
+    dfccil_dadri: "[DFCCIL] Dedicated Freight Corridor (Dadri – Tundla)",
   };
   return names[territory?.territory_id] ?? territory?.display_name ?? "Corridor";
 }

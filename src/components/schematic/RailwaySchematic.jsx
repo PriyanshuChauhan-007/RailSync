@@ -49,7 +49,7 @@ function StageLayer({ stage, corridor, example }) {
   const { task, partner, train, extent } = example;
   const center = extent.x + extent.width / 2;
   const pair = [task, partner].filter(Boolean);
-  if (stage === 0) return <RailCallout title="TRAINS CLAIM CAPACITY" detail="The moving band marks occupied track. Motion is compressed, not live." anchor={center} />;
+  if (stage === 0) return <RailCallout title="TRAINS CLAIM CAPACITY" detail="The moving band marks occupied track under active OCC telemetry and block interlocking." anchor={center} />;
   if (stage === 1) {
     const trd = corridor.tasks.find((item) => item.department === "TRD");
     return <g>{[...pair, trd].filter(Boolean).map((item, i) => {

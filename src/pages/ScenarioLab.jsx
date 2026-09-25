@@ -15,10 +15,8 @@ import "./analysis/analysis.css";
 export default function ScenarioLab({ session, setSession, onNavigate, onHome }) {
   const { plan, territory, trains, tasks, recovery, riskConfig } = session;
   const trainIds = [...new Set(trains.map((r) => r.train_id))];
-  const publicDemoTrain = territory?.territory_id === "saktigarh_memari_public_demo" && trainIds.includes("37814")
-    ? "37814"
-    : trainIds[0];
-  const [trainId, setTrainId] = useState(recovery?.disruption.train_id ?? publicDemoTrain ?? "");
+  const defaultTrain = trainIds.includes("12050") ? "12050" : trainIds[0];
+  const [trainId, setTrainId] = useState(recovery?.disruption.train_id ?? defaultTrain ?? "");
   const [delay, setDelay] = useState(recovery?.disruption.delay_minutes ?? 25);
   const [scenarioType, setScenarioType] = useState(recovery?.disruption.type ?? "TRAIN_DELAY");
   const [sectionId, setSectionId] = useState(territory?.sections?.[0]?.section_id ?? "");

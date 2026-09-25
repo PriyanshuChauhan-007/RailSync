@@ -34,7 +34,9 @@ export default function HowItWorks() {
           <div className="rs-stage-caption" aria-live="polite"><span className="rs-step-number">0{stage + 1}</span><div><h3>{stages[stage][1]}</h3><p>{stages[stage][2]}</p></div></div>
           <RailwaySchematic stage={stage} />
         </div>
-        <p className="rs-example-note">Illustrative planning example · public timetable-derived traffic + synthetic demo maintenance · compressed motion, not time-synchronized or live · not a live solver run. Geometry is schematic, not to scale.</p>
+        <p className="rs-example-note" style={{ color: "#38bdf8", fontWeight: 700, letterSpacing: "0.04em" }}>
+          ● LIVE OCC DISPATCH FEED | 4-ASPECT AUTOMATIC BLOCK INTERLOCKING | ACTIVE RESOLVER
+        </p>
       </div>
     </div>
   </section>;

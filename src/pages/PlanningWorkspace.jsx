@@ -19,7 +19,6 @@ import StrategicHorizonView from "../components/planning/StrategicHorizonView.js
 import IRKpiSummaryStrip from "../components/planning/IRKpiSummaryStrip.jsx";
 import DepartmentalIngestionDrawer from "../components/planning/DepartmentalIngestionDrawer.jsx";
 import RailSaathiAuditReport from "../components/planning/RailSaathiAuditReport.jsx";
-import LiveTrainTracker from "../components/planning/LiveTrainTracker.jsx";
 import {
   getTasks,
   getTerritory,
@@ -29,7 +28,7 @@ import {
 } from "../services/api.js";
 import "./planner/planner.css";
 
-const DEFAULT_TERRITORY_ID = "saktigarh_memari_public_demo";
+const DEFAULT_TERRITORY_ID = "delhi_agra";
 
 function territoryChoiceLabel(territory) {
   return territoryLabel(territory);
@@ -422,18 +421,11 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
 
         {dataReady && horizonMode === "tactical" ? (
           <>
-            {/* 3. Corridor Alignment Preview (PlannerCorridor) at the top */}
+            {/* Single Active Corridor Alignment & OCC Live Interlocking Tracker */}
             <PlannerCorridor
               territory={dataState.territory}
               selectedSection={selectedSection}
               onSelectSection={selectSection}
-            />
-
-            {/* Live Train Tracker & 4-Aspect Interlocking Radar with Locomotive HUD */}
-            <LiveTrainTracker
-              territory={dataState.territory}
-              trains={dataState.trains}
-              blocks={plan?.blocks ?? []}
               activeDisruption={activeDisruption}
             />
 

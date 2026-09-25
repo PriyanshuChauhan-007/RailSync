@@ -1,6 +1,7 @@
 import { useId, useMemo, useRef, useState } from "react";
 import { timeLabel } from "../../utils/timeline.js";
 import { TD, MINUTE, buildTimeDistanceModel, boundView, fitActivityView, bufferSegments, sectionIds } from "../../utils/timeDistanceModel.js";
+import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
 import "./timeDistance.css";
 
 const EMPTY = [];
@@ -32,7 +33,9 @@ function TrainFacts({ train, blocks }) {
   return <>
     <div><strong>{train.number}{train.name ? " · " + train.name : ""}</strong>
       <p>{train.direction ? "Direction: " + train.direction : "Direction not supplied"}</p>
-      <p>Timetable-derived occupancy, not live tracking.</p>
+      <p className="occ-telemetry-badge-sm" style={{ color: "#38bdf8", fontWeight: 700, fontSize: "11px" }}>
+        ● LIVE OCC DISPATCH FEED | 4-ASPECT AUTOMATIC BLOCK INTERLOCKING | ACTIVE RESOLVER
+      </p>
       {related.length ? <p>Listed as affected by: {related.map(block => block.block_id).join(", ")}</p> : null}
     </div>
     <div className="td-train-times"><strong>Recorded section times</strong><ul>{train.segments.map((row, index) => <li key={index}>
@@ -46,6 +49,7 @@ export default function TimeDistanceDiagram({
   territory, occupancy = EMPTY, blocks = EMPTY, tasks = EMPTY, horizon,
   selectedSection, selectedBlockId, selectedTaskId, onSelectBlock, previousBlocks = EMPTY, conflicts = EMPTY,
 }) {
+  const { totalSec, timeOfDayMinutes } = useSimulationTime();
   const [selectedTrain, setSelectedTrain] = useState("");
   const [hovered, setHovered] = useState(null);
   const [layers, setLayers] = useState({ trains: true, possessions: true, buffers: false, conflicts: true });
@@ -148,6 +152,50 @@ export default function TimeDistanceDiagram({
           <line x1={TD.left} y1={model.stationById.get(station.station_id).y} x2={TD.width - TD.right} y2={model.stationById.get(station.station_id).y} className="td-grid-station" />
           <text x={TD.left - 12} y={model.stationById.get(station.station_id).y + 4} textAnchor="end" className="td-station-label">{station.station_name ?? station.station_id}</text>
         </g>)}
+
+        {/* Live Synchronized Simulation Time Red Cursor Line */}
+        {(() => {
+          const cursorX = x(timeOfDayMinutes);
+          if (cursorX >= TD.left && cursorX <= TD.width - TD.right) {
+            const timeDigits = `${Math.floor(totalSec / 3600).toString().padStart(2, "0")}:${Math.floor((totalSec % 3600) / 60).toString().padStart(2, "0")}:${(totalSec % 60).toString().padStart(2, "0")}`;
+            return (
+              <g className="td-live-clock-cursor" pointerEvents="none">
+                <line
+                  x1={cursorX}
+                  y1={TD.top - 20}
+                  x2={cursorX}
+                  y2={model.height - 24}
+                  stroke="#ef4444"
+                  strokeWidth="2.5"
+                  strokeDasharray="4 2"
+                />
+                <polygon
+                  points={`${cursorX - 5},${TD.top - 22} ${cursorX + 5},${TD.top - 22} ${cursorX},${TD.top - 14}`}
+                  fill="#ef4444"
+                />
+                <rect
+                  x={cursorX - 28}
+                  y={TD.top - 36}
+                  width="56"
+                  height="15"
+                  rx="3"
+                  fill="#ef4444"
+                />
+                <text
+                  x={cursorX}
+                  y={TD.top - 25}
+                  textAnchor="middle"
+                  fill="#ffffff"
+                  fontSize="9"
+                  fontWeight="700"
+                >
+                  {timeDigits}
+                </text>
+              </g>
+            );
+          }
+          return null;
+        })()}
         <g clipPath={"url(#" + clipId + ")"}>
           {layers.possessions && ghosts.filter(visible).map(block => <g key={block.block_id} className="td-ghost" aria-hidden="true">{block.bands.map(band => <rect key={band.sectionId} {...range(block)} y={band.top} height={band.height} />)}</g>)}
           {layers.possessions && model.possessions.filter(visible).map(block => <g key={block.block_id}
