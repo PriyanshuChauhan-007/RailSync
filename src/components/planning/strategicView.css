@@ -1,13 +1,13 @@
 /* Strategic 30-Day Master Machine Outlook Styling */
 
 .ir-strategic-view {
-  background: #08111e;
-  border: 1px solid #1e293b;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 18px 22px;
   margin-bottom: 24px;
-  color: #e2e8f0;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
 
 .ir-strategic-header {
@@ -17,7 +17,7 @@
   flex-wrap: wrap;
   gap: 14px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 14px;
 }
 
@@ -25,13 +25,13 @@
   margin: 4px 0 2px;
   font-size: 16px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-strategic-header p {
   margin: 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   max-width: 780px;
   line-height: 1.45;
 }
@@ -40,7 +40,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  background: rgba(16, 185, 129, 0.12);
+  background-color: rgba(16, 185, 129, 0.12);
   border: 1px solid #10b981;
   padding: 6px 12px;
   border-radius: 6px;
@@ -48,13 +48,13 @@
 }
 
 .ir-strategic-kpi-badge span {
-  color: #a7f3d0;
+  color: #10b981;
   font-weight: 600;
   letter-spacing: 0.04em;
 }
 
 .ir-strategic-kpi-badge strong {
-  color: #34d399;
+  color: #10b981;
   font-size: 13px;
 }
 
@@ -66,13 +66,14 @@
 }
 
 .ir-machine-card {
-  background: #0b172a;
-  border: 1px solid #1e293b;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  color: var(--text-primary);
 }
 
 .ir-machine-top {
@@ -84,8 +85,9 @@
 .ir-machine-code {
   font-size: 10px;
   font-weight: 800;
-  background: #1e293b;
-  color: #38bdf8;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--accent-kpi-blue);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -93,13 +95,13 @@
 .ir-machine-status {
   font-size: 10px;
   font-weight: 700;
-  color: #34d399;
+  color: #10b981;
 }
 
 .ir-machine-card h4 {
   margin: 2px 0 6px;
   font-size: 13px;
-  color: #f1f5f9;
+  color: var(--text-primary);
 }
 
 .ir-machine-detail-row {
@@ -110,11 +112,11 @@
 }
 
 .ir-machine-detail-row span {
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .ir-machine-detail-row strong {
-  color: #cbd5e1;
+  color: var(--text-primary);
   text-align: right;
 }
 
@@ -123,20 +125,20 @@
 }
 
 .text-horizon {
-  color: #38bdf8 !important;
+  color: var(--accent-kpi-blue) !important;
 }
 
 .ir-machine-footer {
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid #17253d;
+  border-top: 1px solid var(--border-subtle);
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .ir-strategic-calendar-block {
-  background: #060e1a;
-  border: 1px solid #17253d;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 14px 16px;
 }
@@ -146,7 +148,7 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .ir-calendar-weeks-row {
@@ -156,8 +158,8 @@
 }
 
 .ir-cal-week {
-  background: #091322;
-  border: 1px solid #1e293b;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 10px 12px;
   display: flex;
@@ -166,14 +168,14 @@
 }
 
 .ir-cal-week.is-current {
-  border-color: #0284c7;
-  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
 }
 
 .ir-week-title {
   font-size: 11px;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
   letter-spacing: 0.04em;
 }
 
@@ -194,21 +196,23 @@
 }
 
 .ir-week-bar.is-active {
-  background: #1d4ed8;
-  color: #ffffff;
+  background-color: var(--accent);
+  color: var(--on-accent);
 }
 
 .ir-week-bar.is-planned {
-  background: #1e3a5f;
-  color: #7dd3fc;
+  background-color: var(--surface-subtle);
+  color: var(--accent-kpi-blue);
+  border: 1px solid var(--border-color);
 }
 
 .ir-week-bar.is-freight {
-  background: #064e3b;
-  color: #a7f3d0;
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .ir-week-sub {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }

@@ -242,13 +242,13 @@ p {
 }
 
 .navbar-overlay:not(.scrolled) .rs-btn-primary {
-  background: #fff;
-  color: var(--navy);
-  border-color: #fff;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
 }
 
 .navbar-overlay:not(.scrolled) .rs-btn-primary:hover {
-  background: var(--paper);
+  filter: brightness(1.1);
 }
 
 .navbar.open {

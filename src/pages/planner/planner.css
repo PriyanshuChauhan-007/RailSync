@@ -2331,8 +2331,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  background: #091322;
-  border: 1px solid #1a2f4c;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 8px 14px;
   border-radius: 6px;
   margin-bottom: 20px;
@@ -2341,16 +2341,16 @@
 .ir-horizon-toggle-group {
   display: flex;
   gap: 4px;
-  background: #040912;
+  background-color: var(--bg-card-subtle);
   padding: 3px;
   border-radius: 5px;
-  border: 1px solid #162438;
+  border: 1px solid var(--border-subtle);
 }
 
 .ir-horizon-btn {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 700;
   padding: 8px 16px;
@@ -2362,18 +2362,18 @@
 }
 
 .ir-horizon-btn:hover {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-horizon-btn.is-active {
-  background: #1d4ed8;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.4);
+  background-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .ir-horizon-caption {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
@@ -2384,8 +2384,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px;
-  background: #0b1526;
-  border: 1px solid #1b2e4b;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 8px 14px;
   margin-top: 16px;
@@ -2399,9 +2399,9 @@
 }
 
 .ir-view-btn {
-  background: #111d30;
-  border: 1px solid #1f3759;
-  color: #94a3b8;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 700;
   padding: 7px 14px;
@@ -2413,31 +2413,31 @@
 }
 
 .ir-view-btn:hover {
-  background: #192d4b;
-  color: #f8fafc;
-  border-color: #2b4c7a;
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+  border-color: var(--accent-kpi-blue);
 }
 
 .ir-view-btn.is-active {
-  background: #0284c7;
-  color: #ffffff;
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
 }
 
 .ir-view-desc {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 /* TMS Live Viewport Panel */
 .ir-tms-live-viewport {
-  background: #08111e;
-  border: 1px solid #1a2f4c;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 16px 20px;
   margin-bottom: 24px;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .ir-tms-live-header {
@@ -2447,20 +2447,20 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 14px;
-  border-bottom: 1px solid #14243b;
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 12px;
 }
 
 .ir-tms-live-header h3 {
   margin: 0 0 4px;
   font-size: 16px;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-tms-live-header p {
   margin: 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .ir-tms-filter-chips {
@@ -2470,9 +2470,9 @@
 }
 
 .ir-tms-chip {
-  background: #0e1b2f;
-  border: 1px solid #1f3759;
-  color: #94a3b8;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 600;
   padding: 4px 10px;
@@ -2483,9 +2483,9 @@
 }
 
 .ir-tms-chip.is-active {
-  background: #1d4ed8;
-  color: #fff;
-  border-color: #3b82f6;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
 }
 
 .ir-tms-table-container {
@@ -2500,22 +2500,22 @@
 }
 
 .ir-tms-live-table th {
-  background: #040912;
-  color: #94a3b8;
+  background-color: var(--bg-card-subtle);
+  color: var(--text-muted);
   font-weight: 700;
   padding: 9px 12px;
-  border-bottom: 1px solid #1a2f4c;
+  border-bottom: 1px solid var(--border-color);
   font-size: 11px;
   text-transform: uppercase;
 }
 
 .ir-tms-live-table td {
   padding: 10px 12px;
-  border-bottom: 1px solid #111e33;
-  color: #cbd5e1;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
 }
 
 .ir-tms-live-table tr:hover {
-  background: rgba(30, 58, 95, 0.15);
+  background-color: var(--surface-subtle);
 }
 

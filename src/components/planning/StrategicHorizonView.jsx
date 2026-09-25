@@ -102,7 +102,10 @@ export default function StrategicHorizonView({ territory }) {
         <h4>30-Day Corridor Availability &amp; Shadow Possession Heatmap</h4>
         <div className="ir-calendar-weeks-row">
           <div className="ir-cal-week is-current">
-            <div className="ir-week-title">WEEK 1 (CURRENT TACTICAL)</div>
+            <div className="ir-week-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "6px" }}>
+              <span>WEEK 1</span>
+              <span className="px-2 py-0.5 text-xs font-semibold rounded bg-sky-500/10 text-sky-600 dark:text-sky-400">ACTIVE TACTICAL</span>
+            </div>
             <div className="ir-week-bars">
               <div className="ir-week-bar is-active" style={{ width: "85%" }}>
                 P-Way + S&amp;T + TRD Integrated Joint Block (2.0 hrs)

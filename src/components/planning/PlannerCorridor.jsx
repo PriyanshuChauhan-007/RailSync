@@ -362,14 +362,14 @@ export default function PlannerCorridor({
         <div>
           <div className="ir-telemetry-badge" style={{ marginBottom: "6px" }}>
             <span className="ir-radar-ping" />
-            <strong style={{ color: "#38bdf8", letterSpacing: "0.05em", fontSize: "11px" }}>
+            <strong style={{ color: "var(--accent-kpi-blue)", letterSpacing: "0.05em", fontSize: "11px" }}>
               ● LIVE OCC DISPATCH FEED | 4-ASPECT AUTOMATIC BLOCK INTERLOCKING | ACTIVE RESOLVER
             </strong>
           </div>
-          <h2 style={{ fontSize: "18px", margin: "2px 0 4px", color: "#f8fafc" }}>
+          <h2 style={{ fontSize: "18px", margin: "2px 0 4px", color: "var(--text-primary)" }}>
             {territoryLabel(territory)}
           </h2>
-          <p style={{ margin: 0, fontSize: "12px", color: "#94a3b8" }}>
+          <p style={{ margin: 0, fontSize: "12px", color: "var(--text-secondary)" }}>
             Continuous chainage: <strong>{landmarkStations.map((s) => `${s.station_name} (${s.km} km)`).join(" → ")}</strong>
           </p>
         </div>

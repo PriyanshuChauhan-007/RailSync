@@ -2,95 +2,41 @@
    INDIAN RAILWAYS OCC DESIGN SYSTEM & TOKENS (LIGHT / DARK)
    ============================================================ */
 
-:root {
-  color-scheme: light;
+/* DARK THEME (Native OCC Console - Default Root) */
+:root,
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
   
-  /* Core Base Tokens */
-  --bg-primary: #f8fafc;
-  --bg-surface: #ffffff;
-  --card-bg: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --border-color: #cbd5e1;
-  --border-subtle: #e2e8f0;
-  --accent-blue: #0284c7;
+  --bg-page: #080c14;
+  --bg-card: #0f172a;
+  --bg-card-subtle: #1e293b;
+  --bg-input: #0b1120;
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-kpi-blue: #38bdf8;
+  --track-rail-color: #334155;
+  --track-canvas-bg: #0b0f19;
+
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
 
   /* Aliases & Semantic Roles */
-  --page-bg: var(--bg-primary);
-  --surface-primary: var(--bg-surface);
-  --surface-secondary: #f1f5f9;
-  --surface-elevated: #ffffff;
-  --surface-subtle: #edf3f7;
-  --border-primary: var(--border-color);
-  --accent: #1e5a8a;
-  --accent-muted: #dceaf4;
-  --success: #2d6a4f;
-  --on-accent: #ffffff;
-  --warning: #a55f14;
-  --danger: #b42318;
-  --info: #0284c7;
-
-  --background: var(--bg-primary);
-  --surface: var(--bg-surface);
-  --text: var(--text-primary);
-  --border: var(--border-color);
-  --nav-background: var(--bg-surface);
-  --input-background: var(--bg-surface);
-  --selected-background: var(--surface-subtle);
-  --confirm: var(--success);
-  --confirm-surface: #edf4ef;
-  --warning-surface: #fff6e7;
-  --danger-surface: #fff0ed;
-  --chart-grid: #dce2e7;
-  --chart-label: #536576;
-  --chart-train: #1e5a8a;
-  --chart-possession: #2d6a4f;
-  --chart-possession-fill: #e6f0ea;
-  --chart-buffer: #c7974a;
-  --focus: #0284c7;
-  --navy: var(--text-primary);
-  --navy-mid: var(--text-secondary);
-  --ink: var(--text-primary);
-  --muted: var(--text-muted);
-  --line: var(--border-color);
-  --white: var(--bg-surface);
-  --paper: var(--surface-secondary);
-  --train: var(--accent);
-  --block: var(--warning);
-  --critical: var(--danger);
-}
-
-:root[data-theme="dark"],
-[data-theme="dark"],
-.dark {
-  color-scheme: dark;
-  
-  /* Dark Core Base Tokens */
-  --bg-primary: #0b1322;
-  --bg-surface: #0f172a;
-  --card-bg: #132032;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --border-color: #334155;
-  --border-subtle: #1e293b;
-  --accent-blue: #38bdf8;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-
-  /* Aliases & Semantic Roles in Dark */
-  --page-bg: var(--bg-primary);
-  --surface-primary: var(--bg-surface);
-  --surface-secondary: #162638;
+  --page-bg: var(--bg-page);
+  --bg-primary: var(--bg-page);
+  --bg-surface: var(--bg-card);
+  --card-bg: var(--bg-card);
+  --surface-primary: var(--bg-card);
+  --surface-secondary: var(--bg-card-subtle);
   --surface-elevated: #1e3349;
   --surface-subtle: #243f53;
   --border-primary: var(--border-color);
   --accent: #82b7e1;
+  --accent-blue: var(--accent-kpi-blue);
   --accent-muted: #243f53;
   --success: #89c9a5;
   --on-accent: #0b1322;
@@ -98,12 +44,12 @@
   --danger: #f0aaa0;
   --info: #83bce6;
 
-  --background: var(--bg-primary);
-  --surface: var(--bg-surface);
+  --background: var(--bg-page);
+  --surface: var(--bg-card);
   --text: var(--text-primary);
   --border: var(--border-color);
-  --nav-background: #0f172a;
-  --input-background: #10202e;
+  --nav-background: var(--bg-card);
+  --input-background: var(--bg-input);
   --selected-background: var(--surface-subtle);
   --confirm: var(--success);
   --confirm-surface: #203c32;
@@ -115,13 +61,84 @@
   --chart-possession: #89c9a5;
   --chart-possession-fill: #203c32;
   --chart-buffer: #cda766;
-  --focus: #38bdf8;
+  --focus: var(--accent-kpi-blue);
   --navy: var(--text-primary);
   --navy-mid: var(--text-secondary);
   --ink: var(--text-primary);
   --muted: var(--text-muted);
   --line: var(--border-color);
-  --white: var(--bg-surface);
+  --white: var(--bg-card);
+  --paper: var(--surface-secondary);
+  --train: var(--accent);
+  --block: var(--warning);
+  --critical: var(--danger);
+}
+
+/* LIGHT THEME (Enterprise Railway Portal) */
+[data-theme="light"],
+.light {
+  color-scheme: light;
+
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f1f5f9;
+  --bg-input: #ffffff;
+  --border-color: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent-kpi-blue: #0284c7;
+  --track-rail-color: #94a3b8;
+  --track-canvas-bg: #f8fafc;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Aliases & Semantic Roles */
+  --page-bg: var(--bg-page);
+  --bg-primary: var(--bg-page);
+  --bg-surface: var(--bg-card);
+  --card-bg: var(--bg-card);
+  --surface-primary: var(--bg-card);
+  --surface-secondary: var(--bg-card-subtle);
+  --surface-elevated: #ffffff;
+  --surface-subtle: #edf3f7;
+  --border-primary: var(--border-color);
+  --accent: #1e5a8a;
+  --accent-blue: var(--accent-kpi-blue);
+  --accent-muted: #dceaf4;
+  --success: #2d6a4f;
+  --on-accent: #ffffff;
+  --warning: #a55f14;
+  --danger: #b42318;
+  --info: #0284c7;
+
+  --background: var(--bg-page);
+  --surface: var(--bg-card);
+  --text: var(--text-primary);
+  --border: var(--border-color);
+  --nav-background: var(--bg-card);
+  --input-background: var(--bg-input);
+  --selected-background: var(--surface-subtle);
+  --confirm: var(--success);
+  --confirm-surface: #edf4ef;
+  --warning-surface: #fff6e7;
+  --danger-surface: #fff0ed;
+  --chart-grid: #dce2e7;
+  --chart-label: #536576;
+  --chart-train: #1e5a8a;
+  --chart-possession: #2d6a4f;
+  --chart-possession-fill: #e6f0ea;
+  --chart-buffer: #c7974a;
+  --focus: var(--accent-kpi-blue);
+  --navy: var(--text-primary);
+  --navy-mid: var(--text-secondary);
+  --ink: var(--text-primary);
+  --muted: var(--text-muted);
+  --line: var(--border-color);
+  --white: var(--bg-card);
   --paper: var(--surface-secondary);
   --train: var(--accent);
   --block: var(--warning);
@@ -129,7 +146,7 @@
 }
 
 body {
-  background: var(--bg-primary);
+  background-color: var(--bg-page);
   color: var(--text-primary);
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
 }
@@ -150,7 +167,7 @@ body {
   padding: 6px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  background: var(--bg-surface);
+  background-color: var(--bg-card);
   color: var(--text-primary);
   font: 600 13px var(--font-sans);
   cursor: pointer;
@@ -169,129 +186,151 @@ body {
 
 /* Dropdown Menus (<select> & <option>) Theme Support */
 select, option {
-  background-color: var(--bg-surface);
+  background-color: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
 }
 
 select:focus, option:hover, option:checked, option:focus {
-  background-color: var(--surface-subtle);
+  background-color: var(--bg-card-subtle);
   color: var(--text-primary);
 }
 
-[data-theme="dark"] :is(.planning-workspace, .analysis-page, .scenario-page) :is(button, select, input, textarea),
-[data-theme="dark"] .landing :is(select, input),
-[data-theme="dark"] .theme-toggle {
-  background-color: var(--input-background);
+/* General Theme Mappings */
+:is(.planning-workspace, .analysis-page, .scenario-page) :is(button, select, input, textarea) {
+  background-color: var(--bg-input);
   color: var(--text-primary);
   border-color: var(--border-color);
 }
 
-[data-theme="dark"] :is(.workspace-navigation button, .nav-brand) {
+.workspace-navigation button,
+.nav-brand {
   background: transparent;
   color: var(--text-primary);
 }
 
-[data-theme="dark"] :is(.navbar-overlay.scrolled, .navbar-solid, .navbar.open) {
-  background: rgba(15, 23, 42, 0.96);
+:is(.navbar-overlay.scrolled, .navbar-solid, .navbar.open) {
+  background-color: var(--bg-card);
   color: var(--text-primary);
   border-color: var(--border-color);
 }
 
-[data-theme="dark"] :is(.navbar-overlay.scrolled, .navbar-solid, .navbar.open) :is(.nav-links a, .nav-links button.link, .nav-brand) {
+:is(.navbar-overlay.scrolled, .navbar-solid, .navbar.open) :is(.nav-links a, .nav-links button.link, .nav-brand) {
   color: var(--text-primary);
 }
 
-[data-theme="dark"] :is(.rs-btn-primary, .planner-optimize-button, .plan-view-switch button[aria-pressed="true"]) {
-  background: var(--accent);
+:is(.rs-btn-primary, .planner-optimize-button, .plan-view-switch button[aria-pressed="true"]) {
+  background-color: var(--accent);
   color: var(--on-accent);
   border-color: var(--accent);
+  font-weight: 700;
 }
 
-[data-theme="dark"] :is(.planner-task-row.is-selected, .planner-task-row:hover, .operations-tabs button.is-active) {
-  background: var(--selected-background);
+[data-theme="dark"] .rs-btn-primary,
+.dark .rs-btn-primary {
+  background-color: var(--accent-kpi-blue) !important;
+  color: #080c14 !important;
+  border-color: var(--accent-kpi-blue) !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .rs-btn-primary:hover,
+.dark .rs-btn-primary:hover {
+  background-color: #7dd3fc !important;
+  color: #080c14 !important;
+  border-color: #7dd3fc !important;
+}
+
+[data-theme="light"] .rs-btn-primary,
+.light .rs-btn-primary {
+  background-color: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  font-weight: 700;
+}
+
+:is(.planner-task-row.is-selected, .planner-task-row:hover, .operations-tabs button.is-active) {
+  background-color: var(--selected-background);
   border-color: var(--accent);
 }
 
-[data-theme="dark"] :is(.block-pill-dept, .compact-tools .operations-card > summary,
+:is(.block-pill-dept, .compact-tools .operations-card > summary,
   .planner-task-title-row strong, .timeline-lane-label, .train-bar-human, .train-marker-visual,
   .row-label, .pane-header strong, .footer strong, .railsync-site-footer strong) {
   color: var(--text-primary);
 }
 
-[data-theme="dark"] :is(.block-pill-time, .block-pill-tasks, .selected-route-train, .scenario-flow,
+:is(.block-pill-time, .block-pill-tasks, .selected-route-train, .scenario-flow,
   .compact-tools .operations-list small, .footer p, .footer a, .footer span,
   .railsync-site-footer p, .railsync-site-footer a, .railsync-site-footer span, .pane-caption) {
   color: var(--text-muted);
 }
 
-[data-theme="dark"] :is(.analysis-outcome, .block-pill-integrated, .task-plan-state,
+:is(.analysis-outcome, .block-pill-integrated, .task-plan-state,
   .lifecycle-badge, .pane-tag.tag-railsync) {
-  background: var(--confirm-surface);
+  background-color: var(--confirm-surface);
   color: var(--confirm);
 }
 
-[data-theme="dark"] :is(.outcome-reduction-badge, .paired-block.railsync) {
+:is(.outcome-reduction-badge, .paired-block.railsync) {
   color: var(--on-accent);
 }
 
-[data-theme="dark"] :is(.outcome-duration-shift > div:last-child, .pane-caption-saved,
+:is(.outcome-duration-shift > div:last-child, .pane-caption-saved,
   .scenario-flow strong:last-child, .recovery-legend .retained,
   .card-retained strong, .card-retained .recovery-card-label) {
   color: var(--confirm);
 }
 
-[data-theme="dark"] :is(.card-shifted strong, .card-shifted .recovery-card-label, .recovery-legend .shifted) {
+:is(.card-shifted strong, .card-shifted .recovery-card-label, .recovery-legend .shifted) {
   color: var(--warning);
 }
 
-[data-theme="dark"] :is(.card-cancelled strong, .card-cancelled .recovery-card-label,
+:is(.card-cancelled strong, .card-cancelled .recovery-card-label,
   .recovery-legend .cancelled, .recovery-legend .disrupted) {
   color: var(--danger);
 }
 
-[data-theme="dark"] :is(.card-new strong, .card-new .recovery-card-label, .recovery-legend .new) {
-  color: var(--accent);
+:is(.card-new strong, .card-new .recovery-card-label, .recovery-legend .new) {
+  color: var(--accent-kpi-blue);
 }
 
-[data-theme="dark"] :is(.scenario-error, .planner-data-state.is-error, .optimizer-status.is-error, .risk-error) {
-  background: var(--danger-surface);
+:is(.scenario-error, .planner-data-state.is-error, .optimizer-status.is-error, .risk-error) {
+  background-color: var(--danger-surface);
   color: var(--danger);
 }
 
-[data-theme="dark"] .risk-status-value.is-experimental {
-  background: var(--warning-surface);
+.risk-status-value.is-experimental {
+  background-color: var(--warning-surface);
   color: var(--warning);
 }
 
-[data-theme="dark"] :is(.planner-corridor-section-label, .td-station-label, .td-time-label, .td-scope-label) {
+:is(.planner-corridor-section-label, .td-station-label, .td-time-label, .td-scope-label) {
   fill: var(--chart-label);
 }
 
-[data-theme="dark"] .planner-corridor-sleeper {
+.planner-corridor-sleeper {
   stroke: var(--chart-grid);
 }
 
-[data-theme="dark"] :is(.landing-territory-launcher, .how, .integrated-possession-section, .corridor, .solution, .final-cta) :is(h2, h3, strong) {
-  color: var(--text-primary) !important;
+:is(.landing-territory-launcher, .how, .integrated-possession-section, .corridor, .solution, .final-cta) :is(h2, h3, strong) {
+  color: var(--text-primary);
 }
 
-[data-theme="dark"] .landing :is(.section-heading p, .pipeline-stage p, .pipeline-progress-label, .pipeline-caption) {
-  color: var(--text-muted) !important;
+.landing :is(.section-heading p, .pipeline-stage p, .pipeline-progress-label, .pipeline-caption) {
+  color: var(--text-muted);
 }
 
-[data-theme="dark"] .landing :is(.section-eyebrow, .pipeline-stage-category, .pipeline-stage-icon) {
-  color: var(--accent-blue) !important;
+.landing :is(.section-eyebrow, .pipeline-stage-category, .pipeline-stage-icon) {
+  color: var(--accent-kpi-blue);
 }
 
-[data-theme="dark"] :is(.pipeline-stage-index, .station-list > span) {
-  color: var(--text-primary) !important;
+:is(.pipeline-stage-index, .station-list > span) {
+  color: var(--text-primary);
 }
 
-/* ============================================================
-   PILL & BADGE TEXT DISCIPLINE (NO OVERFLOW)
-   ============================================================ */
+/* Pill & Badge Text Discipline */
 .p-pill,
 .block-pill-dept,
 .block-pill-time,
@@ -312,19 +351,19 @@ select:focus, option:hover, option:checked, option:focus {
 }
 
 .p-pill.p1 {
-  background: rgba(239, 68, 68, 0.15);
+  background-color: rgba(239, 68, 68, 0.15);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 .p-pill.p2 {
-  background: rgba(245, 158, 11, 0.15);
+  background-color: rgba(245, 158, 11, 0.15);
   color: #f59e0b;
   border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
 .p-pill.p3 {
-  background: rgba(16, 185, 129, 0.15);
+  background-color: rgba(16, 185, 129, 0.15);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.35);
 }

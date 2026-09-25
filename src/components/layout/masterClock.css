@@ -7,15 +7,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid #334155;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 12px 18px;
   margin: 10px 0 16px;
-  color: #e2e8f0;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  color: var(--text-primary);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
   height: auto;
   white-space: normal;
@@ -35,15 +33,15 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #38bdf8;
+  color: var(--accent-kpi-blue);
 }
 
 .ir-telemetry-dot {
   width: 8px;
   height: 8px;
-  background-color: #38bdf8;
+  background-color: var(--accent-kpi-blue);
   border-radius: 50%;
-  box-shadow: 0 0 10px #38bdf8;
+  box-shadow: 0 0 10px var(--accent-kpi-blue);
   animation: ir-pulse-cyan 2s infinite ease-in-out;
   flex-shrink: 0;
 }
@@ -65,13 +63,12 @@
   font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #f8fafc;
-  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+  color: var(--text-primary);
 }
 
 .ir-clock-zone {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -93,9 +90,9 @@
 }
 
 .ir-clock-play-btn {
-  background: #1e293b;
-  border: 1px solid #475569;
-  color: #f8fafc;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   font-size: 11px;
   font-weight: 700;
   padding: 5px 12px;
@@ -107,29 +104,29 @@
 }
 
 .ir-clock-play-btn:hover {
-  background: #334155;
-  border-color: #64748b;
+  background-color: var(--surface-subtle);
+  border-color: var(--accent-kpi-blue);
 }
 
 .ir-clock-play-btn.is-paused {
-  background: #b45309;
-  border-color: #d97706;
+  background-color: var(--warning);
+  border-color: var(--warning);
   color: #ffffff;
 }
 
 .ir-clock-multipliers {
   display: flex;
   gap: 4px;
-  background: #0b1322;
+  background-color: var(--bg-card);
   padding: 2px;
   border-radius: 4px;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--border-color);
 }
 
 .ir-clock-rate-btn {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 600;
   padding: 4px 8px;
@@ -139,41 +136,39 @@
   white-space: normal;
 }
 
-.ir-clock-rate-btn:hover {
-  color: #f8fafc;
+.ir-clock-rate-btn.is-active {
+  background-color: var(--accent);
+  color: var(--on-accent);
 }
 
-.ir-clock-rate-btn.is-active {
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
+.ir-clock-rate-btn:hover:not(.is-active) {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
 }
 
 .ir-clock-quick-jumps {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
 .ir-clock-jump-btn {
-  background: #111e30;
-  border: 1px solid #203a5c;
-  color: #93c5fd;
-  font-size: 11px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 10px;
   font-weight: 600;
-  padding: 4px 9px;
+  padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s ease;
   height: auto;
   white-space: normal;
-  transition: all 0.15s;
 }
 
 .ir-clock-jump-btn:hover {
-  background: #1e3a63;
-  color: #ffffff;
-  border-color: #3b82f6;
+  border-color: var(--accent-kpi-blue);
+  color: var(--text-primary);
 }
 
 .ir-clock-scrubber-row {
@@ -184,31 +179,40 @@
 
 .ir-scrubber-label {
   font-size: 11px;
-  color: #94a3b8;
-  white-space: nowrap;
+  color: var(--text-secondary);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .ir-clock-scrubber {
   flex: 1;
-  accent-color: #38bdf8;
+  accent-color: var(--accent-kpi-blue);
   cursor: pointer;
 }
 
-.ir-scrubber-bounds {
-  font-size: 10px;
-  color: #64748b;
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  white-space: nowrap;
+.ir-clock-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
-@media (max-width: 900px) {
-  .ir-master-clock-bar.occ-dispatch-controller,
-  .ir-master-clock-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .ir-clock-center {
-    max-width: 100%;
-  }
+.ir-clock-speed-stat {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ir-clock-speed-stat strong {
+  color: var(--accent-kpi-blue);
+}
+
+.ir-clock-shift-pill {
+  font-size: 10px;
+  font-weight: 700;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }

@@ -1,14 +1,14 @@
 /* Live Train Tracker & 4-Aspect Interlocking Radar */
 
 .ir-live-tracker-panel {
-  background: #08111e;
-  border: 1px solid #1a2f4c;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 18px 22px;
   margin-top: 18px;
   margin-bottom: 22px;
-  color: #e2e8f0;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
 
 .ir-tracker-header {
@@ -18,21 +18,22 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 18px;
-  border-bottom: 1px solid #16263d;
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 12px;
 }
 
+.ir-tracker-header h2,
 .ir-tracker-header h3 {
   margin: 4px 0 2px;
   font-size: 16px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-tracker-header p {
   margin: 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   max-width: 780px;
 }
 
@@ -42,7 +43,7 @@
   gap: 8px;
   font-size: 11px;
   font-weight: 700;
-  color: #38bdf8;
+  color: var(--accent-kpi-blue);
   letter-spacing: 0.06em;
 }
 
@@ -50,8 +51,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 10px #38bdf8;
+  background-color: var(--accent-kpi-blue);
+  box-shadow: 0 0 10px var(--accent-kpi-blue);
   animation: ir-ping 1.8s infinite;
 }
 
@@ -62,8 +63,8 @@
 
 .ir-corridor-track-canvas {
   position: relative;
-  background: #050b14;
-  border: 1px solid #132238;
+  background-color: var(--track-canvas-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 34px 20px 24px;
   overflow-x: auto;
@@ -87,12 +88,12 @@
 .ir-st-name {
   font-size: 11px;
   font-weight: 700;
-  color: #cbd5e1;
+  color: var(--text-primary);
 }
 
 .ir-st-km {
   font-size: 9px;
-  color: #64748b;
+  color: var(--text-muted);
   font-family: ui-monospace, SFMono-Regular, monospace;
 }
 
@@ -104,7 +105,7 @@
   display: block;
   font-size: 10px;
   font-weight: 800;
-  color: #64748b;
+  color: var(--text-secondary);
   letter-spacing: 0.05em;
   margin-bottom: 6px;
 }
@@ -112,9 +113,9 @@
 .ir-rail-track {
   position: relative;
   height: 28px;
-  background: #091322;
-  border-top: 2px solid #475569;
-  border-bottom: 2px solid #475569;
+  background-color: var(--bg-card-subtle);
+  border-top: 2px solid var(--track-rail-color);
+  border-bottom: 2px solid var(--track-rail-color);
   display: flex;
   align-items: center;
 }
@@ -126,8 +127,8 @@
     90deg,
     transparent,
     transparent 16px,
-    rgba(148, 163, 184, 0.15) 16px,
-    rgba(148, 163, 184, 0.15) 20px
+    rgba(148, 163, 184, 0.2) 16px,
+    rgba(148, 163, 184, 0.2) 20px
   );
   pointer-events: none;
 }
@@ -147,33 +148,33 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1px solid #000;
+  border: 1px solid var(--border-color);
 }
 
 .ir-sig-lamp.green {
-  background: #10b981;
+  background-color: #10b981;
   box-shadow: 0 0 8px #10b981;
 }
 
 .ir-sig-lamp.yellow {
-  background: #f59e0b;
+  background-color: #f59e0b;
   box-shadow: 0 0 8px #f59e0b;
 }
 
 .ir-sig-lamp.double_yellow {
-  background: #eab308;
+  background-color: #eab308;
   box-shadow: 0 0 8px #eab308;
 }
 
 .ir-sig-lamp.red {
-  background: #ef4444;
+  background-color: #ef4444;
   box-shadow: 0 0 10px #ef4444;
 }
 
 .ir-sig-id {
   font-size: 8px;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 700;
 }
 
@@ -184,28 +185,30 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #1e3a8a;
-  border: 1px solid #3b82f6;
+  background-color: var(--bg-card);
+  border: 1px solid var(--accent-kpi-blue);
+  color: var(--text-primary);
   padding: 3px 8px;
   border-radius: 6px;
   cursor: pointer;
   z-index: 10;
   transition: transform 0.15s ease, left 0.4s linear;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   height: auto;
   white-space: normal;
 }
 
 .ir-radar-train:hover {
   transform: translateX(-50%) scale(1.08);
-  border-color: #60a5fa;
-  background: #2563eb;
+  border-color: var(--accent-kpi-blue);
+  background-color: var(--bg-card-subtle);
 }
 
 .ir-radar-train.is-selected {
-  background: #0284c7;
-  border-color: #38bdf8;
-  box-shadow: 0 0 14px #38bdf8;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent-kpi-blue);
+  box-shadow: 0 0 14px var(--accent-kpi-blue);
 }
 
 .ir-train-icon {
@@ -220,22 +223,24 @@
 .ir-train-tag strong {
   font-size: 10px;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #ffffff;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .ir-train-tag span {
   font-size: 8px;
-  color: #93c5fd;
+  color: var(--accent-kpi-blue);
 }
 
 /* Locomotive Pilot HUD Drawer */
+.ir-loco-hud-card,
 .ir-loco-hud-drawer {
   margin-top: 18px;
-  background: #07101e;
-  border: 1px solid #1e3a5f;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 16px 20px;
+  color: var(--text-primary);
 }
 
 .ir-hud-header {
@@ -243,34 +248,37 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 14px;
-  border-bottom: 1px solid #14243b;
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 10px;
 }
 
+.ir-hud-badge,
 .ir-hud-tag {
   font-size: 10px;
   font-weight: 800;
-  color: #38bdf8;
+  color: var(--accent-kpi-blue);
   letter-spacing: 0.06em;
 }
 
+.ir-hud-header h4,
 .ir-hud-title h4 {
   margin: 4px 0 2px;
   font-size: 15px;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
+.ir-hud-header p,
 .ir-hud-title p {
   margin: 0;
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .ir-hud-close {
-  background: #14243b;
-  border: 1px solid #1e3a5f;
-  color: #cbd5e1;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   width: 28px;
   height: 28px;
   border-radius: 4px;
@@ -280,15 +288,17 @@
   justify-content: center;
 }
 
+.ir-hud-metrics-grid,
 .ir-hud-gauges-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
+.ir-hud-gauge,
 .ir-gauge-card {
-  background: #0b172a;
-  border: 1px solid #1a2f4c;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 12px 14px;
   display: flex;
@@ -300,10 +310,11 @@
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
+.ir-gauge-val,
 .ir-gauge-val-big {
   font-size: 20px;
   font-weight: 800;
@@ -312,9 +323,10 @@
 
 .ir-gauge-sub {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
+.ir-hud-aspect-box,
 .ir-cab-aspect-pill {
   display: flex;
   align-items: center;
@@ -329,17 +341,17 @@
 }
 
 .ir-aspect-circle.green {
-  background: #10b981;
+  background-color: #10b981;
   box-shadow: 0 0 10px #10b981;
 }
 
 .ir-aspect-circle.yellow,
 .ir-aspect-circle.double_yellow {
-  background: #f59e0b;
+  background-color: #f59e0b;
   box-shadow: 0 0 10px #f59e0b;
 }
 
 .ir-aspect-circle.red {
-  background: #ef4444;
+  background-color: #ef4444;
   box-shadow: 0 0 12px #ef4444;
 }
