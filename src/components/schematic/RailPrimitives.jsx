@@ -2,6 +2,10 @@ import { useId } from "react";
 import { deptLabel, sectionExtent, stationLayout } from "./railModel.js";
 
 export function TrainRakeSvg({ label, reverse = false }) {
+  const text = `${label ?? ""}${reverse ? " ←" : " →"}`;
+  const labelWidth = Math.max(72, text.length * 7.5 + 16);
+  const labelX = -24 - labelWidth / 2;
+
   return <g className="rn-rake">
     <g transform={reverse ? "scale(-1 1)" : undefined}>
       {[-92, -62, -32].map((x) => <g key={x}>
@@ -15,8 +19,8 @@ export function TrainRakeSvg({ label, reverse = false }) {
       <circle cx="7" cy="-2" r="2.5" /><circle cx="26" cy="-2" r="2.5" />
       <path d="M-6-6H0M-36-6h4M-66-6h4" className="rn-coupling" />
     </g>
-    <rect x="-57" y="-41" width="66" height="18" rx="4" className="rn-train-label-bg" />
-    <text x="-24" y="-28" textAnchor="middle" className="rn-train-id">{label}{reverse ? " ←" : " →"}</text>
+    <rect x={labelX} y="-41" width={labelWidth} height="18" rx="4" className="rn-train-label-bg" />
+    <text x="-24" y="-28" textAnchor="middle" className="rn-train-id">{text}</text>
   </g>;
 }
 
@@ -70,19 +74,22 @@ export function RailStations({ territory, onStation }) {
 }
 
 export function MaintenanceMarker({ task, x, y = 208, index = 0, merging = false }) {
+  const text = `${deptLabel(task.department)} · ${task.duration_minutes} min`;
+  const markerWidth = Math.max(110, text.length * 7.5 + 20);
   return <g className={`rn-maintenance rn-dept-${task.department === "ENGINEERING" ? "eng" : task.department === "TRD" ? "trd" : "snt"} ${merging ? `rn-merge rn-merge-${index}` : "rn-attach"}`}
     style={{ "--task-x": `${x}px`, "--task-y": `${y}px`, animationDelay: `${index * .15}s` }}>
-    <rect x="-53" y="-14" width="106" height="28" rx="5" />
-    <text textAnchor="middle" y="5">{deptLabel(task.department)} · {task.duration_minutes} min</text>
+    <rect x={-markerWidth / 2} y="-14" width={markerWidth} height="28" rx="5" />
+    <text textAnchor="middle" y="5">{text}</text>
     <title>{task.task_id} · {task.task_type} · {task.duration_minutes} min</title>
   </g>;
 }
 
 export function PossessionBlock({ x, width, label, className = "", y = 116 }) {
+  const blockWidth = Math.max(width, (label?.length || 0) * 8 + 20);
   return <g className={`rn-possession ${className}`} transform={`translate(${x} ${y})`}>
-    <path d={`M0-12H${width - 10}L${width}-3H10Z`} className="rn-possession-top" />
-    <rect x="10" y="-3" width={Math.max(10, width - 10)} height="24" rx="2" />
-    <text x={width / 2 + 5} y="13" textAnchor="middle">{label}</text>
+    <path d={`M0-12H${blockWidth - 10}L${blockWidth}-3H10Z`} className="rn-possession-top" />
+    <rect x="10" y="-3" width={Math.max(10, blockWidth - 10)} height="24" rx="2" />
+    <text x={blockWidth / 2} y="13" textAnchor="middle">{label}</text>
   </g>;
 }
 

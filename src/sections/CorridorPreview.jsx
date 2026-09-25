@@ -240,13 +240,16 @@ function SingleCorridorTrack({ corridor, activeSection, onSelectSection }) {
             const trainY = isDown ? y - 6 : y + 8;
             const basePct = isDown ? 25 + idx * 30 : 75 - idx * 28;
             const trainX = pad + (inner * (basePct % 90)) / 100;
+            const trainLabel = `${train.id} ${isDown ? "→" : "←"}`;
+            const boxWidth = Math.max(76, trainLabel.length * 7.5 + 20);
+            const boxX = -boxWidth / 2;
 
             return (
               <g key={train.id} transform={`translate(${trainX} ${trainY})`}>
                 <rect
-                  x="-35"
+                  x={boxX}
                   y="-12"
-                  width="70"
+                  width={boxWidth}
                   height="22"
                   rx="4"
                   fill={isDown ? "var(--card-bg)" : "var(--bg-surface)"}
@@ -262,7 +265,7 @@ function SingleCorridorTrack({ corridor, activeSection, onSelectSection }) {
                   fontSize="10"
                   fontWeight="800"
                 >
-                  {train.id} {isDown ? "→" : "←"}
+                  {trainLabel}
                 </text>
               </g>
             );
