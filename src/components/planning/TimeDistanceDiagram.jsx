@@ -105,9 +105,6 @@ export default function TimeDistanceDiagram({
   const clear = () => { setSelectedTrain(""); setHovered(null); onSelectBlock?.(""); };
   const selectedPossession = model.possessions.find(block => block.block_id === selectedBlockId)
     ?? model.possessions.find(block => block.tasks?.includes(selectedTaskId));
-  const section = model.sections.get(selectedSection);
-  const sectionFrom = model.stationById.get(section?.from_station);
-  const sectionTo = model.stationById.get(section?.to_station);
   return <section className={"time-distance-card td-interactive" + (!blocks.length ? " td-baseline" : "")} aria-label="Time-distance possession diagram">
     <div className="workspace-column-heading time-distance-heading"><div>
       <span className="planner-kicker">Route-wide operating picture</span><h2>{blocks.length ? "Time–distance possession diagram" : "Train occupancy baseline"}</h2>
@@ -128,7 +125,12 @@ export default function TimeDistanceDiagram({
         <button type="button" onClick={clear}>Clear selection</button>
       </div>
     </div>
-    <div className="time-distance-legend"><span><i className="td-train" />Timetable path</span>{blocks.length ? <span><i className="td-block" />Solver possession</span> : null}<span><i className="td-selected" />Selected</span>{ghosts.length ? <span>Dashed: previous position</span> : null}</div>
+    <div className="time-distance-legend">
+      <span><i className="td-train" />Timetable path</span>
+      {blocks.length ? <span><i className="td-block" />Solver possession</span> : null}
+      <span><i className="td-selected" />Selected</span>
+      {ghosts.length ? <span>Dashed: previous position</span> : null}
+    </div>
     <div className="time-distance-scroll" tabIndex={0} aria-label="Scrollable time-distance chart">
       <svg className={"time-distance-svg" + (bounded.zoom > 1 ? " is-zoomed" : "")} viewBox={"0 0 " + TD.width + " " + model.height} role="group" aria-label="Interactive time-distance chart"
         onPointerDown={event => {
@@ -227,7 +229,6 @@ export default function TimeDistanceDiagram({
           })}
           {layers.conflicts && actualConflicts.filter(visible).map((conflict, index) => <rect key={index} className="td-conflict" {...range(conflict)} y={conflict.y} height={conflict.height}><title>{conflict.reason ?? "Recorded conflict"}</title></rect>)}
         </g>
-        {selectedSection ? <text x={TD.width - TD.right} y={model.height - 7} textAnchor="end" className="td-scope-label">Focused section: {sectionFrom && sectionTo ? `${sectionFrom.station_name} → ${sectionTo.station_name}` : selectedSection}</text> : null}
       </svg>
     </div>
     <div className="td-pan"><label>Time position <input aria-label="Time position" type="range" min={0} max={Math.max(0, model.total - span)} step="any" value={bounded.start} disabled={bounded.zoom === 1} onChange={event => setView(boundView(Number(event.target.value), bounded.zoom, model.total))} /></label><span>Zoom then drag empty chart space or use arrows. Page scrolling stays normal.</span></div>

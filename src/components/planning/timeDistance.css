@@ -11,7 +11,15 @@
 .td-interactive .time-distance-svg.is-zoomed { cursor: grab; }
 .td-interactive :is(.td-grid-time, .td-grid-station) { stroke: var(--chart-grid); }
 .td-interactive :is(.td-time-label, .td-station-label, .td-scope-label) { fill: var(--chart-label); font-size: 12px; }
-.td-interactive .time-distance-legend { color: var(--text-muted); flex-wrap: wrap; }
+.td-interactive .time-distance-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  margin: 10px 0;
+  font-size: 12px;
+}
 .td-interactive .time-distance-legend .td-train { background: var(--chart-train); }
 .td-interactive .time-distance-legend .td-block { background: var(--chart-possession); }
 .td-interactive .time-distance-legend .td-selected { background: var(--warning); }
