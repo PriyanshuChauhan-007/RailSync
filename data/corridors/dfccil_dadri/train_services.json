@@ -2,7 +2,7 @@
   {
     "train_id": "DFC_BLC_01",
     "service_number": "DFC_BLC_01",
-    "service_name": "Double Stack Long-Haul Container Freight (BLC Rake)",
+    "service_name": "Heavy Double-Stack BLC Container Freight",
     "origin_station_id": "DADRI_DFC",
     "destination_station_id": "TUNDLA_DFC",
     "direction": "SOUTHBOUND",
@@ -12,9 +12,9 @@
     "station_sequence": ["DADRI_DFC", "BORAKI_DFC", "KHURJA_DFC", "DAUD_KHAN_DFC", "TUNDLA_DFC"]
   },
   {
-    "train_id": "DFC_BLC_02",
-    "service_number": "DFC_BLC_02",
-    "service_name": "Double Stack Long-Haul Container Freight (Pipavav–Dadri BLC)",
+    "train_id": "DFC_BOXNHL_02",
+    "service_number": "DFC_BOXNHL_02",
+    "service_name": "Long-Haul BOXNHL Coal Formation",
     "origin_station_id": "TUNDLA_DFC",
     "destination_station_id": "DADRI_DFC",
     "direction": "NORTHBOUND",
@@ -26,7 +26,7 @@
   {
     "train_id": "DFC_BTPN_03",
     "service_number": "DFC_BTPN_03",
-    "service_name": "Heavy Haul Petroleum Tanker Formation (BTPN)",
+    "service_name": "BTPN Petroleum Tanker Rake",
     "origin_station_id": "DADRI_DFC",
     "destination_station_id": "TUNDLA_DFC",
     "direction": "SOUTHBOUND",

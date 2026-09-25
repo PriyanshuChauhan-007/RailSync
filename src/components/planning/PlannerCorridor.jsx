@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { territoryLabel } from "../../utils/planningLabels.js";
 import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
+import TopMasterClock from "../layout/TopMasterClock.jsx";
 import "./liveRadar.css";
 
 // Flagship corridors station and chainage definitions
@@ -41,11 +42,13 @@ const CORRIDOR_LANDMARKS = {
 };
 
 // Corridor-specific authentic train formations
+// NR Northern HDN: strictly premier passenger services (12050 Gatimaan, 22436 Vande Bharat, 12002 Shatabdi, 12622 Tamil Nadu Express)
+// DFCCIL: strictly heavy goods formations (BLC, BOXNHL, BTPN)
 const CORRIDOR_TRAINS = {
   delhi_agra: [
     {
       id: "12050",
-      label: "🚄 12050 Gatimaan Exp (160 km/h)",
+      label: "🚄 12050 Gatimaan Express (160 km/h)",
       name: "Gatimaan Express (NDLS–AGC)",
       loco: "WAP-7 #30215 (Ghaziabad Shed)",
       speed: 160,
@@ -58,22 +61,22 @@ const CORRIDOR_TRAINS = {
       mrPressure: "9.2 kg/cm²",
     },
     {
-      id: "BOXN_712",
-      label: "🚂 BOXN Container Freight",
-      name: "Heavy Rake CONCOR BCNHL",
-      loco: "WAG-9 #31088 (Tughlakabad Shed)",
-      speed: 75,
+      id: "12622",
+      label: "⚡ 12622 Tamil Nadu Express",
+      name: "Tamil Nadu Superfast Express (NDLS–MAS)",
+      loco: "WAP-7 #30320 (Royapuram Shed)",
+      speed: 110,
       directionType: "DOWN",
-      direction: "DOWN (Palwal Bound)",
-      line: "DOWN Loop / Main",
+      direction: "DOWN (Agra / Chennai Bound)",
+      line: "DOWN Main",
       baseOffset: 120,
-      voltage: "24.2 kV AC",
+      voltage: "24.9 kV AC",
       bpPressure: "5.0 kg/cm²",
-      mrPressure: "9.5 kg/cm²",
+      mrPressure: "9.2 kg/cm²",
     },
     {
       id: "22436",
-      label: "⚡ 22436 Vande Bharat",
+      label: "⚡ 22436 Vande Bharat Express",
       name: "Vande Bharat Express (BSB–NDLS)",
       loco: "Train 18 / Vande Bharat Trainset",
       speed: 130,
@@ -87,7 +90,7 @@ const CORRIDOR_TRAINS = {
     },
     {
       id: "12002",
-      label: "🚄 12002 Bhopal Shatabdi",
+      label: "🚄 12002 Bhopal Shatabdi Express",
       name: "Bhopal Shatabdi Express (BPL–NDLS)",
       loco: "WAP-7 #30482 (Vadodara Shed)",
       speed: 130,
@@ -98,6 +101,50 @@ const CORRIDOR_TRAINS = {
       voltage: "24.9 kV AC",
       bpPressure: "5.0 kg/cm²",
       mrPressure: "9.1 kg/cm²",
+    },
+  ],
+  dfccil_dadri: [
+    {
+      id: "DFC_BLC_01",
+      label: "🚂 Heavy Double-Stack BLC Container Freight",
+      name: "Heavy Double-Stack BLC Container Freight",
+      loco: "WAG-12B #60025 (Madhepura Shed)",
+      speed: 100,
+      directionType: "DOWN",
+      direction: "DOWN (Tundla Bound)",
+      line: "DOWN Heavy Haul",
+      baseOffset: 35,
+      voltage: "25.2 kV AC (2x25kV)",
+      bpPressure: "5.0 kg/cm²",
+      mrPressure: "9.5 kg/cm²",
+    },
+    {
+      id: "DFC_BOXNHL_02",
+      label: "🚂 Long-Haul BOXNHL Coal Formation",
+      name: "Long-Haul BOXNHL Coal Formation",
+      loco: "WAG-12B #60042 (Madhepura Shed)",
+      speed: 90,
+      directionType: "DOWN",
+      direction: "DOWN (Khurja–Tundla Bound)",
+      line: "DOWN Heavy Haul",
+      baseOffset: 125,
+      voltage: "25.2 kV AC (2x25kV)",
+      bpPressure: "5.0 kg/cm²",
+      mrPressure: "9.5 kg/cm²",
+    },
+    {
+      id: "DFC_BTPN_03",
+      label: "🚂 BTPN Petroleum Tanker Rake",
+      name: "BTPN Petroleum Tanker Rake",
+      loco: "WAG-12B #60088 (Madhepura Shed)",
+      speed: 85,
+      directionType: "UP",
+      direction: "UP (Dadri Bound)",
+      line: "UP Heavy Haul",
+      baseOffset: 110,
+      voltage: "25.2 kV AC (2x25kV)",
+      bpPressure: "5.0 kg/cm²",
+      mrPressure: "9.6 kg/cm²",
     },
   ],
   eastern_hdn: [
@@ -116,22 +163,8 @@ const CORRIDOR_TRAINS = {
       mrPressure: "9.2 kg/cm²",
     },
     {
-      id: "COAL_BOXN",
-      label: "🚂 Coal BOXN Heavy Freight",
-      name: "Raniganj Coal Heavy Freight Rake",
-      loco: "WAG-9 #31450 (Asansol Shed)",
-      speed: 75,
-      directionType: "DOWN",
-      direction: "DOWN (Durgapur Bound)",
-      line: "DOWN Loop / Main",
-      baseOffset: 130,
-      voltage: "24.1 kV AC",
-      bpPressure: "5.0 kg/cm²",
-      mrPressure: "9.4 kg/cm²",
-    },
-    {
       id: "22301",
-      label: "⚡ 22301 Vande Bharat",
+      label: "⚡ 22301 Vande Bharat Express",
       name: "Howrah–NJP Vande Bharat Express",
       loco: "Train 18 / Vande Bharat Trainset",
       speed: 130,
@@ -142,6 +175,20 @@ const CORRIDOR_TRAINS = {
       voltage: "25.0 kV AC",
       bpPressure: "5.0 kg/cm²",
       mrPressure: "9.0 kg/cm²",
+    },
+    {
+      id: "12019",
+      label: "🚄 12019 Ranchi Shatabdi",
+      name: "Howrah–Ranchi Shatabdi Express",
+      loco: "WAP-7 #30245 (Howrah Shed)",
+      speed: 120,
+      directionType: "UP",
+      direction: "UP (Howrah Bound)",
+      line: "UP Main",
+      baseOffset: 145,
+      voltage: "24.9 kV AC",
+      bpPressure: "5.0 kg/cm²",
+      mrPressure: "9.1 kg/cm²",
     },
   ],
   western_hdn: [
@@ -160,22 +207,8 @@ const CORRIDOR_TRAINS = {
       mrPressure: "9.2 kg/cm²",
     },
     {
-      id: "CONCOR_WR",
-      label: "🚂 JNPT Container Freight",
-      name: "JNPT High-Capacity Container Freight",
-      loco: "WAG-9 #31210 (Valsad Shed)",
-      speed: 75,
-      directionType: "DOWN",
-      direction: "DOWN (Vapi Bound)",
-      line: "DOWN Loop / Main",
-      baseOffset: 160,
-      voltage: "24.3 kV AC",
-      bpPressure: "5.0 kg/cm²",
-      mrPressure: "9.5 kg/cm²",
-    },
-    {
       id: "20901",
-      label: "⚡ 20901 Vande Bharat",
+      label: "⚡ 20901 Vande Bharat Express",
       name: "Mumbai–Gandhinagar Vande Bharat",
       loco: "Train 18 / Vande Bharat Trainset",
       speed: 130,
@@ -187,38 +220,25 @@ const CORRIDOR_TRAINS = {
       bpPressure: "5.0 kg/cm²",
       mrPressure: "9.0 kg/cm²",
     },
-  ],
-  dfccil_dadri: [
     {
-      id: "DFC_BLC_01",
-      label: "🚂 Double-Stack BLC Rake",
-      name: "Double-Stack Long-Haul Container Freight",
-      loco: "WAG-12B #60025 (Madhepura Shed)",
-      speed: 100,
-      directionType: "DOWN",
-      direction: "DOWN (Tundla Bound)",
-      line: "DOWN Heavy Haul",
-      baseOffset: 35,
-      voltage: "25.2 kV AC (2x25kV)",
-      bpPressure: "5.0 kg/cm²",
-      mrPressure: "9.5 kg/cm²",
-    },
-    {
-      id: "DFC_BTPN_02",
-      label: "🚂 BTPN Tanker Formation",
-      name: "Heavy Haul Petroleum Tanker Formation",
-      loco: "WAG-12B #60088 (Madhepura Shed)",
-      speed: 85,
+      id: "12009",
+      label: "🚄 12009 Ahmedabad Shatabdi",
+      name: "Mumbai–Ahmedabad Shatabdi Express",
+      loco: "WAP-7 #30355 (Valsad Shed)",
+      speed: 120,
       directionType: "UP",
-      direction: "UP (Dadri Bound)",
-      line: "UP Heavy Haul",
-      baseOffset: 110,
-      voltage: "25.2 kV AC (2x25kV)",
+      direction: "UP (MMCT Bound)",
+      line: "UP Main",
+      baseOffset: 170,
+      voltage: "24.9 kV AC",
       bpPressure: "5.0 kg/cm²",
-      mrPressure: "9.6 kg/cm²",
+      mrPressure: "9.1 kg/cm²",
     },
   ],
 };
+
+const DOWN_SIGNAL_PCTS = [18, 42, 65, 88];
+const UP_SIGNAL_PCTS = [12, 38, 62, 85];
 
 function sectionName(territory, sectionId) {
   const section = territory?.sections?.find((item) => item.section_id === sectionId);
@@ -237,7 +257,7 @@ export default function PlannerCorridor({
   onSelectSection,
   activeDisruption,
 }) {
-  const { simulatedSeconds, totalSec } = useSimulationTime();
+  const { simulatedSeconds } = useSimulationTime();
   const [selectedTrain, setSelectedTrain] = useState(null);
 
   const territoryId = territory?.territory_id || "delhi_agra";
@@ -246,33 +266,35 @@ export default function PlannerCorridor({
 
   const trainTemplates = CORRIDOR_TRAINS[territoryId] || CORRIDOR_TRAINS.delhi_agra;
 
+  // 3x speed acceleration factor for smooth human-visible block traversal
+  const SPEED_FACTOR = 3;
+
   // Calculate realtime position and aspect of each train from unified simulatedSeconds
   const activeTrains = useMemo(() => {
     return trainTemplates.map((t) => {
       const speed = activeDisruption?.speed_restriction_kmh ?? t.speed;
-      // In 1 hour (3600 sec), the train moves `speed` km
-      const distanceMoved = ((simulatedSeconds / 3600) * speed + t.baseOffset) % (maxKm + 20);
+      const distanceMoved = (((simulatedSeconds * SPEED_FACTOR) / 3600) * speed + t.baseOffset) % (maxKm + 40);
 
       let currentKm;
       let progressPct;
       if (t.directionType === "DOWN") {
         currentKm = Math.min(maxKm, distanceMoved);
-        progressPct = (currentKm / maxKm) * 90 + 5;
+        progressPct = (currentKm / maxKm) * 88 + 6;
       } else {
         currentKm = Math.max(0, maxKm - distanceMoved);
-        progressPct = (currentKm / maxKm) * 90 + 5;
+        progressPct = (currentKm / maxKm) * 88 + 6;
       }
 
       // Dynamic signal aspect cascade based on active disruptions and section proximity
       let aspect = "GREEN";
-      if (activeDisruption && currentKm > 15 && currentKm < 60) {
-        aspect = currentKm < 35 ? "RED" : "YELLOW";
+      if (activeDisruption && currentKm > 15 && currentKm < 65) {
+        aspect = currentKm < 38 ? "RED" : "YELLOW";
       }
 
       return {
         ...t,
         currentKm: currentKm.toFixed(1),
-        progressPct: Math.min(96, Math.max(4, progressPct)),
+        progressPct: Math.min(95, Math.max(5, progressPct)),
         aspect,
         speed,
       };
@@ -281,6 +303,54 @@ export default function PlannerCorridor({
 
   const downTrains = activeTrains.filter((t) => t.directionType === "DOWN");
   const upTrains = activeTrains.filter((t) => t.directionType === "UP");
+
+  // Dynamic 4-Aspect Signal Calculations for Down and Up Lines
+  const downSignals = useMemo(() => {
+    return DOWN_SIGNAL_PCTS.map((pct, idx) => {
+      let aspect = "GREEN";
+
+      if (activeDisruption && pct > 30 && pct < 75) {
+        aspect = pct < 50 ? "RED" : "YELLOW";
+        return { id: `S-${idx + 10}`, pct, aspect };
+      }
+
+      // Check distance to any down train ahead of this signal
+      for (const tr of downTrains) {
+        const delta = tr.progressPct - pct;
+        if (delta >= 0 && delta <= 10) {
+          aspect = "RED"; // Train in immediate block
+          break;
+        } else if (delta > 10 && delta <= 22) {
+          if (aspect !== "RED") aspect = "YELLOW"; // Train in next block
+        } else if (delta > 22 && delta <= 34) {
+          if (aspect !== "RED" && aspect !== "YELLOW") aspect = "DOUBLE_YELLOW"; // Train two blocks ahead
+        }
+      }
+
+      return { id: `S-${idx + 10}`, pct, aspect };
+    });
+  }, [downTrains, activeDisruption]);
+
+  const upSignals = useMemo(() => {
+    return UP_SIGNAL_PCTS.map((pct, idx) => {
+      let aspect = "GREEN";
+
+      // Check distance to approaching up trains (moving from right to left)
+      for (const tr of upTrains) {
+        const delta = pct - tr.progressPct;
+        if (delta >= 0 && delta <= 10) {
+          aspect = "RED";
+          break;
+        } else if (delta > 10 && delta <= 22) {
+          if (aspect !== "RED") aspect = "YELLOW";
+        } else if (delta > 22 && delta <= 34) {
+          if (aspect !== "RED" && aspect !== "YELLOW") aspect = "DOUBLE_YELLOW";
+        }
+      }
+
+      return { id: `N-${idx + 20}`, pct, aspect };
+    });
+  }, [upTrains]);
 
   const activeTrainData = selectedTrain
     ? activeTrains.find((t) => t.id === selectedTrain.id) || selectedTrain
@@ -312,7 +382,7 @@ export default function PlannerCorridor({
             <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "flex-end" }}>
               {territory.sections.map((sec, idx) => (
                 <button
-                  key={sec.section_id}
+                  key={sec.section_id || `sec-${idx}`}
                   type="button"
                   onClick={() => onSelectSection?.(sec.section_id)}
                   className={`ir-clock-rate-btn ${selectedSection === sec.section_id ? "is-active" : ""}`}
@@ -327,18 +397,21 @@ export default function PlannerCorridor({
         </div>
       </header>
 
+      {/* Relocated OCC TIME WARP & DISPATCH CONTROLLER directly above track canvas */}
+      <TopMasterClock />
+
       {/* Corridor Track Canvas */}
       <div className="ir-corridor-track-canvas">
         {/* Stations Top Row with km chainage */}
         <div className="ir-stations-chainage-row">
           {landmarkStations.map((st, idx) => (
             <div
-              key={st.station_id}
+              key={st.station_id || `stn-${idx}`}
               className="ir-station-point"
-              style={{ left: `${(idx / Math.max(1, landmarkStations.length - 1)) * 90 + 5}%` }}
+              style={{ left: `${(idx / Math.max(1, landmarkStations.length - 1)) * 88 + 6}%` }}
             >
               <span className="ir-st-name">{st.station_name}</span>
-              <span className="ir-st-km">km {st.km.toFixed(1)}</span>
+              <span className="ir-st-km">km {Number(st.km).toFixed(1)}</span>
             </div>
           ))}
         </div>
@@ -350,28 +423,27 @@ export default function PlannerCorridor({
             <div className="ir-sleepers" />
 
             {/* 4-Aspect Signals along Down Line */}
-            {[18, 42, 65, 88].map((pct, idx) => {
-              const isDisrupted = activeDisruption && pct > 35 && pct < 75;
-              const aspect = isDisrupted ? (pct < 50 ? "RED" : "YELLOW") : "GREEN";
-              return (
-                <div
-                  key={`down-sig-${idx}`}
-                  className="ir-radar-signal"
-                  style={{ left: `${pct}%` }}
-                  title={`Signal S-${idx + 10}: Aspect ${aspect} | Interlocked`}
-                >
-                  <span className={`ir-sig-lamp ${aspect.toLowerCase()}`} />
-                  <span className="ir-sig-id">S{idx + 10}</span>
-                </div>
-              );
-            })}
+            {downSignals.map((sig) => (
+              <div
+                key={sig.id}
+                className="ir-radar-signal"
+                style={{ left: `${sig.pct}%` }}
+                title={`Signal ${sig.id}: Aspect ${sig.aspect} | Automatic Block Interlocked`}
+              >
+                <span className={`ir-sig-lamp ${sig.aspect.toLowerCase()}`} />
+                <span className="ir-sig-id">{sig.id.replace("-", "")}</span>
+              </div>
+            ))}
 
             {/* DOWN Trains Moving with Precise Kilometric Gliding */}
             {downTrains.map((tr) => (
               <div
                 key={tr.id}
                 className={`ir-radar-train ${selectedTrain?.id === tr.id ? "is-selected" : ""}`}
-                style={{ left: `${tr.progressPct}%` }}
+                style={{
+                  left: `${tr.progressPct}%`,
+                  transition: "left 0.4s linear, transform 0.15s ease",
+                }}
                 onClick={() => setSelectedTrain(tr)}
                 role="button"
                 tabIndex={0}
@@ -380,7 +452,7 @@ export default function PlannerCorridor({
                 <span style={{ fontSize: "12px", whiteSpace: "nowrap", fontWeight: 700 }}>
                   {tr.label}
                 </span>
-                <span style={{ fontSize: "9px", background: "rgba(0,0,0,0.4)", padding: "1px 4px", borderRadius: "3px" }}>
+                <span style={{ fontSize: "9px", background: "rgba(0,0,0,0.5)", padding: "1px 4px", borderRadius: "3px" }}>
                   km {tr.currentKm}
                 </span>
               </div>
@@ -395,15 +467,15 @@ export default function PlannerCorridor({
             <div className="ir-sleepers" />
 
             {/* 4-Aspect Signals along Up Line */}
-            {[12, 38, 62, 85].map((pct, idx) => (
+            {upSignals.map((sig) => (
               <div
-                key={`up-sig-${idx}`}
+                key={sig.id}
                 className="ir-radar-signal"
-                style={{ left: `${pct}%` }}
-                title={`Signal N-${idx + 20}: Aspect GREEN | Interlocked`}
+                style={{ left: `${sig.pct}%` }}
+                title={`Signal ${sig.id}: Aspect ${sig.aspect} | Automatic Block Interlocked`}
               >
-                <span className="ir-sig-lamp green" />
-                <span className="ir-sig-id">N{idx + 20}</span>
+                <span className={`ir-sig-lamp ${sig.aspect.toLowerCase()}`} />
+                <span className="ir-sig-id">{sig.id.replace("-", "")}</span>
               </div>
             ))}
 
@@ -412,7 +484,10 @@ export default function PlannerCorridor({
               <div
                 key={tr.id}
                 className={`ir-radar-train ${selectedTrain?.id === tr.id ? "is-selected" : ""}`}
-                style={{ left: `${tr.progressPct}%` }}
+                style={{
+                  left: `${tr.progressPct}%`,
+                  transition: "left 0.4s linear, transform 0.15s ease",
+                }}
                 onClick={() => setSelectedTrain(tr)}
                 role="button"
                 tabIndex={0}
@@ -421,7 +496,7 @@ export default function PlannerCorridor({
                 <span style={{ fontSize: "12px", whiteSpace: "nowrap", fontWeight: 700 }}>
                   {tr.label}
                 </span>
-                <span style={{ fontSize: "9px", background: "rgba(0,0,0,0.4)", padding: "1px 4px", borderRadius: "3px" }}>
+                <span style={{ fontSize: "9px", background: "rgba(0,0,0,0.5)", padding: "1px 4px", borderRadius: "3px" }}>
                   km {tr.currentKm}
                 </span>
               </div>
@@ -457,7 +532,7 @@ export default function PlannerCorridor({
               <strong className="ir-gauge-val" style={{ color: "#38bdf8" }}>
                 {activeTrainData.speed} <small>km/h</small>
               </strong>
-              <span className="ir-gauge-sub">MPS: {activeTrainData.maxSpeed || 130} km/h</span>
+              <span className="ir-gauge-sub">MPS: {activeTrainData.speed} km/h</span>
             </div>
 
             <div className="ir-hud-gauge">

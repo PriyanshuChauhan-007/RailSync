@@ -25,7 +25,6 @@ const COA_RECORDS = [
   { trainNo: "12002", name: "Bhopal Shatabdi Express", level: "Level 1 (Super-Precedence)", mult: "10x Penalty", speed: "130 km/h", margin: "Zero Tolerance | Strict Path Protection" },
   { trainNo: "12622", name: "Tamil Nadu Superfast Express", level: "Level 2 (Mail & Superfast)", mult: "6x Penalty", speed: "110 km/h", margin: "Max Allowable Buffer: 10 mins" },
   { trainNo: "64076", name: "Suburban Commuter EMU (NDLS–PWL)", level: "Level 3 (Suburban EMU)", mult: "8x Penalty (Peak)", speed: "90 km/h", margin: "Peak Commuter Headway Protected" },
-  { trainNo: "BOXN_712", name: "Container Rake (CONCOR BCNHL)", level: "Level 5 (Standard Goods)", mult: "1x Penalty", speed: "75 km/h", margin: "Loop Dispatchable / Regulatory Sidetrack" },
 ];
 
 export default function DepartmentalIngestionDrawer({

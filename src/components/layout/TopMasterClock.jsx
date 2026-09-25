@@ -1,4 +1,5 @@
 import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
+import "./masterClock.css";
 
 export default function TopMasterClock() {
   const {
@@ -15,15 +16,19 @@ export default function TopMasterClock() {
   } = useSimulationTime();
 
   return (
-    <div className="ir-master-clock-bar" role="region" aria-label="Indian Railways Master Operational Clock">
+    <div
+      className="ir-master-clock-bar occ-dispatch-controller"
+      role="region"
+      aria-label="OCC Time Warp & Dispatch Controller"
+    >
       <div className="ir-clock-left">
         <div className="ir-telemetry-badge">
           <span className="ir-telemetry-dot" aria-hidden="true" />
-          <span className="ir-telemetry-text">ONLINE / CRIS COA SYNC</span>
+          <span className="ir-telemetry-text">OCC TIME WARP &amp; DISPATCH CONTROLLER</span>
         </div>
-        <div className="ir-digital-clock" aria-label={`Current simulation time: ${formattedTime}`}>
+        <div className="ir-digital-clock" aria-label={`Simulation Time: ${formattedTime}`}>
           <span className="ir-clock-digits">{formattedTime}</span>
-          <span className="ir-clock-zone">NORTHERN / WESTERN OCC CONSOLE</span>
+          <span className="ir-clock-zone">SIMULATED IST · TIME WARP</span>
         </div>
       </div>
 
@@ -65,7 +70,7 @@ export default function TopMasterClock() {
               type="button"
               className="ir-clock-jump-btn"
               onClick={() => jumpTo(14, 0)}
-              title="Jump to Heavy Freight Transit Window (14:00 IST)"
+              title="Jump to Freight Transit Window (14:00 IST)"
             >
               Freight Corridor
             </button>
@@ -75,7 +80,7 @@ export default function TopMasterClock() {
               onClick={() => jumpTo(1, 30)}
               title="Jump to Primary Night Maintenance Possession Slot (01:30 IST)"
             >
-              Night Block Window
+              Night Block
             </button>
           </div>
         </div>
@@ -93,7 +98,7 @@ export default function TopMasterClock() {
             value={totalSec}
             onChange={handleSliderChange}
             className="ir-clock-scrubber"
-            aria-label="Scrub simulation time across 24-hour day"
+            aria-label="Scrub simulation time across 24-hour day (00:00 -> 23:59 IST)"
           />
           <span className="ir-scrubber-bounds">00:00 → 23:59 IST</span>
         </div>
@@ -101,4 +106,3 @@ export default function TopMasterClock() {
     </div>
   );
 }
-

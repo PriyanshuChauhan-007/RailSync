@@ -82,8 +82,8 @@ export default function SplitScreenComparison({ plan, territory, analysis }) {
                 <strong>Mumbai Central Rajdhani:</strong> Detained <strong>+45 min</strong> at Tuglakabad Outer.
               </li>
               <li>
-                <span className="ir-train-badge red">BOXN_712</span>
-                <strong>Heavy Container Freight:</strong> Sidetracked <strong>+85 min</strong> at Faridabad Loop.
+                <span className="ir-train-badge red">12622</span>
+                <strong>Tamil Nadu Express:</strong> Detained <strong>+55 min</strong> at Faridabad Outer.
               </li>
             </ul>
             <div className="ir-detention-summary">
@@ -150,8 +150,8 @@ export default function SplitScreenComparison({ plan, territory, analysis }) {
                 <strong>Mumbai Central Rajdhani:</strong> <strong>Zero Detention (Mainline Path Protected)</strong>.
               </li>
               <li>
-                <span className="ir-train-badge green">BOXN_712</span>
-                <strong>Heavy Container Freight:</strong> Cleared via diesel bypass without detention.
+                <span className="ir-train-badge green">12622</span>
+                <strong>Tamil Nadu Express:</strong> <strong>Zero Detention (Express Path Protected)</strong>.
               </li>
             </ul>
             <div className="ir-detention-summary text-success">

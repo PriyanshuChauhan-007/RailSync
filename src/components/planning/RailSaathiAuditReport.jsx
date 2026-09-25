@@ -59,7 +59,7 @@ export default function RailSaathiAuditReport({ plan, territory }) {
             <strong>TRD / OHE Power Block &amp; Permit to Work (PTW):</strong>
             <p>
               OHE 25 kV AC catenary de-energization confined to Elementary Section <strong>ES-NZM-UP-04 (Ballabgarh TSS)</strong>.
-              PTW officially issued with Electric Pantograph Lowering Order; diesel bypass routing authorized for BOXN heavy freight rakes.
+              PTW officially issued with Electric Pantograph Lowering Order; corridor paths protected for 12622 Tamil Nadu Express.
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import "./liveRadar.css";
 
 export default function LiveTrainTracker({
@@ -10,10 +10,10 @@ export default function LiveTrainTracker({
   const [selectedTrain, setSelectedTrain] = useState(null);
   const [radarTime, setRadarTime] = useState(0);
 
-  // Smooth gliding loop
+  // Smooth 3x gliding loop with high fidelity
   useEffect(() => {
     const interval = setInterval(() => {
-      setRadarTime((t) => (t + 1) % 3600);
+      setRadarTime((t) => (t + 3) % 3600);
     }, 100);
     return () => clearInterval(interval);
   }, []);
@@ -27,13 +27,13 @@ export default function LiveTrainTracker({
     { station_id: "PWL", station_name: "Palwal", km: 60.1 },
   ];
 
-  // Simulated active trains along UP and DOWN tracks
-  const upTrains = [
+  // Authentic Northern HDN Passenger Services
+  const downTrains = useMemo(() => [
     {
       id: "12050",
       name: "Gatimaan Express (NDLS–AGC)",
       loco: "WAP-7 #30215 (Ghaziabad Shed)",
-      speed: activeDisruption?.speed_restriction_kmh ?? 130,
+      speed: activeDisruption?.speed_restriction_kmh ?? 160,
       voltage: "24.8 kV AC",
       bpPressure: "5.0 kg/cm²",
       mrPressure: "9.2 kg/cm²",
@@ -43,24 +43,24 @@ export default function LiveTrainTracker({
       aspect: activeDisruption ? "YELLOW" : "GREEN",
     },
     {
-      id: "BOXN_712",
-      name: "Heavy Rake CONCOR BCNHL",
-      loco: "WAG-9 #31088 (Tughlakabad)",
-      speed: 65,
-      voltage: "24.2 kV AC",
+      id: "12622",
+      name: "Tamil Nadu Superfast Express (NDLS–MAS)",
+      loco: "WAP-7 #30320 (Royapuram Shed)",
+      speed: 110,
+      voltage: "24.9 kV AC",
       bpPressure: "5.0 kg/cm²",
-      mrPressure: "9.5 kg/cm²",
-      direction: "DOWN (Palwal Bound)",
-      line: "DOWN Loop / Main",
-      progress: (((radarTime * 0.9) + 400) % 1000) / 10,
-      aspect: "DOUBLE_YELLOW",
+      mrPressure: "9.2 kg/cm²",
+      direction: "DOWN (Agra / Chennai Bound)",
+      line: "DOWN Main",
+      progress: (((radarTime * 1.2) + 400) % 1000) / 10,
+      aspect: "GREEN",
     },
-  ];
+  ], [radarTime, activeDisruption]);
 
-  const downTrains = [
+  const upTrains = useMemo(() => [
     {
       id: "22436",
-      name: "Vande Bharat Express",
+      name: "Vande Bharat Express (BSB–NDLS)",
       loco: "Train 18 / Vande Bharat Rake",
       speed: 130,
       voltage: "25.0 kV AC",
@@ -68,15 +68,15 @@ export default function LiveTrainTracker({
       mrPressure: "9.0 kg/cm²",
       direction: "UP (Delhi Bound)",
       line: "UP Main",
-      progress: (100 - (((radarTime * 1.6) + 200) % 1000) / 10),
+      progress: (100 - (((radarTime * 1.5) + 200) % 1000) / 10),
       aspect: "GREEN",
     },
     {
-      id: "12951",
-      name: "Mumbai Tejas-Rajdhani",
+      id: "12002",
+      name: "Bhopal Shatabdi Express (BPL–NDLS)",
       loco: "WAP-7 #30482 (Vadodara Shed)",
-      speed: 125,
-      voltage: "24.6 kV AC",
+      speed: 130,
+      voltage: "24.9 kV AC",
       bpPressure: "5.0 kg/cm²",
       mrPressure: "9.1 kg/cm²",
       direction: "UP (NDLS Bound)",
@@ -84,10 +84,10 @@ export default function LiveTrainTracker({
       progress: (100 - (((radarTime * 1.4) + 650) % 1000) / 10),
       aspect: "GREEN",
     },
-  ];
+  ], [radarTime]);
 
   const activeTrainData = selectedTrain
-    ? [...upTrains, ...downTrains].find((t) => t.id === selectedTrain.id) || selectedTrain
+    ? [...downTrains, ...upTrains].find((t) => t.id === selectedTrain.id) || selectedTrain
     : null;
 
   return (
@@ -113,7 +113,7 @@ export default function LiveTrainTracker({
         <div className="ir-stations-chainage-row">
           {stations.map((st, idx) => (
             <div
-              key={st.station_id}
+              key={st.station_id || `st-${idx}`}
               className="ir-station-point"
               style={{ left: `${(idx / Math.max(1, stations.length - 1)) * 92 + 4}%` }}
             >
@@ -146,12 +146,15 @@ export default function LiveTrainTracker({
               );
             })}
 
-            {/* UP Trains Moving */}
-            {upTrains.map((tr) => (
+            {/* DOWN Trains Moving */}
+            {downTrains.map((tr) => (
               <div
                 key={tr.id}
                 className={`ir-radar-train ${selectedTrain?.id === tr.id ? "is-selected" : ""}`}
-                style={{ left: `${tr.progress}%` }}
+                style={{
+                  left: `${tr.progress}%`,
+                  transition: "left 0.4s linear, transform 0.15s ease",
+                }}
                 onClick={() => setSelectedTrain(tr)}
                 role="button"
                 tabIndex={0}
@@ -188,12 +191,15 @@ export default function LiveTrainTracker({
               );
             })}
 
-            {/* DOWN Trains Moving */}
-            {downTrains.map((tr) => (
+            {/* UP Trains Moving */}
+            {upTrains.map((tr) => (
               <div
                 key={tr.id}
                 className={`ir-radar-train ${selectedTrain?.id === tr.id ? "is-selected" : ""}`}
-                style={{ left: `${tr.progress}%` }}
+                style={{
+                  left: `${tr.progress}%`,
+                  transition: "left 0.4s linear, transform 0.15s ease",
+                }}
                 onClick={() => setSelectedTrain(tr)}
                 role="button"
                 tabIndex={0}
@@ -233,7 +239,7 @@ export default function LiveTrainTracker({
             <div className="ir-gauge-card">
               <span className="ir-gauge-label">SPEEDOMETER</span>
               <div className="ir-gauge-val-big text-sky">{activeTrainData.speed} <small>km/h</small></div>
-              <span className="ir-gauge-sub">MPS Limit: 130 km/h</span>
+              <span className="ir-gauge-sub">MPS Limit: {activeTrainData.speed} km/h</span>
             </div>
 
             <div className="ir-gauge-card">

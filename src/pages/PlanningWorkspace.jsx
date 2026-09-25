@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../components/layout/Navbar.jsx";
 import Footer from "../components/layout/Footer.jsx";
-import TopMasterClock from "../components/layout/TopMasterClock.jsx";
-import "../components/layout/masterClock.css";
 import RiskControls, { RiskResult } from "../components/planning/RiskControls.jsx";
 import { riskOptions } from "../utils/risk.js";
 import BlockDetails from "../components/planning/BlockDetails.jsx";
@@ -336,9 +334,6 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
       />
 
       <main className="planning-workspace-main" id="planning-workspace">
-        {/* 1. Workspace Header with IR 24-hr Master Clock, Telemetry Status, and Corridor Selector */}
-        <TopMasterClock />
-
         <header className="planning-workspace-intro">
           <span className="planner-kicker">Ministry of Railways · Operations Control Centre (OCC)</span>
           <div className="planning-title-row">

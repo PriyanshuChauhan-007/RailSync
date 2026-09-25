@@ -190,8 +190,10 @@
   border-radius: 6px;
   cursor: pointer;
   z-index: 10;
-  transition: transform 0.1s ease, left 0.1s linear;
+  transition: transform 0.15s ease, left 0.4s linear;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  height: auto;
+  white-space: normal;
 }
 
 .ir-radar-train:hover {

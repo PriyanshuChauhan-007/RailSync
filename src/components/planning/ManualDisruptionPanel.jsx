@@ -297,17 +297,17 @@ export default function ManualDisruptionPanel({
                 className="ir-select"
               >
                 {trains.length ? (
-                  trains.map((tr) => (
+                  Array.from(new Map(trains.map((t) => [t.train_id, t])).values()).map((tr) => (
                     <option key={tr.train_id} value={tr.train_id}>
-                      {tr.train_id} {tr.service_name ? `(${tr.service_name})` : ""} — In Section: {tr.section_id || "Mainline"}
+                      {tr.train_id} {tr.service_name ? `(${tr.service_name})` : ""}
                     </option>
                   ))
                 ) : (
                   <>
-                    <option value="12002">12002 New Delhi–Bhopal Shatabdi Exp</option>
-                    <option value="12952">12952 New Delhi–Mumbai Central Rajdhani</option>
+                    <option value="12050">12050 Gatimaan Express (NDLS–AGC)</option>
                     <option value="22436">22436 Vande Bharat Express</option>
-                    <option value="BOXN_FREIGHT">BOXN Heavy Freight Rake (58 BOXN)</option>
+                    <option value="12002">12002 Bhopal Shatabdi Express</option>
+                    <option value="12622">12622 Tamil Nadu Superfast Express</option>
                   </>
                 )}
               </select>

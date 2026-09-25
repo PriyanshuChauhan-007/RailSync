@@ -1,25 +1,31 @@
-/* Authentic Indian Railways Operations Control Centre (OCC) Master Clock */
+/* Authentic Indian Railways OCC Time Warp & Dispatch Controller */
 
+.ir-master-clock-bar.occ-dispatch-controller,
 .ir-master-clock-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  background: #08111e;
-  border: 1px solid #1a2f4c;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid #334155;
   border-radius: 8px;
   padding: 12px 18px;
-  margin-bottom: 20px;
+  margin: 10px 0 16px;
   color: #e2e8f0;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  height: auto;
+  white-space: normal;
 }
 
 .ir-clock-left {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 220px;
 }
 
 .ir-telemetry-badge {
@@ -28,20 +34,21 @@
   gap: 8px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #34d399;
+  letter-spacing: 0.06em;
+  color: #38bdf8;
 }
 
 .ir-telemetry-dot {
   width: 8px;
   height: 8px;
-  background-color: #10b981;
+  background-color: #38bdf8;
   border-radius: 50%;
-  box-shadow: 0 0 10px #10b981;
-  animation: ir-pulse-green 2s infinite ease-in-out;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: ir-pulse-cyan 2s infinite ease-in-out;
+  flex-shrink: 0;
 }
 
-@keyframes ir-pulse-green {
+@keyframes ir-pulse-cyan {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.85); }
 }
@@ -55,18 +62,18 @@
 
 .ir-clock-digits {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.06em;
   color: #f8fafc;
-  text-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
 }
 
 .ir-clock-zone {
-  font-size: 11px;
+  font-size: 10px;
   color: #94a3b8;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -74,8 +81,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1 1 500px;
-  max-width: 680px;
+  flex: 1 1 480px;
+  max-width: 720px;
 }
 
 .ir-clock-controls {
@@ -87,11 +94,11 @@
 
 .ir-clock-play-btn {
   background: #1e293b;
-  border: 1px solid #334155;
-  color: #f1f5f9;
-  font-size: 12px;
+  border: 1px solid #475569;
+  color: #f8fafc;
+  font-size: 11px;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -101,19 +108,19 @@
 
 .ir-clock-play-btn:hover {
   background: #334155;
-  border-color: #475569;
+  border-color: #64748b;
 }
 
 .ir-clock-play-btn.is-paused {
   background: #b45309;
   border-color: #d97706;
-  color: #fff;
+  color: #ffffff;
 }
 
 .ir-clock-multipliers {
   display: flex;
   gap: 4px;
-  background: #0f172a;
+  background: #0b1322;
   padding: 2px;
   border-radius: 4px;
   border: 1px solid #1e293b;
@@ -129,6 +136,7 @@
   border-radius: 3px;
   cursor: pointer;
   height: auto;
+  white-space: normal;
 }
 
 .ir-clock-rate-btn:hover {
@@ -139,6 +147,7 @@
   background: #2563eb;
   color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
 }
 
 .ir-clock-quick-jumps {
@@ -153,7 +162,7 @@
   color: #93c5fd;
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 4px 9px;
   border-radius: 4px;
   cursor: pointer;
   height: auto;
@@ -163,14 +172,14 @@
 
 .ir-clock-jump-btn:hover {
   background: #1e3a63;
-  color: #fff;
+  color: #ffffff;
   border-color: #3b82f6;
 }
 
 .ir-clock-scrubber-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .ir-scrubber-label {
@@ -194,6 +203,7 @@
 }
 
 @media (max-width: 900px) {
+  .ir-master-clock-bar.occ-dispatch-controller,
   .ir-master-clock-bar {
     flex-direction: column;
     align-items: stretch;
