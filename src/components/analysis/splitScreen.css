@@ -1,18 +1,18 @@
-/* A/B Split-Screen Comparison View Styling */
+/* A/B Split-Screen Comparison View Styling - Theme Harmonized */
 
 .ir-split-screen-section {
-  background: #08111e;
-  border: 1px solid #1a2f4c;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 22px 24px;
   margin-bottom: 28px;
-  color: #e2e8f0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .ir-split-header {
   margin-bottom: 22px;
-  border-bottom: 1px solid #1a2f4c;
+  border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 16px;
 }
 
@@ -24,9 +24,9 @@
 }
 
 .ir-badge-ratio {
-  background: rgba(16, 185, 129, 0.15);
+  background-color: rgba(16, 185, 129, 0.15);
   border: 1px solid #10b981;
-  color: #34d399;
+  color: #10b981;
   font-size: 11px;
   font-weight: 800;
   padding: 2px 8px;
@@ -38,13 +38,13 @@
   margin: 0 0 6px;
   font-size: 20px;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-split-header p {
   margin: 0;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   max-width: 860px;
   line-height: 1.5;
 }
@@ -64,26 +64,26 @@
 }
 
 .ir-split-column.is-siloed {
-  background: #0d121c;
-  border: 1px solid #3b1d24;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
 }
 
 .ir-split-column.is-optimized {
-  background: #081724;
-  border: 1px solid #164e63;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
 }
 
 .ir-column-header h3 {
   margin: 6px 0 4px;
   font-size: 16px;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-column-header p {
   margin: 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.45;
 }
 
@@ -98,15 +98,15 @@
 }
 
 .ir-col-tag.is-danger {
-  background: rgba(239, 68, 68, 0.15);
+  background-color: rgba(239, 68, 68, 0.15);
   border: 1px solid #ef4444;
-  color: #fca5a5;
+  color: #ef4444;
 }
 
 .ir-col-tag.is-success {
-  background: rgba(16, 185, 129, 0.15);
+  background-color: rgba(16, 185, 129, 0.15);
   border: 1px solid #10b981;
-  color: #6ee7b7;
+  color: #10b981;
 }
 
 .ir-kpi-callout {
@@ -118,12 +118,12 @@
 }
 
 .ir-kpi-callout.is-danger {
-  background: rgba(239, 68, 68, 0.1);
+  background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .ir-kpi-callout.is-success {
-  background: rgba(16, 185, 129, 0.1);
+  background-color: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
@@ -134,17 +134,17 @@
 }
 
 .is-danger .ir-kpi-figure {
-  color: #f87171;
+  color: #ef4444;
 }
 
 .is-success .ir-kpi-figure {
-  color: #34d399;
+  color: #10b981;
 }
 
 .ir-kpi-desc {
   font-size: 12px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .ir-block-cards-stack {
@@ -154,8 +154,8 @@
 }
 
 .ir-timeline-card {
-  background: #09101d;
-  border: 1px solid #1c2e47;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 12px 14px;
 }
@@ -163,13 +163,13 @@
 .ir-timeline-card h4 {
   margin: 6px 0 2px;
   font-size: 13px;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .ir-timeline-card p {
   margin: 0;
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .ir-tc-head {
@@ -179,45 +179,72 @@
   font-size: 11px;
 }
 
+/* Departmental Badges */
 .ir-dept-badge {
   font-weight: 800;
   font-size: 10px;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 4px;
+  letter-spacing: 0.04em;
+  display: inline-block;
 }
 
 .ir-dept-badge.pway {
-  background: #7c2d12;
-  color: #fdba74;
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #ea580c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
 }
 
 .ir-dept-badge.snt {
-  background: #1e3a8a;
-  color: #93c5fd;
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.35);
 }
 
 .ir-dept-badge.trd {
-  background: #581c87;
-  color: #d8b4fe;
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #9333ea;
+  border: 1px solid rgba(168, 85, 247, 0.35);
 }
 
 .ir-dept-badge.integrated {
-  background: #064e3b;
-  color: #6ee7b7;
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
   border: 1px solid #10b981;
+}
+
+/* Dark theme specific text tone boosts */
+[data-theme="dark"] .ir-dept-badge.pway,
+.dark .ir-dept-badge.pway {
+  color: #fb923c;
+}
+
+[data-theme="dark"] .ir-dept-badge.snt,
+.dark .ir-dept-badge.snt {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .ir-dept-badge.trd,
+.dark .ir-dept-badge.trd {
+  color: #c084fc;
+}
+
+[data-theme="dark"] .ir-dept-badge.integrated,
+.dark .ir-dept-badge.integrated {
+  color: #34d399;
 }
 
 .ir-tc-time {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--text-primary);
 }
 
 .ir-gap-notice {
   text-align: center;
   font-size: 10px;
   color: #f59e0b;
-  background: rgba(245, 158, 11, 0.08);
+  background-color: rgba(245, 158, 11, 0.08);
   padding: 4px;
   border-radius: 4px;
   border: 1px dashed rgba(245, 158, 11, 0.3);
@@ -229,13 +256,14 @@
   flex-direction: column;
   gap: 4px;
   padding: 8px;
-  background: #040c17;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-subtle);
   border-radius: 4px;
 }
 
 .ir-nested-crew {
   font-size: 11px;
-  color: #93c5fd;
+  color: var(--accent-kpi-blue);
   display: flex;
   align-items: center;
 }
@@ -244,7 +272,7 @@
   margin-top: 8px;
   font-size: 10px;
   font-weight: 700;
-  color: #34d399;
+  color: #10b981;
 }
 
 .ir-detentions-box {
@@ -254,12 +282,12 @@
 }
 
 .ir-detentions-box.is-danger {
-  background: rgba(239, 68, 68, 0.08);
+  background-color: rgba(239, 68, 68, 0.08);
   border: 1px solid #ef4444;
 }
 
 .ir-detentions-box.is-success {
-  background: rgba(16, 185, 129, 0.08);
+  background-color: rgba(16, 185, 129, 0.08);
   border: 1px solid #10b981;
 }
 
@@ -268,6 +296,7 @@
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .ir-detentions-list {
@@ -284,6 +313,7 @@
   align-items: center;
   gap: 8px;
   font-size: 11px;
+  color: var(--text-primary);
 }
 
 .ir-train-badge {
@@ -295,20 +325,21 @@
 }
 
 .ir-train-badge.red {
-  background: #7f1d1d;
-  color: #fca5a5;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
   border: 1px solid #ef4444;
 }
 
 .ir-train-badge.green {
-  background: #064e3b;
-  color: #a7f3d0;
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
   border: 1px solid #10b981;
 }
 
 .ir-detention-summary {
   font-size: 12px;
   font-weight: 700;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 6px;
+  color: var(--text-primary);
 }

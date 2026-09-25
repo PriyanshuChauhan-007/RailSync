@@ -72,6 +72,13 @@
   --train: var(--accent);
   --block: var(--warning);
   --critical: var(--danger);
+
+  --rs-eng: #fb923c;
+  --rs-snt: #60a5fa;
+  --rs-trd: #c084fc;
+  --rs-opt: #34d399;
+  --rs-card: #0f172a;
+  --rs-demand: #fb923c;
 }
 
 /* LIGHT THEME (Enterprise Railway Portal) */
@@ -143,6 +150,13 @@
   --train: var(--accent);
   --block: var(--warning);
   --critical: var(--danger);
+
+  --rs-eng: #c2410c;
+  --rs-snt: #1d4ed8;
+  --rs-trd: #7e22ce;
+  --rs-opt: #047857;
+  --rs-card: #ffffff;
+  --rs-demand: #c2410c;
 }
 
 body {

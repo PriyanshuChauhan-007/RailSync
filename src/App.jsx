@@ -25,14 +25,19 @@ function App() {
     riskConfig: { mode: "STATIC", target: "", profile: "" },
   });
 
-  let content;
+  let pageContent;
   if (view === "workspace") {
-    let page;
     if (workspaceView === "scenario") {
-      page = <ScenarioLab session={planningSession} setSession={setPlanningSession}
-        onNavigate={setWorkspaceView} onHome={() => setView("landing")} />;
+      pageContent = (
+        <ScenarioLab
+          session={planningSession}
+          setSession={setPlanningSession}
+          onNavigate={setWorkspaceView}
+          onHome={() => setView("landing")}
+        />
+      );
     } else if (workspaceView === "analysis") {
-      page = (
+      pageContent = (
         <AnalysisPage
           session={planningSession}
           onNavigate={setWorkspaceView}
@@ -40,37 +45,34 @@ function App() {
         />
       );
     } else {
-      page = (
-      <PlanningWorkspace
-        session={planningSession}
-        setSession={setPlanningSession}
-        onNavigate={setWorkspaceView}
-        onHome={() => setView("landing")}
-      />
+      pageContent = (
+        <PlanningWorkspace
+          session={planningSession}
+          setSession={setPlanningSession}
+          onNavigate={setWorkspaceView}
+          onHome={() => setView("landing")}
+        />
       );
     }
-    content = (
-      <div className="railsaathi-workspace">{page}
-        <RailSaathi
-          territoryId={planningSession.territoryId} territory={planningSession.territory}
-          plan={planningSession.plan}
-          selectedBlock={planningSession.plan?.blocks.find((block) => block.block_id === planningSession.selectedBlockId)}
-          selectedTask={planningSession.tasks.find((task) => task.task_id === planningSession.selectedTaskId)}
-          onPreview={(preview) => setPlanningSession((current) => ({ ...current, assistantPreview: preview }))}
-          onOpenPlanning={() => setWorkspaceView("planning")}
-        />
-      </div>
-    );
   } else {
-    content = (
+    pageContent = (
       <LandingPage
         initialTerritoryId={planningSession.territoryId}
         onLaunchPlanner={(territoryId = planningSession.territoryId) => {
           if (territoryId !== planningSession.territoryId) {
             setPlanningSession((current) => ({
-              ...current, territoryId, territory: null, tasks: [], trains: [], plan: null,
-              recovery: null, dataError: null, optimizationError: null,
-              selectedTaskId: null, selectedBlockId: null, assistantPreview: null,
+              ...current,
+              territoryId,
+              territory: null,
+              tasks: [],
+              trains: [],
+              plan: null,
+              recovery: null,
+              dataError: null,
+              optimizationError: null,
+              selectedTaskId: null,
+              selectedBlockId: null,
+              assistantPreview: null,
             }));
           }
           setWorkspaceView("planning");
@@ -82,7 +84,30 @@ function App() {
 
   return (
     <SimulationTimeProvider>
-      {content}
+      <div className="railsaathi-workspace">
+        {pageContent}
+        <RailSaathi
+          territoryId={planningSession.territoryId}
+          territory={planningSession.territory}
+          plan={planningSession.plan}
+          selectedBlock={planningSession.plan?.blocks.find(
+            (block) => block.block_id === planningSession.selectedBlockId
+          )}
+          selectedTask={planningSession.tasks.find(
+            (task) => task.task_id === planningSession.selectedTaskId
+          )}
+          onPreview={(preview) =>
+            setPlanningSession((current) => ({
+              ...current,
+              assistantPreview: preview,
+            }))
+          }
+          onOpenPlanning={() => {
+            setWorkspaceView("planning");
+            setView("workspace");
+          }}
+        />
+      </div>
     </SimulationTimeProvider>
   );
 }

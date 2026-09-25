@@ -146,7 +146,7 @@ export default function DepartmentalIngestionDrawer({
                             {row.tqi} {row.tqi > 45 ? "⚠ Urgent Tamping" : ""}
                           </span>
                         </td>
-                        <td><span className="tqi-badge" style={{ background: "#1e3a5f" }}>{row.gmt}</span></td>
+                        <td><span className="gmt-badge">{row.gmt}</span></td>
                         <td>
                           <div className="ml-pred-badge">
                             <span className="ml-pred-icon">🤖</span>
@@ -190,8 +190,8 @@ export default function DepartmentalIngestionDrawer({
                         <td>{row.asset}</td>
                         <td>
                           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                            <span style={{ fontSize: "11px", color: "#38bdf8", fontWeight: 700 }}>{row.form}</span>
-                            <span style={{ fontSize: "10px", color: "#ef4444", fontWeight: 600 }}>🔒 {row.interlocking}</span>
+                            <span className="snt-form-tag">{row.form}</span>
+                            <span className="snt-lock-tag">🔒 {row.interlocking}</span>
                           </div>
                         </td>
                         <td>{row.test}</td>
@@ -237,7 +237,7 @@ export default function DepartmentalIngestionDrawer({
                         <td>{row.section}</td>
                         <td><span className="power-cut-badge">{row.isolation}</span></td>
                         <td>
-                          <span style={{ fontSize: "10px", color: "#fbbf24", fontWeight: 700 }}>
+                          <span className="ptw-status-tag">
                             ⚡ {row.ptw}
                           </span>
                         </td>
@@ -283,7 +283,7 @@ export default function DepartmentalIngestionDrawer({
                         <td>{row.name}</td>
                         <td><span className="train-type-pill">{row.level}</span></td>
                         <td>
-                          <strong style={{ color: row.mult.includes("10x") ? "#ef4444" : row.mult.includes("8x") ? "#f59e0b" : "#38bdf8" }}>
+                          <strong className={`coa-mult-tag ${row.mult.includes("10x") ? "danger" : row.mult.includes("8x") ? "warning" : "info"}`}>
                             {row.mult}
                           </strong>
                         </td>
