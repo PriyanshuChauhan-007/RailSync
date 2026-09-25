@@ -1,1 +1,0 @@
-"""RailSync FastAPI backend package."""

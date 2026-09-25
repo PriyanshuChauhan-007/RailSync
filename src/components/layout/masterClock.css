@@ -1,0 +1,204 @@
+/* Authentic Indian Railways Operations Control Centre (OCC) Master Clock */
+
+.ir-master-clock-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #08111e;
+  border: 1px solid #1a2f4c;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  color: #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+}
+
+.ir-clock-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ir-telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #34d399;
+}
+
+.ir-telemetry-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10b981;
+  animation: ir-pulse-green 2s infinite ease-in-out;
+}
+
+@keyframes ir-pulse-green {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.ir-digital-clock {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ir-clock-digits {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #f8fafc;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+.ir-clock-zone {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ir-clock-center {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 500px;
+  max-width: 680px;
+}
+
+.ir-clock-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ir-clock-play-btn {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  height: auto;
+  white-space: normal;
+}
+
+.ir-clock-play-btn:hover {
+  background: #334155;
+  border-color: #475569;
+}
+
+.ir-clock-play-btn.is-paused {
+  background: #b45309;
+  border-color: #d97706;
+  color: #fff;
+}
+
+.ir-clock-multipliers {
+  display: flex;
+  gap: 4px;
+  background: #0f172a;
+  padding: 2px;
+  border-radius: 4px;
+  border: 1px solid #1e293b;
+}
+
+.ir-clock-rate-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  height: auto;
+}
+
+.ir-clock-rate-btn:hover {
+  color: #f8fafc;
+}
+
+.ir-clock-rate-btn.is-active {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.ir-clock-quick-jumps {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ir-clock-jump-btn {
+  background: #111e30;
+  border: 1px solid #203a5c;
+  color: #93c5fd;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: auto;
+  white-space: normal;
+  transition: all 0.15s;
+}
+
+.ir-clock-jump-btn:hover {
+  background: #1e3a63;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.ir-clock-scrubber-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ir-scrubber-label {
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ir-clock-scrubber {
+  flex: 1;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+.ir-scrubber-bounds {
+  font-size: 10px;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .ir-master-clock-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ir-clock-center {
+    max-width: 100%;
+  }
+}

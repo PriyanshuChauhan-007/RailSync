@@ -1,0 +1,153 @@
+/* Ministry of Railways Operational KPI Summary Strip */
+
+.ir-kpi-summary-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #08111e;
+  border: 1px solid #1a2f4c;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.ir-kpi-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.ir-kpi-card {
+  background: #0c1728;
+  border: 1px solid #1e3352;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ir-kpi-metric-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ir-kpi-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.ir-kpi-dot.is-success {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.ir-kpi-dot.is-sky {
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.ir-kpi-dot.is-emerald {
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+.ir-kpi-dot.is-amber {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.ir-kpi-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.ir-kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.ir-kpi-value.text-success {
+  color: #34d399;
+}
+
+.ir-kpi-value.text-sky {
+  color: #38bdf8;
+}
+
+.ir-kpi-value.text-emerald {
+  color: #10b981;
+}
+
+.ir-kpi-value.text-amber {
+  color: #fbbf24;
+}
+
+.ir-kpi-sub {
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.ir-kpi-action-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-top: 1px solid #14243b;
+  padding-top: 10px;
+}
+
+.ir-kpi-btn-ingestion {
+  background: #10223d;
+  border: 1px solid #1e3a63;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: auto;
+  white-space: normal;
+  transition: all 0.15s;
+}
+
+.ir-kpi-btn-ingestion:hover {
+  background: #173259;
+  color: #fff;
+  border-color: #38bdf8;
+}
+
+.ir-kpi-btn-analysis {
+  background: #172554;
+  border: 1px solid #2563eb;
+  color: #bfdbfe;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: auto;
+  white-space: normal;
+  transition: all 0.15s;
+}
+
+.ir-kpi-btn-analysis:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .ir-kpi-action-links {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
