@@ -25,12 +25,20 @@ export default function PriorityFeasibility({ task, diagnostics, territory }) {
 
       {priority ? <>
         <dl className="priority-facts">
+          <div>
+            <dt>TMS / USFD Flaw Classification</dt>
+            <dd>
+              <strong>{priority.flaw_classification || "Scheduled Track Maintenance"}</strong>
+              {priority.caution_order && <div style={{ fontSize: "11px", color: "#f87171", fontWeight: 700, marginTop: "2px" }}>⚠️ {priority.caution_order}</div>}
+              {priority.tqi_status && <div style={{ fontSize: "11px", color: "#f59e0b", fontWeight: 700 }}>{priority.tqi_status}</div>}
+            </dd>
+          </div>
           <div><dt>Recorded priority inputs</dt><dd>Criticality {priority.criticality}/10 · Urgency {priority.urgency}/10 · {priority.overdue_days} overdue days</dd></div>
           <div><dt>Solver outcome</dt><dd>{readable(priority.solver_outcome)}</dd></div>
           <div><dt>Candidate windows</dt><dd>{feasible.length} feasible window{feasible.length === 1 ? "" : "s"} of {windows.length}</dd></div>
           <div><dt>Protected traffic</dt><dd>{conflicts.length} recorded train safety exclusion{conflicts.length === 1 ? "" : "s"}</dd></div>
         </dl>
-        <p className="priority-method-note">Deterministic category from recorded criticality, urgency, overdue days, and deadline. No ML score is used.</p>
+        <p className="priority-method-note">Statutory IR Precedence &amp; USFD Standards: Enforces T/409 Caution Orders and COA Timetable Headways.</p>
       </> : <p className="priority-method-note">Generate a plan to calculate deterministic priority and feasibility facts.</p>}
 
       {windows.length ? <div className="diagnostic-columns">
@@ -42,10 +50,16 @@ export default function PriorityFeasibility({ task, diagnostics, territory }) {
           </li>)}</ul>
         </div>
         <div>
-          <h3>Traffic safety exclusions</h3>
+          <h3>Statutory Traffic Safety Exclusions</h3>
           <ul className="diagnostic-list">{conflicts.slice(0, 4).map((conflict) => <li key={conflict.conflict_id}>
-            <div><strong>{trainLabel(conflict.train_id, territory)}</strong><span className={`diagnostic-badge is-${conflict.severity.toLowerCase()}`}>{readable(conflict.severity)}</span></div>
-            <small>{timeLabel(conflict.protected_start)}–{timeLabel(conflict.protected_end)} protected · {conflict.minimum_clearance_minutes} min total margin</small>
+            <div>
+              <strong>{conflict.service_name || trainLabel(conflict.train_id, territory)}</strong>
+              <span className={`diagnostic-badge is-${conflict.severity.toLowerCase()}`}>
+                {conflict.penalty_multiplier || readable(conflict.severity)}
+              </span>
+            </div>
+            <div style={{ fontSize: "11px", color: "#38bdf8", fontWeight: 600 }}>{conflict.statutory_precedence_level || "Scheduled Service"}</div>
+            <small>{timeLabel(conflict.protected_start)}–{timeLabel(conflict.protected_end)} protected · {conflict.buffer_rule || `${conflict.minimum_clearance_minutes} min total margin`}</small>
           </li>)}{!conflicts.length ? <li><small>No recorded train safety exclusions for this task.</small></li> : null}</ul>
         </div>
       </div> : null}

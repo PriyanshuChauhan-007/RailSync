@@ -1,7 +1,7 @@
 {
   "territory_id": "delhi_agra",
-  "display_name": "Northern HDN · New Delhi–Palwal",
-  "description": "Public passenger timetable corridor on the New Delhi–Palwal high-density route with explicitly synthetic prototype maintenance demand and resources.",
+  "display_name": "[NR] Northern HDN (New Delhi–Agra Cantt)",
+  "description": "High-Density Network trunk corridor NDLS–NZM–FDB–PWL–MTJ–AGC hosting 12050 Gatimaan Express (160 km/h), 22436 Vande Bharat, and 12002 Bhopal Shatabdi.",
   "status": "POPULATED",
   "provenance": [
     {

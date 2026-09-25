@@ -240,5 +240,71 @@
       "VGN",
       "DRD"
     ]
+  },
+  {
+    "train_id": "20901",
+    "service_number": "20901",
+    "service_name": "Mumbai Central–Gandhinagar Capital Vande Bharat Express",
+    "origin_station_id": "MMCT",
+    "destination_station_id": "GNC",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "VR",
+      "VTN",
+      "SAH",
+      "KLV",
+      "PLG",
+      "UOI",
+      "BOR",
+      "VGN",
+      "DRD"
+    ]
+  },
+  {
+    "train_id": "12009",
+    "service_number": "12009",
+    "service_name": "Mumbai Central–Ahmedabad Shatabdi Express",
+    "origin_station_id": "MMCT",
+    "destination_station_id": "ADI",
+    "direction": "NORTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "VR",
+      "VTN",
+      "SAH",
+      "KLV",
+      "PLG",
+      "UOI",
+      "BOR",
+      "VGN",
+      "DRD"
+    ]
+  },
+  {
+    "train_id": "CONCOR_WR_91",
+    "service_number": "CONCOR_91",
+    "service_name": "Jawaharlal Nehru Port (JNPT) Container Rake",
+    "origin_station_id": "MMCT",
+    "destination_station_id": "ST",
+    "direction": "NORTHBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://www.concorindia.com",
+    "timetable_validity": "Freight Working Schedule",
+    "station_sequence": [
+      "VR",
+      "VTN",
+      "SAH",
+      "KLV",
+      "PLG",
+      "UOI",
+      "BOR",
+      "VGN",
+      "DRD"
+    ]
   }
 ]

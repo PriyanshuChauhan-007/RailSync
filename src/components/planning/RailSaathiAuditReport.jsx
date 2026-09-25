@@ -34,10 +34,10 @@ export default function RailSaathiAuditReport({ plan, territory }) {
         <div className="ir-rationale-item">
           <div className="ir-rationale-num">R1</div>
           <div className="ir-rationale-body">
-            <strong>Passenger Precedence &amp; Dynamic Shift:</strong>
+            <strong>Statutory Train Precedence (Level 1 - 10x Penalty):</strong>
             <p>
               Block TRD-04 was shifted by <strong>+15 mins</strong> to clear high-priority path for <strong>12050 Gatimaan Express</strong>.
-              Safe headway buffer of 15.2 minutes strictly enforced between train clearance and line possession.
+              Level 1 Super-Precedence strictly protects 12050, 22436 Vande Bharat, and 12002 Shatabdi with 15.2 min physical headway margins.
             </p>
           </div>
         </div>
@@ -45,10 +45,10 @@ export default function RailSaathiAuditReport({ plan, territory }) {
         <div className="ir-rationale-item">
           <div className="ir-rationale-num">R2</div>
           <div className="ir-rationale-body">
-            <strong>Cross-Departmental Spatial Bundling:</strong>
+            <strong>S&amp;T Protocol (Form S&amp;T T/351 Disconnection):</strong>
             <p>
-              S&amp;T Point Machine 104A Overhaul was bundled into the Civil (P-Way) tamping window at <strong>km 14.2–18.6</strong>,
-              compressing two isolated shutdowns into a single shadow possession and <strong>saving 120 minutes of line capacity</strong>.
+              Form S&amp;T T/351 granted by Station Master for Point Machine 104A Overhaul at <strong>km 14.2–18.6</strong>.
+              Bundled into Civil (P-Way) window; flanking automatic signals interlocked to Danger (Red) until reconnection notice recorded.
             </p>
           </div>
         </div>
@@ -56,10 +56,10 @@ export default function RailSaathiAuditReport({ plan, territory }) {
         <div className="ir-rationale-item">
           <div className="ir-rationale-num">R3</div>
           <div className="ir-rationale-body">
-            <strong>Traction Distribution &amp; Power Isolation Boundary:</strong>
+            <strong>TRD / OHE Power Block &amp; Permit to Work (PTW):</strong>
             <p>
-              OHE 25 kV AC catenary de-energization confined to Elementary Section <strong>ES-04 (Ballabgarh TSS)</strong>.
-              Diesel bypass routing authorized for BOXN heavy freight rakes during the power block window.
+              OHE 25 kV AC catenary de-energization confined to Elementary Section <strong>ES-NZM-UP-04 (Ballabgarh TSS)</strong>.
+              PTW officially issued with Electric Pantograph Lowering Order; diesel bypass routing authorized for BOXN heavy freight rakes.
             </p>
           </div>
         </div>
@@ -67,10 +67,10 @@ export default function RailSaathiAuditReport({ plan, territory }) {
         <div className="ir-rationale-item">
           <div className="ir-rationale-num">R4</div>
           <div className="ir-rationale-body">
-            <strong>Predictive ML Degradation Prioritization:</strong>
+            <strong>USFD Defect Class &amp; Caution Order T/409:</strong>
             <p>
-              Defect <strong>TMS-NDLS-042 (USFD IMR Rail Flaw)</strong> prioritized to Window 1 based on Predictive ML Analytics
-              flagging critical failure risk within 14 days (Urgency Weight: 92%).
+              Defect <strong>TMS-NDLS-042 classified as IMR (Immediate Removal)</strong> with <strong>T/409 Caution Order (20 km/h)</strong> imposed.
+              Prioritized to Window 1 under ML Critical Degradation Weight (92%) to satisfy the mandatory &lt; 24h statutory window.
             </p>
           </div>
         </div>

@@ -1,42 +1,13 @@
 [
-  {
-    "station_id": "NZM",
-    "station_name": "Hazrat Nizamuddin",
-    "order": 1
-  },
-  {
-    "station_id": "OKA",
-    "station_name": "Okhla",
-    "order": 2
-  },
-  {
-    "station_id": "TKD",
-    "station_name": "Tuglakabad",
-    "order": 3
-  },
-  {
-    "station_id": "FDB",
-    "station_name": "Faridabad",
-    "order": 4
-  },
-  {
-    "station_id": "FDN",
-    "station_name": "Faridabad New Town",
-    "order": 5
-  },
-  {
-    "station_id": "BVH",
-    "station_name": "Ballabhgarh",
-    "order": 6
-  },
-  {
-    "station_id": "AST",
-    "station_name": "Asaoti",
-    "order": 7
-  },
-  {
-    "station_id": "PWL",
-    "station_name": "Palwal",
-    "order": 8
-  }
+  { "station_id": "NDLS", "station_name": "New Delhi", "km": 0.0, "order": 1 },
+  { "station_id": "NZM", "station_name": "Hazrat Nizamuddin", "km": 7.2, "order": 2 },
+  { "station_id": "OKA", "station_name": "Okhla", "km": 11.0, "order": 3 },
+  { "station_id": "TKD", "station_name": "Tuglakabad", "km": 17.5, "order": 4 },
+  { "station_id": "FDB", "station_name": "Faridabad", "km": 28.4, "order": 5 },
+  { "station_id": "FDN", "station_name": "Faridabad New Town", "km": 32.0, "order": 6 },
+  { "station_id": "BVH", "station_name": "Ballabhgarh", "km": 37.5, "order": 7 },
+  { "station_id": "AST", "station_name": "Asaoti", "km": 46.0, "order": 8 },
+  { "station_id": "PWL", "station_name": "Palwal", "km": 59.6, "order": 9 },
+  { "station_id": "MTJ", "station_name": "Mathura Junction", "km": 141.0, "order": 10 },
+  { "station_id": "AGC", "station_name": "Agra Cantt", "km": 195.0, "order": 11 }
 ]

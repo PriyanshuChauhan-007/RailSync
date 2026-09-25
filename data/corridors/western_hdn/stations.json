@@ -1,47 +1,17 @@
 [
-  {
-    "station_id": "VR",
-    "station_name": "Virar",
-    "order": 1
-  },
-  {
-    "station_id": "VTN",
-    "station_name": "Vaitarna",
-    "order": 2
-  },
-  {
-    "station_id": "SAH",
-    "station_name": "Saphale",
-    "order": 3
-  },
-  {
-    "station_id": "KLV",
-    "station_name": "Kelva Road",
-    "order": 4
-  },
-  {
-    "station_id": "PLG",
-    "station_name": "Palghar",
-    "order": 5
-  },
-  {
-    "station_id": "UOI",
-    "station_name": "Umroli",
-    "order": 6
-  },
-  {
-    "station_id": "BOR",
-    "station_name": "Boisar",
-    "order": 7
-  },
-  {
-    "station_id": "VGN",
-    "station_name": "Vangaon",
-    "order": 8
-  },
-  {
-    "station_id": "DRD",
-    "station_name": "Dahanu Road",
-    "order": 9
-  }
+  { "station_id": "MMCT", "station_name": "Mumbai Central", "km": 0.0, "order": 1 },
+  { "station_id": "BVI", "station_name": "Borivali", "km": 30.0, "order": 2 },
+  { "station_id": "BSR", "station_name": "Vasai Road", "km": 52.0, "order": 3 },
+  { "station_id": "VR", "station_name": "Virar", "km": 60.0, "order": 4 },
+  { "station_id": "VTN", "station_name": "Vaitarna", "km": 69.0, "order": 5 },
+  { "station_id": "SAH", "station_name": "Saphale", "km": 76.0, "order": 6 },
+  { "station_id": "KLV", "station_name": "Kelva Road", "km": 82.0, "order": 7 },
+  { "station_id": "PLG", "station_name": "Palghar", "km": 87.0, "order": 8 },
+  { "station_id": "UOI", "station_name": "Umroli", "km": 94.0, "order": 9 },
+  { "station_id": "BOR", "station_name": "Boisar", "km": 98.0, "order": 10 },
+  { "station_id": "VGN", "station_name": "Vangaon", "km": 107.0, "order": 11 },
+  { "station_id": "DRD", "station_name": "Dahanu Road", "km": 124.0, "order": 12 },
+  { "station_id": "VAPI", "station_name": "Vapi", "km": 168.0, "order": 13 },
+  { "station_id": "BL", "station_name": "Valsad", "km": 194.0, "order": 14 },
+  { "station_id": "ST", "station_name": "Surat", "km": 263.0, "order": 15 }
 ]

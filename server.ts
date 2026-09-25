@@ -290,8 +290,11 @@ function solveSchedule(territory: LoadedTerritory, taskOverrides?: any[], riskMo
               affected_trains: [],
               explanation: [
                 `Section: ${sectionId}`,
-                group.length > 1 ? `Integrated ${group.length} compatible tasks` : 'Individual maintenance possession',
+                group.length > 1 ? `Joint Shadow Possession: Integrated ${group.length} compatible departmental tasks` : 'Individual maintenance possession',
                 'No train occupancy conflicts during designated window with 15-minute safety buffers',
+                ...(group.some(t => t.department === 'S&T') ? ['Form S&T T/351 Disconnection Granted by Station Master | Flanking signals strictly interlocked to Danger (Red)'] : []),
+                ...(group.some(t => t.department === 'TRD') ? ['TSS Elementary Section De-energized | PTW Issued | Cautionary Notice: Electric Pantograph Lowering Order'] : []),
+                ...(group.some(t => t.task_type?.includes('IMR') || t.criticality >= 9) ? ['IMR Immediate Removal Flaw | Emergency T/409 Caution Order (15–30 km/h) Imposed (<24h)'] : []),
               ],
             });
             scheduled = true;
@@ -448,19 +451,31 @@ function solveSchedule(territory: LoadedTerritory, taskOverrides?: any[], riskMo
     };
   });
 
-  const task_priorities = tasks.map((t: any) => ({
-    task_id: t.task_id,
-    task_type: t.task_type,
-    department: t.department,
-    section_id: t.section_id,
-    criticality: t.criticality || 0,
-    urgency: t.urgency || 0,
-    overdue_days: t.overdue_days || 0,
-    deadline: t.deadline,
-    category: (t.criticality >= 9 || t.overdue_days >= 14) ? 'CRITICAL' : (t.criticality >= 7 || t.urgency >= 7) ? 'HIGH' : 'MEDIUM',
-    solver_outcome: unscheduled_tasks.includes(t.task_id) ? 'UNSCHEDULED' : 'SCHEDULED',
-    priority_score: (t.criticality || 5) * 10 + (t.urgency || 5) * 5 + (t.overdue_days || 0),
-  }));
+  const task_priorities = tasks.map((t: any) => {
+    const isImr = t.task_type?.includes('IMR') || t.criticality >= 9 || (t.overdue_days && t.overdue_days >= 14);
+    const isRem = !isImr && (t.task_type?.includes('REM') || t.criticality >= 7);
+    const flawClass = isImr ? 'IMR (Immediate Removal)' : isRem ? 'REM (Removal within 3 Days)' : 'OBS (Observation Monitoring)';
+    const cautionOrder = isImr ? 'Emergency T/409 Caution Order (15–30 km/h) | Window < 24h' : isRem ? 'Must bundle within nearest 72-hour window' : 'Scheduled during cyclical tamping';
+    const score = isImr ? 99 : isRem ? 86 : 55;
+    const tqiStatus = (t.tqi && t.tqi > 45) ? 'Urgent Tamping Requisition (TQI > 45)' : undefined;
+
+    return {
+      task_id: t.task_id,
+      task_type: t.task_type,
+      department: t.department,
+      section_id: t.section_id,
+      criticality: t.criticality || 0,
+      urgency: t.urgency || 0,
+      overdue_days: t.overdue_days || 0,
+      deadline: t.deadline,
+      category: isImr ? 'IMR_CRITICAL' : isRem ? 'REM_HIGH' : 'OBS_ROUTINE',
+      flaw_classification: flawClass,
+      caution_order: cautionOrder,
+      tqi_status: tqiStatus,
+      solver_outcome: unscheduled_tasks.includes(t.task_id) ? 'UNSCHEDULED' : 'SCHEDULED',
+      priority_score: score,
+    };
+  });
 
   const conflicts: any[] = [];
   let cfIdx = 1;
@@ -469,10 +484,40 @@ function solveSchedule(territory: LoadedTerritory, taskOverrides?: any[], riskMo
     for (const train of occs.slice(0, 3)) {
       const entry = parseTime(train.entry_time);
       const exit = parseTime(train.exit_time);
+
+      const trainService = territory.train_services.find(s => s.train_id === train.train_id);
+      const serviceName = trainService?.service_name || train.train_id;
+
+      let precedenceLevel = 'Level 2: Mail & Superfast Express';
+      let penaltyMultiplier = '6x Penalty';
+      let bufferRule = 'Max allowable buffer: 10 mins';
+
+      if (/vande bharat|rajdhani|shatabdi|gatimaan|12050|22436|12002|12951|12301|22301|20901|12009|12019/i.test(serviceName)) {
+        precedenceLevel = 'Level 1: Super-Precedence (Vande Bharat / Rajdhani / Shatabdi / Gatimaan)';
+        penaltyMultiplier = '10x Penalty';
+        bufferRule = 'Paths strictly protected; maintenance cannot encroach without manual controller authorization';
+      } else if (/emu|local|suburban|64076|64074|64062|64078|64077|04921|04913|64057/i.test(serviceName)) {
+        precedenceLevel = 'Level 3: Suburban Commuter EMU';
+        penaltyMultiplier = '8x Penalty (Peak Hours)';
+        bufferRule = 'Peak commuter headway strictly protected';
+      } else if (/parcel/i.test(serviceName)) {
+        precedenceLevel = 'Level 4: Scheduled Priority Freight / Parcel Rakes';
+        penaltyMultiplier = '3x Penalty';
+        bufferRule = 'Timetabled parcel path protected';
+      } else if (/boxn|btpn|concor|goods|freight|tanker/i.test(serviceName)) {
+        precedenceLevel = 'Level 5: Standard Goods (BOXN/BTPN)';
+        penaltyMultiplier = '1x Penalty';
+        bufferRule = 'May be looped or regulated for maintenance blocks';
+      }
+
       conflicts.push({
         conflict_id: `CF_${t.task_id}_${train.train_id}_${String(cfIdx++).padStart(3, '0')}`,
         task_id: t.task_id,
         train_id: train.train_id,
+        service_name: serviceName,
+        statutory_precedence_level: precedenceLevel,
+        penalty_multiplier: penaltyMultiplier,
+        buffer_rule: bufferRule,
         section_id: train.section_id,
         train_entry_time: train.entry_time,
         train_exit_time: train.exit_time,
@@ -664,6 +709,13 @@ app.get('/api/territories', (req: Request, res: Response) => {
       }
     }
   }
+
+  const PRIORITY_ORDER = ['delhi_agra', 'eastern_hdn', 'western_hdn', 'dfccil_dadri'];
+  territories.sort((a, b) => {
+    const idxA = PRIORITY_ORDER.indexOf(a.territory_id);
+    const idxB = PRIORITY_ORDER.indexOf(b.territory_id);
+    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+  });
 
   res.json({ territories });
 });

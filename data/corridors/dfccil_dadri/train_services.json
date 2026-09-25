@@ -1,8 +1,8 @@
 [
   {
-    "train_id": "DFC_DBL_01",
-    "service_number": "DFC_01",
-    "service_name": "Double Stack Container Rake (Mundra–Dadri)",
+    "train_id": "DFC_BLC_01",
+    "service_number": "DFC_BLC_01",
+    "service_name": "Double Stack Long-Haul Container Freight (BLC Rake)",
     "origin_station_id": "DADRI_DFC",
     "destination_station_id": "TUNDLA_DFC",
     "direction": "SOUTHBOUND",
@@ -12,9 +12,9 @@
     "station_sequence": ["DADRI_DFC", "BORAKI_DFC", "KHURJA_DFC", "DAUD_KHAN_DFC", "TUNDLA_DFC"]
   },
   {
-    "train_id": "DFC_DBL_02",
-    "service_number": "DFC_02",
-    "service_name": "Double Stack Container Rake (Pipavav–Dadri)",
+    "train_id": "DFC_BLC_02",
+    "service_number": "DFC_BLC_02",
+    "service_name": "Double Stack Long-Haul Container Freight (Pipavav–Dadri BLC)",
     "origin_station_id": "TUNDLA_DFC",
     "destination_station_id": "DADRI_DFC",
     "direction": "NORTHBOUND",
@@ -24,9 +24,9 @@
     "station_sequence": ["TUNDLA_DFC", "DAUD_KHAN_DFC", "KHURJA_DFC", "BORAKI_DFC", "DADRI_DFC"]
   },
   {
-    "train_id": "DFC_RO_RO_03",
-    "service_number": "DFC_03",
-    "service_name": "Roll-On Roll-Off (RO-RO) Truck Freight",
+    "train_id": "DFC_BTPN_03",
+    "service_number": "DFC_BTPN_03",
+    "service_name": "Heavy Haul Petroleum Tanker Formation (BTPN)",
     "origin_station_id": "DADRI_DFC",
     "destination_station_id": "TUNDLA_DFC",
     "direction": "SOUTHBOUND",

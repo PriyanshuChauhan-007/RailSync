@@ -1,7 +1,7 @@
 {
   "territory_id": "western_hdn",
-  "display_name": "Western HDN · Virar–Dahanu Road",
-  "description": "Public Western Railway suburban timetable corridor with explicitly synthetic prototype maintenance demand and resources.",
+  "display_name": "[WR] Western HDN (Mumbai Central–Surat)",
+  "description": "High-density Western Railway trunk corridor MMCT–BVI–BSR–PLG–VAPI–BL–ST hosting 12951 Mumbai Tejas-Rajdhani, 20901 Vande Bharat, 12009 Shatabdi, and container traffic.",
   "status": "POPULATED",
   "provenance": [
     {"label": "PUBLIC_TIMETABLE_DERIVED", "datasets": ["stations", "sections", "train_occupancy", "train_services"], "description": "Station sequence and public passenger schedules are derived from published Western Railway timetable material and public schedule pages; accessed 2026-09-10, not a live control feed."},

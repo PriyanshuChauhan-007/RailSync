@@ -1,7 +1,7 @@
 {
   "territory_id": "eastern_hdn",
-  "display_name": "Eastern HDN · Howrah–Asansol",
-  "description": "Howrah to Asansol quadruple-track high density freight and premier trunk corridor.",
+  "display_name": "[ER] Eastern HDN (Howrah–Asansol)",
+  "description": "Howrah to Asansol quadruple-track high-density freight and premier trunk corridor hosting 12301 Howrah Rajdhani, 22301 Vande Bharat, 12019 Ranchi Shatabdi, and heavy coal BOXN rakes.",
   "status": "POPULATED",
   "planning_ready": true,
   "provenance": [

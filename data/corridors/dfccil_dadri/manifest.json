@@ -1,7 +1,7 @@
 {
   "territory_id": "dfccil_dadri",
-  "display_name": "DFC Freight Corridor · Dadri–Tundla",
-  "description": "Dedicated Freight Corridor heavy-haul automated block section with 2x25 kV traction.",
+  "display_name": "[DFCCIL] Dedicated Freight Corridor (Dadri–Tundla)",
+  "description": "Dedicated Freight Corridor heavy-haul automated block section with 2x25 kV traction hosting double-stack container BLC rakes and heavy-haul BTPN tanker formations.",
   "status": "POPULATED",
   "planning_ready": true,
   "provenance": [

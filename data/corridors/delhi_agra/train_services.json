@@ -208,5 +208,47 @@
       "AST",
       "PWL"
     ]
+  },
+  {
+    "train_id": "12002",
+    "service_number": "12002",
+    "service_name": "Bhopal Shatabdi Express (NDLS–BPL)",
+    "origin_station_id": "NDLS",
+    "destination_station_id": "AGC",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PREMIER_PASSENGER",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "NZM",
+      "OKA",
+      "TKD",
+      "FDB",
+      "FDN",
+      "BVH",
+      "AST",
+      "PWL"
+    ]
+  },
+  {
+    "train_id": "12622",
+    "service_number": "12622",
+    "service_name": "Tamil Nadu Superfast Express",
+    "origin_station_id": "NDLS",
+    "destination_station_id": "MAS",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "SUPERFAST_EXPRESS",
+    "source_url": "https://www.irctc.co.in",
+    "timetable_validity": "WTT Schedule",
+    "station_sequence": [
+      "NZM",
+      "OKA",
+      "TKD",
+      "FDB",
+      "FDN",
+      "BVH",
+      "AST",
+      "PWL"
+    ]
   }
 ]

@@ -1,9 +1,9 @@
 [
-  { "station_id": "HWH", "station_name": "Howrah Junction", "order": 1 },
-  { "station_id": "SRP", "station_name": "Serampore", "order": 2 },
-  { "station_id": "BDC", "station_name": "Bandel Junction", "order": 3 },
-  { "station_id": "BWN", "station_name": "Barddhaman Junction", "order": 4 },
-  { "station_id": "PAN", "station_name": "Panagarh", "order": 5 },
-  { "station_id": "DGR", "station_name": "Durgapur", "order": 6 },
-  { "station_id": "ASN", "station_name": "Asansol Junction", "order": 7 }
+  { "station_id": "HWH", "station_name": "Howrah Junction", "km": 0.0, "order": 1 },
+  { "station_id": "SRP", "station_name": "Serampore", "km": 20.0, "order": 2 },
+  { "station_id": "BDC", "station_name": "Bandel Junction", "km": 40.0, "order": 3 },
+  { "station_id": "BWN", "station_name": "Barddhaman Junction", "km": 107.0, "order": 4 },
+  { "station_id": "PAN", "station_name": "Panagarh", "km": 164.0, "order": 5 },
+  { "station_id": "DGR", "station_name": "Durgapur", "km": 171.0, "order": 6 },
+  { "station_id": "ASN", "station_name": "Asansol Junction", "km": 200.0, "order": 7 }
 ]
