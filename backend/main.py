@@ -9,7 +9,7 @@ from fastapi import Body, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
-from . import copilot_service, operations_service, planning_service, recovery_service
+import copilot_service, operations_service, planning_service, recovery_service
 from .schemas import (
     OptimizeRequest,
     OptimizeResponse,
