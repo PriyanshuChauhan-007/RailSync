@@ -163,10 +163,14 @@ function getPlanHistory(territoryId?: string) {
 
 // --- Scheduler / Optimizer Implementation ---
 function parseTime(iso: string): number {
-  return new Date(iso).getTime();
+  if (!iso) return Date.now();
+  const cleaned = String(iso).replace(/(:[0-9]{2}):[0-9]{2}$/, '$1');
+  const t = new Date(cleaned).getTime();
+  return isNaN(t) ? (new Date(iso).getTime() || Date.now()) : t;
 }
 
 function formatIso(ms: number): string {
+  if (isNaN(ms)) return new Date().toISOString();
   return new Date(ms).toISOString();
 }
 
@@ -1194,10 +1198,13 @@ app.post('/api/reoptimize', (req: Request, res: Response) => {
 
 app.post('/api/recovery/adopt', (req: Request, res: Response) => {
   const { recovery_id, parent_plan_id } = req.body || {};
-  let plan = parent_plan_id ? plansStore.get(parent_plan_id) : null;
-  if (!plan && recovery_id) {
+  let plan = null;
+  if (recovery_id) {
     const recoveredPlanId = recovery_id.replace(/^REC_/, '');
     plan = plansStore.get(recoveredPlanId);
+  }
+  if (!plan && parent_plan_id) {
+    plan = plansStore.get(parent_plan_id);
   }
   if (!plan) {
     const allPlans = Array.from(plansStore.values());
@@ -1214,7 +1221,10 @@ app.post('/api/recovery/adopt', (req: Request, res: Response) => {
     status: 'success',
     blocks: plan.blocks,
     unscheduled_tasks: plan.unscheduled_tasks || [],
-    metrics: plan.metrics || {},
+    metrics: {
+      integrated_blocks: plan.blocks?.filter((b: any) => b.integrated || (b.tasks && b.tasks.length > 1)).length || 0,
+      ...(plan.metrics || {}),
+    },
     plan_identity: plan.identity || plan.plan_identity,
     proof_state: plan.proof_state || 'FULLY_OPTIMAL',
     planning_context: plan.planning_context || { territory_id: DEFAULT_TERRITORY_ID },

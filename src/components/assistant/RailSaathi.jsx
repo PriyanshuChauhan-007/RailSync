@@ -131,7 +131,12 @@ export default function RailSaathi({ territoryId, territory, plan, selectedBlock
     }
   }
 
-  const canExtend = Boolean(plan && (selectedTask && (!selectedBlock || selectedBlock.tasks.includes(selectedTask.task_id)) || selectedBlock?.tasks?.length === 1));
+  const canExtend = Boolean(
+    plan && (
+      (selectedTask && (!selectedBlock || (selectedBlock.tasks || []).includes(selectedTask.task_id))) ||
+      (selectedBlock?.tasks?.length === 1)
+    )
+  );
   const prompts = [
     { text: "Why this window?", disabled: !selectedBlock },
     { text: "Explain this simply", disabled: !plan && !selectedTask },

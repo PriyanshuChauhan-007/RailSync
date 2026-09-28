@@ -87,20 +87,20 @@ export default function OptimizerControls({
         <div className="optimizer-result-summary">
           <p className="optimizer-policy-note"><strong>Policy</strong><span>Service and infrastructure availability</span></p>
           <dl>
-            <div><dt>Possessions</dt><dd>{plan.blocks.length}</dd></div>
-            <div><dt>Integrated</dt><dd>{plan.metrics.integrated_blocks}</dd></div>
-            <div><dt>Scheduled tasks</dt><dd>{new Set(plan.blocks.flatMap((block) => block.tasks)).size}</dd></div>
+            <div><dt>Possessions</dt><dd>{plan.blocks?.length ?? 0}</dd></div>
+            <div><dt>Integrated</dt><dd>{plan.metrics?.integrated_blocks ?? (plan.blocks ? plan.blocks.filter((b) => b.integrated || (b.tasks && b.tasks.length > 1)).length : 0)}</dd></div>
+            <div><dt>Scheduled tasks</dt><dd>{new Set((plan.blocks ?? []).flatMap((block) => block.tasks ?? [])).size}</dd></div>
           </dl>
           <p>
             <strong>Non-integrated CP-SAT comparison</strong>
             {validSavings
-              ? `${plan.comparison.closure_saved_minutes} min (${plan.comparison.closure_reduction_percent.toFixed(1)}%) less possession time.`
+              ? `${plan.comparison?.closure_saved_minutes ?? 0} min (${plan.comparison?.closure_reduction_percent != null ? plan.comparison.closure_reduction_percent.toFixed(1) : 0}%) less possession time.`
               : "No same-work savings claim is available."}
           </p>
           <div className="optimizer-unscheduled">
             <strong>Unscheduled maintenance</strong>
-            {plan.unscheduled_tasks.length > 0 ? (
-              <ul>{plan.unscheduled_tasks.map((id) => (
+            {(plan.unscheduled_tasks?.length ?? 0) > 0 ? (
+              <ul>{(plan.unscheduled_tasks ?? []).map((id) => (
                 <li key={id}>
                   <strong>{taskById.get(id)?.task_type ?? "Maintenance task"}</strong>
                   <span>{departmentLabel(taskById.get(id)?.department)} · {id}</span>

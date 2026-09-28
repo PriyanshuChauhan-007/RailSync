@@ -144,7 +144,7 @@ export default function OperationalPanels({ territory, plan, tasks, selectedTask
             <button type="button" onClick={() => openPrintReport(plan.blocks)}>Print / PDF</button>
           </div></> : <p>Generate a plan to start a draft.</p>}
         <h3>Plan alternatives</h3>
-        <ul className="operations-list">{(plan?.alternatives ?? []).map((alternative) => <li key={alternative.alternative_id}><strong>{alternative.label}</strong><p>{alternative.metrics.possession_minutes} possession min · {alternative.metrics.scheduled_task_count} tasks · {proofLabel(alternative.proof_state)}</p><small>{alternative.tradeoff}</small></li>)}</ul>
+        <ul className="operations-list">{(plan?.alternatives ?? []).map((alternative) => <li key={alternative.alternative_id}><strong>{alternative.label}</strong><p>{alternative.metrics?.possession_minutes ?? 0} possession min · {alternative.metrics?.scheduled_task_count ?? 0} tasks · {proofLabel(alternative.proof_state)}</p><small>{alternative.tradeoff}</small></li>)}</ul>
         <h3>Rolling planning</h3>
         <div className="operations-tabs">{[["monthly", "Monthly"], ["weekly", "Weekly"], ["day_of", "Day-of"]].map(([key, label]) => <button key={key} type="button" className={tab === key ? "is-active" : ""} onClick={() => setTab(key)}>{label}</button>)}</div>
         <ul className="operations-list">{rollingRows.map((row, index) => <li key={row.period ?? row.date ?? index}><strong>{row.period ?? row.date}</strong><p>{readable(row.planning_state)} · {row.demand_count ?? row.candidate_task_ids?.length ?? row.blocks?.length ?? 0} items</p></li>)}</ul>

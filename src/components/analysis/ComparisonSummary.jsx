@@ -16,9 +16,9 @@ const metricRows = [
 ];
 
 export function ComparisonDetails({ analysis }) {
-  const { baseline, railsync } = analysis;
+  const { baseline, railsync } = analysis || {};
   const exactComparison =
-    baseline.proof_state === "FULLY_OPTIMAL" && railsync.proof_state === "FULLY_OPTIMAL";
+    baseline?.proof_state === "FULLY_OPTIMAL" && railsync?.proof_state === "FULLY_OPTIMAL";
 
   return (
     <details className="comparison-technical-details" aria-label="Full technical comparison">
@@ -41,14 +41,14 @@ export function ComparisonDetails({ analysis }) {
           {metricRows.map(([label, key, formatter]) => (
             <div className="comparison-table-row" role="row" key={key}>
               <span role="cell">{label}</span>
-              <strong role="cell">{formatter(baseline.metrics[key])}</strong>
-              <strong role="cell">{formatter(railsync.metrics[key])}</strong>
+              <strong role="cell">{formatter(baseline?.metrics?.[key] ?? 0)}</strong>
+              <strong role="cell">{formatter(railsync?.metrics?.[key] ?? 0)}</strong>
             </div>
           ))}
           <div className="comparison-table-row" role="row">
             <span role="cell">Proof state</span>
-            <strong role="cell">{proofLabel(baseline.proof_state)}</strong>
-            <strong role="cell">{proofLabel(railsync.proof_state)}</strong>
+            <strong role="cell">{proofLabel(baseline?.proof_state)}</strong>
+            <strong role="cell">{proofLabel(railsync?.proof_state)}</strong>
           </div>
         </div>
         <p className="comparison-definition">
@@ -60,18 +60,18 @@ export function ComparisonDetails({ analysis }) {
 }
 
 export default function ComparisonSummary({ analysis }) {
-  const { fairness, baseline, railsync } = analysis;
+  const { fairness, baseline, railsync } = analysis || {};
   const showSavings =
-    fairness.same_task_set &&
-    fairness.possession_saved_minutes != null &&
-    fairness.possession_reduction_percent != null;
+    fairness?.same_task_set &&
+    fairness?.possession_saved_minutes != null &&
+    fairness?.possession_reduction_percent != null;
 
   return (
     <section className="analysis-comparison" aria-labelledby="comparison-heading">
       <div className="analysis-section-heading">
         <span>Fair technical comparison</span>
         <h2 id="comparison-heading">Comparison methodology</h2>
-        <p>{fairness.statement}</p>
+        <p>{fairness?.statement || "Non-integrated CP-SAT vs RailSync unified multi-department solver."}</p>
       </div>
 
       {showSavings ? (
@@ -80,33 +80,33 @@ export default function ComparisonSummary({ analysis }) {
             <div className="outcome-duration-shift">
               <div>
                 <small>BASELINE</small>
-                <strong>{baseline.metrics.possession_minutes} <small>min</small></strong>
+                <strong>{baseline?.metrics?.possession_minutes ?? 0} <small>min</small></strong>
               </div>
               <span aria-hidden="true" className="outcome-shift-arrow">→</span>
               <div>
                 <small>RAILSYNC</small>
-                <strong>{railsync.metrics.possession_minutes} <small>min</small></strong>
+                <strong>{railsync?.metrics?.possession_minutes ?? 0} <small>min</small></strong>
               </div>
             </div>
             <strong className="outcome-saved-stat">
-              {fairness.possession_saved_minutes} minutes saved
+              {fairness?.possession_saved_minutes ?? 0} minutes saved
             </strong>
             <span className="outcome-reduction-badge">
-              {fairness.possession_reduction_percent.toFixed(1)}% reduction
+              {fairness?.possession_reduction_percent != null ? fairness.possession_reduction_percent.toFixed(1) : 0}% reduction
             </span>
           </div>
 
           <div className="outcome-sub-stats">
             <div className="outcome-stat-chip">
-              <strong>{railsync.metrics.scheduled_task_count}</strong>
+              <strong>{railsync?.metrics?.scheduled_task_count ?? 0}</strong>
               <span>tasks delivered in both plans</span>
             </div>
             <div className="outcome-stat-chip">
-              <strong>{baseline.metrics.block_count} → {railsync.metrics.block_count}</strong>
+              <strong>{baseline?.metrics?.block_count ?? 0} → {railsync?.metrics?.block_count ?? 0}</strong>
               <span>possessions</span>
             </div>
             <div className="outcome-stat-chip">
-              <strong>{baseline.metrics.integrated_blocks} → {railsync.metrics.integrated_blocks}</strong>
+              <strong>{baseline?.metrics?.integrated_blocks ?? 0} → {railsync?.metrics?.integrated_blocks ?? 0}</strong>
               <span>integrated possessions</span>
             </div>
           </div>

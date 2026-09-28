@@ -16,22 +16,31 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
   const { plan, territory, trains, tasks, recovery, riskConfig } = session;
   const [loadingBase, setLoadingBase] = useState(!plan || !territory);
   const trainIds = [...new Set((trains || []).map((r) => r.train_id))];
-  const defaultTrain = trainIds.includes("12050") ? "12050" : trainIds[0];
-  const [trainId, setTrainId] = useState(recovery?.disruption?.train_id ?? defaultTrain ?? "");
+  const defaultTrain = trainIds.includes("12050") ? "12050" : trainIds[0] || "";
+  const [trainId, setTrainId] = useState(recovery?.disruption?.train_id ?? defaultTrain);
   const [delay, setDelay] = useState(recovery?.disruption?.delay_minutes ?? 25);
   const [scenarioType, setScenarioType] = useState(recovery?.disruption?.type ?? "TRAIN_DELAY");
   const [sectionId, setSectionId] = useState(territory?.sections?.[0]?.section_id ?? "");
   const [crewType, setCrewType] = useState(
-    Object.keys(territory?.resources?.crew?.reduce((all, item) => ({ ...all, [item.resource_id]: true }), {}) ?? {})[0] ?? "TRACK_CREW"
+    territory?.resources?.crew?.[0]?.resource_id ?? "TRACK_CREW"
   );
   const [machineType, setMachineType] = useState(territory?.resources?.machines?.[0]?.resource_id ?? "TOWER_WAGON");
-  const [effectiveTime, setEffectiveTime] = useState(plan?.planning_context?.horizon_start?.slice(0, 16) ?? "");
-  const [outageEndTime, setOutageEndTime] = useState(plan?.planning_context?.horizon_end?.slice(0, 16) ?? "");
+  const [effectiveTime, setEffectiveTime] = useState(
+    plan?.planning_context?.horizon_start?.slice(0, 16) || territory?.planning_horizon?.start_time?.slice(0, 16) || "2026-09-10T00:00"
+  );
+  const [outageEndTime, setOutageEndTime] = useState(
+    plan?.planning_context?.horizon_end?.slice(0, 16) || territory?.planning_horizon?.end_time?.slice(0, 16) || "2026-09-10T12:30"
+  );
   const [busy, setBusy] = useState(false);
   const [adopting, setAdopting] = useState(false);
   const [error, setError] = useState(null);
   const [adoptionMessage, setAdoptionMessage] = useState("");
   const controller = useRef(null);
+
+  const activeTrainId = trainId || defaultTrain || trainIds[0] || "";
+  const activeSectionId = sectionId || territory?.sections?.[0]?.section_id || "";
+  const activeCrewType = crewType || territory?.resources?.crew?.[0]?.resource_id || "TRACK_CREW";
+  const activeMachineType = machineType || territory?.resources?.machines?.[0]?.resource_id || "TOWER_WAGON";
 
   useEffect(() => () => controller.current?.abort(), []);
 
@@ -62,6 +71,12 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
           if (trainRes.trains?.[0]?.train_id) {
             setTrainId(trainRes.trains[0].train_id);
           }
+          if (planRes?.planning_context?.horizon_start) {
+            setEffectiveTime(planRes.planning_context.horizon_start.slice(0, 16));
+          }
+          if (planRes?.planning_context?.horizon_end) {
+            setOutageEndTime(planRes.planning_context.horizon_end.slice(0, 16));
+          }
           setLoadingBase(false);
         })
         .catch((err) => {
@@ -75,15 +90,27 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
     }
   }, [session.plan, session.territory, session.territoryId, setSession]);
 
-  // Keep trainId and sectionId updated if territory changes
+  // Keep state updated if territory or plan loads/changes
   useEffect(() => {
     if (trainIds.length > 0 && (!trainId || !trainIds.includes(trainId))) {
       setTrainId(trainIds.includes("12050") ? "12050" : trainIds[0]);
     }
-    if (territory?.sections?.length > 0 && !sectionId) {
+    if (territory?.sections?.length > 0 && (!sectionId || !territory.sections.some((s) => s.section_id === sectionId))) {
       setSectionId(territory.sections[0].section_id);
     }
-  }, [trainIds, trainId, territory, sectionId]);
+    if (plan?.planning_context?.horizon_start && (!effectiveTime || effectiveTime === "2026-09-10T00:00")) {
+      setEffectiveTime(plan.planning_context.horizon_start.slice(0, 16));
+    }
+    if (plan?.planning_context?.horizon_end && (!outageEndTime || outageEndTime === "2026-09-10T12:30")) {
+      setOutageEndTime(plan.planning_context.horizon_end.slice(0, 16));
+    }
+    if (territory?.resources?.crew?.length > 0 && !crewType) {
+      setCrewType(territory.resources.crew[0].resource_id || "TRACK_CREW");
+    }
+    if (territory?.resources?.machines?.length > 0 && !machineType) {
+      setMachineType(territory.resources.machines[0].resource_id || "TOWER_WAGON");
+    }
+  }, [trains, territory, plan]);
 
   async function runScenario(event) {
     event.preventDefault();
@@ -92,46 +119,64 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
     controller.current = requestController;
     setBusy(true);
     setError(null);
-    setSession((current) => ({ ...current, recovery: null }));
+    setAdoptionMessage("");
+
     try {
-      const effective_time = effectiveTime ? `${effectiveTime}:00` : plan?.planning_context?.horizon_start || "2026-09-10T00:00:00";
-      const end_time = outageEndTime ? `${outageEndTime}:00` : plan?.planning_context?.horizon_end || "2026-09-10T12:30:00";
+      const defaultStart = plan?.planning_context?.horizon_start || territory?.planning_horizon?.start_time || "2026-09-10T00:00:00";
+      const defaultEnd = plan?.planning_context?.horizon_end || territory?.planning_horizon?.end_time || "2026-09-10T12:30:00";
+
+      const normalizeTime = (val, fallback) => {
+        if (!val) return fallback;
+        if (val.length === 16) return `${val}:00`;
+        return String(val).replace(/(:[0-9]{2}):[0-9]{2}$/, "$1");
+      };
+
+      const effective_time = normalizeTime(effectiveTime, defaultStart);
+      const end_time = normalizeTime(outageEndTime, defaultEnd);
+
       const disruptions = {
-        TRAIN_DELAY: { type: "TRAIN_DELAY", train_id: trainId, delay_minutes: Number(delay), effective_time },
-        CREW_UNAVAILABLE: { type: "CREW_UNAVAILABLE", crew_type: crewType, start_time: effective_time, end_time, effective_time },
-        MACHINE_UNAVAILABLE: { type: "MACHINE_UNAVAILABLE", machine_type: machineType, start_time: effective_time, end_time, effective_time },
-        POWER_ISOLATION_CANCELLED: { type: "POWER_ISOLATION_CANCELLED", section_ids: [sectionId], start_time: effective_time, end_time, effective_time },
-        SECTION_UNAVAILABLE: { type: "SECTION_UNAVAILABLE", section_id: sectionId, start_time: effective_time, end_time, effective_time },
-        WEATHER_RESTRICTION: { type: "WEATHER_RESTRICTION", delay_minutes: Number(delay), train_ids: [], effective_time },
+        TRAIN_DELAY: { type: "TRAIN_DELAY", train_id: activeTrainId, delay_minutes: Number(delay) || 25, effective_time },
+        CREW_UNAVAILABLE: { type: "CREW_UNAVAILABLE", crew_type: activeCrewType, start_time: effective_time, end_time, effective_time },
+        MACHINE_UNAVAILABLE: { type: "MACHINE_UNAVAILABLE", machine_type: activeMachineType, start_time: effective_time, end_time, effective_time },
+        POWER_ISOLATION_CANCELLED: { type: "POWER_ISOLATION_CANCELLED", section_ids: [activeSectionId], start_time: effective_time, end_time, effective_time },
+        SECTION_UNAVAILABLE: { type: "SECTION_UNAVAILABLE", section_id: activeSectionId, start_time: effective_time, end_time, effective_time },
+        WEATHER_RESTRICTION: { type: "WEATHER_RESTRICTION", delay_minutes: Number(delay) || 25, train_ids: [], effective_time },
         EMERGENCY_WORK: {
           type: "EMERGENCY_WORK",
           effective_time,
           task: {
-            task_id: `EMERGENCY_${sectionId}`,
+            task_id: `EMERGENCY_${activeSectionId}`,
             department: "ENGINEERING",
-            section_id: sectionId,
+            section_id: activeSectionId,
             task_type: "Emergency track inspection",
             duration_minutes: 20,
             criticality: 10,
             urgency: 10,
             overdue_days: 0,
-            deadline: plan?.planning_context?.horizon_end || "2026-09-10T12:30:00",
+            deadline: defaultEnd,
             requires_power_block: false,
             crew_type: "TRACK_CREW",
-            compatibility_group: `EMERGENCY_${sectionId}`,
+            compatibility_group: `EMERGENCY_${activeSectionId}`,
           },
         },
       };
-      const result = await reoptimizePlan(plan, disruptions[scenarioType], {
+
+      const chosenDisruption = disruptions[scenarioType] || disruptions.TRAIN_DELAY;
+      const result = await reoptimizePlan(plan, chosenDisruption, {
         signal: requestController.signal,
         ...riskOptions(riskConfig),
       });
+
       if (requestController.signal.aborted) return;
       setSession((current) => ({ ...current, recovery: result }));
     } catch (err) {
-      if (err.name !== "AbortError") setError(err);
+      if (err.name !== "AbortError") {
+        setError(err);
+      }
     } finally {
-      if (!requestController.signal.aborted) setBusy(false);
+      if (!requestController.signal.aborted) {
+        setBusy(false);
+      }
     }
   }
 
@@ -153,11 +198,11 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
         previousPlan: plan,
         plan: adopted,
         trains: recovery.train_occupancy || current.trains,
-        recovery: null,
+        recovery: recovery,
         assistantPreview: null,
       }));
       setAdoptionMessage(
-        `${retimed} possession${retimed === 1 ? "" : "s"} retimed · ${deferred} deferred. Planning, Analysis, and RailSaathi now use the adopted plan.`
+        `✓ Adopted successfully: ${retimed} possession${retimed === 1 ? "" : "s"} retimed · ${deferred} deferred. Planning, Analysis, and RailSaathi now use the adopted plan.`
       );
     } catch (err) {
       if (err.name !== "AbortError") setError(err);
@@ -245,7 +290,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
                   Train
                   <select
                     aria-label="Scenario train"
-                    value={trainId}
+                    value={trainId || activeTrainId}
                     disabled={busy}
                     onChange={(event) => setTrainId(event.target.value)}
                   >
@@ -278,7 +323,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
               {["POWER_ISOLATION_CANCELLED", "SECTION_UNAVAILABLE", "EMERGENCY_WORK"].includes(scenarioType) ? (
                 <label>
                   Section
-                  <select value={sectionId} onChange={(event) => setSectionId(event.target.value)}>
+                  <select value={sectionId || activeSectionId} onChange={(event) => setSectionId(event.target.value)}>
                     {(territory?.sections || []).map((section) => (
                       <option value={section.section_id} key={section.section_id}>
                         {sectionLabel(territory, section.section_id)}
@@ -291,7 +336,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
               {scenarioType === "CREW_UNAVAILABLE" ? (
                 <label>
                   Crew pool
-                  <select value={crewType} onChange={(event) => setCrewType(event.target.value)}>
+                  <select value={crewType || activeCrewType} onChange={(event) => setCrewType(event.target.value)}>
                     {(territory?.resources?.crew ?? []).map((item) => (
                       <option key={item.resource_id} value={item.resource_id}>
                         {item.resource_id}
@@ -304,7 +349,7 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
               {scenarioType === "MACHINE_UNAVAILABLE" ? (
                 <label>
                   Machine pool
-                  <select value={machineType} onChange={(event) => setMachineType(event.target.value)}>
+                  <select value={machineType || activeMachineType} onChange={(event) => setMachineType(event.target.value)}>
                     {(territory?.resources?.machines ?? []).map((item) => (
                       <option key={item.resource_id} value={item.resource_id}>
                         {item.resource_id}
@@ -333,12 +378,11 @@ export default function ScenarioLab({ session, setSession, onNavigate, onHome })
                     value={outageEndTime}
                     min={effectiveTime}
                     onChange={(event) => setOutageEndTime(event.target.value)}
-                    required
                   />
                 </label>
               ) : null}
 
-              <Button type="submit" disabled={busy || (scenarioType === "TRAIN_DELAY" && !trainId)} ariaBusy={busy}>
+              <Button type="submit" disabled={busy || (scenarioType === "TRAIN_DELAY" && !activeTrainId)} ariaBusy={busy}>
                 {busy ? "Recovering plan…" : "Run Scenario"}
               </Button>
             </form>

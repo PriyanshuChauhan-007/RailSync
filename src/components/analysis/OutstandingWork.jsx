@@ -24,18 +24,19 @@ function resourceStates(candidateWindows, resource) {
   return states.length > 0 ? states.map(resourceStateLabel).join(" / ") : "Unavailable";
 }
 
-export default function OutstandingWork({ items, territory }) {
+export default function OutstandingWork({ items = [], territory }) {
+  const safeItems = items || [];
   return (
     <section className="outstanding-analysis" aria-labelledby="outstanding-heading">
       <div className="analysis-section-heading">
         <span>Outstanding maintenance</span>
         <h2 id="outstanding-heading">Work not placed under supplied constraints</h2>
       </div>
-      {items.length === 0 ? (
+      {safeItems.length === 0 ? (
         <p className="analysis-empty-line">No outstanding maintenance in this plan.</p>
       ) : (
         <div className="outstanding-list">
-          {items.map((item) => {
+          {safeItems.map((item) => {
             const highLevelReason = item.reason_codes.length > 0
               ? (reasonLabels[item.reason_codes[0]] ?? item.reason_codes[0].replaceAll("_", " ").toLowerCase())
               : (item.outcome || "No executable placement found under supplied constraints");

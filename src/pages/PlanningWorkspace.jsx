@@ -172,14 +172,14 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
 
   const selectedBlockDiagnostic = useMemo(
     () =>
-      plan?.analysis?.block_diagnostics.find(
+      plan?.analysis?.block_diagnostics?.find(
         (item) => item.block_id === selectedBlockId,
       ) ?? null,
     [plan, selectedBlockId],
   );
 
   const scheduledTaskIds = useMemo(
-    () => new Set(plan?.blocks.flatMap((block) => block.tasks) ?? []),
+    () => new Set(plan?.blocks ? plan.blocks.flatMap((block) => block.tasks ?? []) : []),
     [plan],
   );
   const unscheduledTaskIds = useMemo(
@@ -666,7 +666,20 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
                 setSelectedBlockId(nextPlan?.blocks?.[0]?.block_id ?? "");
               }}
               onUpdateBlock={(updatedBlock) => {
-                const update = (currentPlan) => currentPlan ? { ...currentPlan, blocks: (currentPlan.blocks ?? []).map((block) => block.block_id === updatedBlock.block_id ? { ...block, ...updatedBlock } : block) } : currentPlan;
+                const update = (currentPlan) => {
+                  if (!currentPlan) return currentPlan;
+                  const newBlocks = (currentPlan.blocks ?? []).map((block) =>
+                    block.block_id === updatedBlock.block_id ? { ...block, ...updatedBlock } : block
+                  );
+                  return {
+                    ...currentPlan,
+                    blocks: newBlocks,
+                    metrics: currentPlan.metrics || {
+                      block_count: newBlocks.length,
+                      integrated_blocks: newBlocks.filter((b) => b.integrated || (b.tasks && b.tasks.length > 1)).length,
+                    },
+                  };
+                };
                 setPlan(update);
                 setSession((current) => ({ ...current, plan: update(current.plan) }));
               }}

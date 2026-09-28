@@ -167,6 +167,15 @@ export default function ManualDisruptionPanel({
       const fallbackPlan = {
         ...plan,
         blocks: updatedBlocks,
+        metrics: plan?.metrics || {
+          scheduled_task_count: (updatedBlocks || []).flatMap((b) => b.tasks || []).length,
+          unscheduled_task_count: plan?.unscheduled_tasks?.length || 0,
+          productive_minutes: 0,
+          possession_minutes: 0,
+          block_count: updatedBlocks.length,
+          integrated_blocks: updatedBlocks.filter((b) => b.integrated || (b.tasks && b.tasks.length > 1)).length,
+        },
+        unscheduled_tasks: plan?.unscheduled_tasks || [],
         plan_identity: {
           ...plan?.plan_identity,
           plan_id: `DISRUPT_${Date.now().toString().slice(-6)}`,

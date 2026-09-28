@@ -62,12 +62,12 @@ export default function AnalysisPage({ session, onNavigate, onHome }) {
             />
             <ComparisonDetails analysis={plan.analysis} />
             <IntegrationGains
-              gains={plan.analysis.integrated_blocks}
+              gains={plan.analysis?.integrated_blocks ?? []}
               territory={territory}
               tasks={tasks}
             />
             <OutstandingWork
-              items={plan.analysis.unscheduled_tasks}
+              items={plan.analysis?.unscheduled_tasks ?? []}
               territory={territory}
             />
           </>

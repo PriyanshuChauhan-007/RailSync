@@ -19,8 +19,8 @@ import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
 
 export default function MaintenanceTimeline({
   sectionId,
-  occupancy,
-  blocks,
+  occupancy = [],
+  blocks = [],
   horizon,
   hasPlan,
   selectedBlockId,
@@ -30,6 +30,10 @@ export default function MaintenanceTimeline({
   selectedTaskId = "",
   diagnostics,
 }) {
+  const safeOccupancy = occupancy || [];
+  const safeBlocks = blocks || [];
+  const safeTasks = tasks || [];
+  const safeDiagnostics = diagnostics || {};
   const { totalSec, formattedTime } = useSimulationTime();
   const chartRef = useRef(null);
   const [selectedTrainKey, setSelectedTrainKey] = useState(null);
@@ -45,19 +49,19 @@ export default function MaintenanceTimeline({
   const ticks = buildTicks(horizon);
   const simCursorPct = Math.min(100, Math.max(0, (totalSec / 86400) * 100));
   const taskById = useMemo(
-    () => new Map(tasks.map((task) => [task.task_id, task])),
-    [tasks],
+    () => new Map(safeTasks.map((task) => [task.task_id, task])),
+    [safeTasks],
   );
-  const diagnosticWindows = (diagnostics?.candidate_windows ?? []).filter(
-    (item) => item.task_id === selectedTaskId && item.section_ids.includes(sectionId),
+  const diagnosticWindows = (safeDiagnostics?.candidate_windows ?? []).filter(
+    (item) => item.task_id === selectedTaskId && (item.section_ids || []).includes(sectionId),
   );
-  const diagnosticConflicts = (diagnostics?.conflicts ?? []).filter(
+  const diagnosticConflicts = (safeDiagnostics?.conflicts ?? []).filter(
     (item) => item.task_id === selectedTaskId && item.section_id === sectionId,
   );
 
   const trainLanes = useMemo(() => {
-    if (!occupancy.length) return [];
-    const sorted = [...occupancy].sort(
+    if (!safeOccupancy.length) return [];
+    const sorted = [...safeOccupancy].sort(
       (a, b) =>
         new Date(a.entry_time) - new Date(b.entry_time) ||
         a.train_id.localeCompare(b.train_id),
@@ -84,16 +88,16 @@ export default function MaintenanceTimeline({
       nextLane = (selectedLane + 1) % laneCount;
     }
     return lanes.filter((lane) => lane.length > 0);
-  }, [occupancy]);
+  }, [safeOccupancy]);
 
   const selectedTrain = useMemo(() => {
     if (!selectedTrainKey) return null;
     return (
-      occupancy.find(
+      safeOccupancy.find(
         (t) => `${t.train_id}-${t.entry_time}` === selectedTrainKey,
       ) ?? null
     );
-  }, [occupancy, selectedTrainKey]);
+  }, [safeOccupancy, selectedTrainKey]);
 
   const handleTrainHover = useCallback(
     (train, event) => {

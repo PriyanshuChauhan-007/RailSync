@@ -1,24 +1,35 @@
 // Presentation-only geometry. No scheduling, conflict inference or solver rules.
 export const TD = { width: 1040, left: 210, right: 28, top: 46, row: 76, maxZoom: 32 };
 export const MINUTE = 60000;
-export const sectionIds = (block) => block.section_ids?.length ? block.section_ids : [block.section_id].filter(Boolean);
-const finiteTime = (value) => typeof value === "string" && Number.isFinite(Date.parse(value));
+export const sectionIds = (block) => block?.section_ids?.length ? block.section_ids : [block?.section_id].filter(Boolean);
 
-export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, tasks = [], rowSpacing = TD.row) {
+export function parseTime(value) {
+  if (!value) return NaN;
+  const s = String(value).trim();
+  const normalized = s.endsWith("Z") || s.includes("+") || s.slice(10).includes("-") ? s : s + "Z";
+  return Date.parse(normalized);
+}
+
+const finiteTime = (value) => typeof value === "string" && Number.isFinite(parseTime(value));
+
+export function buildTimeDistanceModel(territory, occupancy = [], blocks = [], horizon, tasks = [], rowSpacing = TD.row) {
   if (!territory || !finiteTime(horizon?.start_time) || !finiteTime(horizon?.end_time)) return null;
-  const start = Date.parse(horizon.start_time), total = (Date.parse(horizon.end_time) - start) / MINUTE;
+  const safeOccupancy = occupancy || [];
+  const safeBlocks = blocks || [];
+  const safeTasks = tasks || [];
+  const start = parseTime(horizon.start_time), total = (parseTime(horizon.end_time) - start) / MINUTE;
   if (total <= 0) return null;
   const stations = [...(territory.stations ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   if (stations.length < 2) return null;
   const stationById = new Map(stations.map((station, index) => [station.station_id, { ...station, index, y: TD.top + index * rowSpacing }]));
   const sections = new Map((territory.sections ?? []).map((section) => [section.section_id, section]));
   const services = new Map((territory.train_services ?? []).map((service) => [service.train_id, service]));
-  const taskById = new Map(tasks.map((task) => [task.task_id, task]));
-  const minute = (value) => (Date.parse(value) - start) / MINUTE;
+  const taskById = new Map(safeTasks.map((task) => [task.task_id, task]));
+  const minute = (value) => (parseTime(value) - start) / MINUTE;
   const trains = new Map();
-  for (const row of occupancy) {
+  for (const row of safeOccupancy) {
     const section = sections.get(row.section_id);
-    if (!section || !finiteTime(row.entry_time) || !finiteTime(row.exit_time) || Date.parse(row.exit_time) < Date.parse(row.entry_time)) continue;
+    if (!section || !finiteTime(row.entry_time) || !finiteTime(row.exit_time) || parseTime(row.exit_time) < parseTime(row.entry_time)) continue;
     const from = stationById.get(section.from_station), to = stationById.get(section.to_station);
     if (!from || !to) continue;
     const service = services.get(row.train_id);
@@ -38,7 +49,7 @@ export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, ta
       y2: knownDirection ? exit.y : (from.y + to.y) / 2,
     });
   }
-  const possessions = blocks.filter((block) => finiteTime(block.start_time) && finiteTime(block.end_time) && Date.parse(block.end_time) > Date.parse(block.start_time)).map((block) => ({
+  const possessions = safeBlocks.filter((block) => block && finiteTime(block.start_time) && finiteTime(block.end_time) && parseTime(block.end_time) > parseTime(block.start_time)).map((block) => ({
     ...block, start: minute(block.start_time), end: minute(block.end_time),
     taskDetails: (block.tasks ?? []).map((id) => taskById.get(id) ?? { task_id: id }),
     departments: [...new Set((block.tasks ?? []).map((id) => taskById.get(id)?.department).filter(Boolean))],
@@ -57,9 +68,13 @@ export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, ta
       let lane = ends.findIndex((end) => end <= block.start);
       if (lane < 0) lane = ends.length;
       ends[lane] = block.end;
-      block.bands.find((band) => band.sectionId === id).lane = lane;
+      const band = block.bands.find((b) => b.sectionId === id);
+      if (band) band.lane = lane;
     }
-    for (const block of rows) block.bands.find((band) => band.sectionId === id).lanes = ends.length;
+    for (const block of rows) {
+      const band = block.bands.find((b) => b.sectionId === id);
+      if (band) band.lanes = ends.length;
+    }
   }
   return { start, total, stations, stationById, sections, trains: [...trains.values()], possessions, minute,
     height: TD.top * 2 + (stations.length - 1) * rowSpacing };

@@ -3,26 +3,26 @@ import { departmentLabel, sectionLabel, trainLabel } from "../../utils/planningL
 import { buildTicks, intervalDensity, intervalLabelFits, rangeStyle, timeLabel } from "../../utils/timeline.js";
 import { OperationalTrainMarker, TimelineGrid } from "../timeline/TimelinePrimitives.jsx";
 
-export default function PairedPossessionTimeline({ analysis, territory, tasks, horizon, occupancy = [] }) {
+export default function PairedPossessionTimeline({ analysis, territory, tasks = [], horizon, occupancy = [] }) {
   const taskById = useMemo(
-    () => new Map(tasks.map((task) => [task.task_id, task])),
+    () => new Map((tasks || []).map((task) => [task.task_id, task])),
     [tasks],
   );
   const availableSections = useMemo(
-    () => territory.sections.filter((section) =>
-      [...analysis.baseline.blocks, ...analysis.railsync.blocks].some(
+    () => (territory?.sections || []).filter((section) =>
+      [...(analysis?.baseline?.blocks || []), ...(analysis?.railsync?.blocks || [])].some(
         (block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(section.section_id),
       ),
     ),
-    [analysis, territory.sections],
+    [analysis, territory?.sections],
   );
   const preferredSection =
-    analysis.integrated_blocks[0]?.section_id ?? availableSections[0]?.section_id ?? "";
+    analysis?.integrated_blocks?.[0]?.section_id ?? availableSections[0]?.section_id ?? "";
   const [sectionId, setSectionId] = useState(preferredSection);
   const ticks = buildTicks(horizon);
   const planners = [
-    ["Baseline", analysis.baseline.blocks, "baseline"],
-    ["RailSync", analysis.railsync.blocks, "railsync"],
+    ["Baseline", analysis?.baseline?.blocks || [], "baseline"],
+    ["RailSync", analysis?.railsync?.blocks || [], "railsync"],
   ];
 
   return (

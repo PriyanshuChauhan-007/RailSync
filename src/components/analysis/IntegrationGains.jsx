@@ -1,7 +1,8 @@
 import { departmentLabel, sectionLabel } from "../../utils/planningLabels.js";
 
-export default function IntegrationGains({ gains, territory, tasks }) {
-  const taskById = new Map(tasks.map((task) => [task.task_id, task]));
+export default function IntegrationGains({ gains = [], territory, tasks = [] }) {
+  const safeGains = gains || [];
+  const taskById = new Map((tasks || []).map((task) => [task.task_id, task]));
   return (
     <section className="integration-analysis" aria-labelledby="integration-heading">
       <div className="analysis-section-heading">
@@ -10,7 +11,7 @@ export default function IntegrationGains({ gains, territory, tasks }) {
         <p>Coordination gain compares individual setup/work/release reservations with the shared possession.</p>
       </div>
       <div className="integration-gain-list">
-        {gains.map((gain) => (
+        {safeGains.map((gain) => (
           <article key={gain.block_id}>
             <div className="gain-heading">
               <div>

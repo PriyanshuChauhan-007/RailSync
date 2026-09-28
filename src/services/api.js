@@ -169,24 +169,53 @@ export function getMlStatus({ signal } = {}) {
   return request("/ml/status", { signal });
 }
 
-export function reoptimizePlan(plan, disruption, { signal, risk_mode = "STATIC", risk_profiles = [] } = {}) {
+export function reoptimizePlan(planOrPayload, disruption, { signal, risk_mode = "STATIC", risk_profiles = [] } = {}) {
+  if (planOrPayload && !disruption && planOrPayload.disruption) {
+    const p = planOrPayload;
+    return request("/reoptimize", {
+      method: "POST",
+      signal: p.signal,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        territory_id: p.territory_id || p.current_plan?.planning_context?.territory_id || "delhi_agra",
+        horizon_start: p.horizon_start || p.current_plan?.planning_context?.horizon_start,
+        horizon_end: p.horizon_end || p.current_plan?.planning_context?.horizon_end,
+        current_plan: p.current_plan
+          ? { blocks: p.current_plan.blocks || [], unscheduled_tasks: p.current_plan.unscheduled_tasks || [] }
+          : null,
+        parent_plan_id: p.parent_plan_id || p.current_plan?.plan_identity?.plan_id,
+        disruption: p.disruption,
+        risk_mode: p.risk_mode || "STATIC",
+        risk_profiles: p.risk_profiles || [],
+      }),
+    });
+  }
+
+  const plan = planOrPayload || {};
   return request("/reoptimize", {
-    method: "POST", signal,
+    method: "POST",
+    signal,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      territory_id: plan.planning_context.territory_id,
-      horizon_start: plan.planning_context.horizon_start,
-      horizon_end: plan.planning_context.horizon_end,
-      current_plan: { blocks: plan.blocks, unscheduled_tasks: plan.unscheduled_tasks },
+      territory_id: plan.planning_context?.territory_id || plan.territory_id || "delhi_agra",
+      horizon_start: plan.planning_context?.horizon_start,
+      horizon_end: plan.planning_context?.horizon_end,
+      current_plan: {
+        blocks: plan.blocks || [],
+        unscheduled_tasks: plan.unscheduled_tasks || [],
+      },
       parent_plan_id: plan.plan_identity?.plan_id,
-      disruption, risk_mode, risk_profiles,
+      disruption,
+      risk_mode,
+      risk_profiles,
     }),
   });
 }
 
 export function adoptRecoveredPlan(recoveryId, parentPlanId, { signal } = {}) {
   return request("/recovery/adopt", {
-    method: "POST", signal,
+    method: "POST",
+    signal,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ recovery_id: recoveryId, parent_plan_id: parentPlanId }),
   });

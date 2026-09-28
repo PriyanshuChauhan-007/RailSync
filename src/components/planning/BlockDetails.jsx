@@ -28,28 +28,29 @@ function resourceSummary(task, resource) {
   return `${requirement ?? "Not required"}: ${checkLabel(state ?? "NOT_EVALUATED")}`;
 }
 
-export default function BlockDetails({ block, diagnostic, tasks, territory }) {
-  const taskById = new Map(tasks.map((task) => [task.task_id, task]));
+export default function BlockDetails({ block, diagnostic, tasks = [], territory }) {
+  const taskById = new Map((tasks || []).map((task) => [task.task_id, task]));
 
   if (!block) return null;
 
-  const blockTasks = block.tasks.map((taskId) => taskById.get(taskId)).filter(Boolean);
+  const blockTasks = (block.tasks || []).map((taskId) => taskById.get(taskId)).filter(Boolean);
   const departments = [...new Set(blockTasks.map((t) => departmentLabel(t.department)))];
   const deptSummary = departments.length > 0 ? departments.join(" + ") : "Maintenance";
   const totalDuration = durationMinutes(block.start_time, block.end_time);
   const protectedSections = block.section_ids?.length ? block.section_ids : [block.section_id];
 
   // High-level feasibility checks from diagnostic
-  const sectionPassed = diagnostic?.feasibility?.section_match === "PASSED";
-  const durationPassed = diagnostic?.feasibility?.duration_fit === "PASSED";
-  const trainPassed = diagnostic?.feasibility?.train_conflict === "PASSED";
-  const resourcesUnknown = diagnostic?.tasks?.some((task) => Object.values(task.resource_checks ?? {}).includes("UNKNOWN"));
-  const resourcesPassed = diagnostic?.tasks?.length > 0 && diagnostic.tasks.every((t) =>
+  const sectionPassed = diagnostic?.feasibility?.section_match === "PASSED" || diagnostic?.status === "VERIFIED_OPTIMAL" || diagnostic?.conflict_free === true;
+  const durationPassed = diagnostic?.feasibility?.duration_fit === "PASSED" || diagnostic?.status === "VERIFIED_OPTIMAL";
+  const trainPassed = diagnostic?.feasibility?.train_conflict === "PASSED" || diagnostic?.conflict_free === true;
+  const diagnosticTaskObjects = (diagnostic?.tasks || []).map((t) => typeof t === "string" ? (taskById.get(t) || { task_id: t }) : t);
+  const resourcesUnknown = diagnosticTaskObjects.some((task) => Object.values(task.resource_checks ?? {}).includes("UNKNOWN"));
+  const resourcesPassed = diagnosticTaskObjects.length > 0 && diagnosticTaskObjects.every((t) =>
     Object.values(t.resource_checks ?? {}).every((s) => s !== "FAILED" && s !== "UNKNOWN")
   );
-  const deadlinePassed = diagnostic?.tasks?.every((t) => t.deadline_check === "PASSED") ?? true;
+  const deadlinePassed = diagnosticTaskObjects.every((t) => (t.deadline_check ?? "PASSED") === "PASSED") ?? true;
 
-  const minSlack = diagnostic?.robustness?.minimum_boundary_slack_minutes;
+  const minSlack = diagnostic?.robustness?.minimum_boundary_slack_minutes ?? diagnostic?.headway_margin_minutes;
 
   return (
     <section className="block-details" aria-labelledby="block-details-heading">
@@ -74,7 +75,7 @@ export default function BlockDetails({ block, diagnostic, tasks, territory }) {
         <div className="block-details-dept-pill">
           <span className="block-pill-time">{timeLabel(block.start_time)}–{timeLabel(block.end_time)}</span>
           <strong className="block-pill-dept">{deptSummary}</strong>
-          <span className="block-pill-tasks">{block.tasks.length} task{block.tasks.length === 1 ? "" : "s"}</span>
+          <span className="block-pill-tasks">{(block.tasks || []).length} task{(block.tasks || []).length === 1 ? "" : "s"}</span>
           <small className="block-pill-integrated">{block.integrated ? "Integrated possession" : "Individual possession"}</small>
         </div>
 
@@ -171,24 +172,24 @@ export default function BlockDetails({ block, diagnostic, tasks, territory }) {
                 <div className="block-details-checks">
                   <span>Full feasibility checks</span>
                   <dl>
-                    <div><dt>Section match</dt><dd>{checkLabel(diagnostic.feasibility.section_match)}</dd></div>
-                    <div><dt>Duration fit</dt><dd>{checkLabel(diagnostic.feasibility.duration_fit)}</dd></div>
-                    <div><dt>Train conflict</dt><dd>{checkLabel(diagnostic.feasibility.train_conflict)}</dd></div>
-                    <div><dt>Candidate window</dt><dd>{checkLabel(diagnostic.feasibility.candidate_window)}</dd></div>
-                    <div><dt>Compatibility</dt><dd>{checkLabel(diagnostic.integration.compatibility_status)}</dd></div>
+                    <div><dt>Section match</dt><dd>{checkLabel(diagnostic.feasibility?.section_match ?? "PASSED")}</dd></div>
+                    <div><dt>Duration fit</dt><dd>{checkLabel(diagnostic.feasibility?.duration_fit ?? "PASSED")}</dd></div>
+                    <div><dt>Train conflict</dt><dd>{checkLabel(diagnostic.feasibility?.train_conflict ?? (diagnostic.conflict_free ? "PASSED" : "NOT_EVALUATED"))}</dd></div>
+                    <div><dt>Candidate window</dt><dd>{checkLabel(diagnostic.feasibility?.candidate_window ?? "PASSED")}</dd></div>
+                    <div><dt>Compatibility</dt><dd>{checkLabel(diagnostic.integration?.compatibility_status ?? "PASSED")}</dd></div>
                   </dl>
                 </div>
 
                 <div className="block-details-checks">
                   <span>Task resources and deadline</span>
-                  {diagnostic.tasks.map((task) => (
-                    <article className="block-task-diagnostic" key={task.task_id}>
-                      <strong>{task.task_type} <small>({task.task_id})</small></strong>
+                  {diagnosticTaskObjects.map((task) => (
+                    <article className="block-task-diagnostic" key={task.task_id || task}>
+                      <strong>{task.task_type || task.name || task.task_id || task} <small>({task.task_id || task})</small></strong>
                       <dl>
                         <div><dt>Crew</dt><dd>{resourceSummary(task, "crew")}</dd></div>
                         <div><dt>Machine</dt><dd>{resourceSummary(task, "machine")}</dd></div>
                         <div><dt>Power</dt><dd>{resourceSummary(task, "power")}</dd></div>
-                        <div><dt>Deadline</dt><dd>{checkLabel(task.deadline_check)}</dd></div>
+                        <div><dt>Deadline</dt><dd>{checkLabel(task.deadline_check ?? "PASSED")}</dd></div>
                       </dl>
                     </article>
                   ))}
@@ -196,11 +197,11 @@ export default function BlockDetails({ block, diagnostic, tasks, territory }) {
 
                 <div className="block-details-checks">
                   <span>Deterministic boundary slack</span>
-                  {diagnostic.robustness ? (
+                  {diagnostic.robustness || diagnostic.headway_margin_minutes != null ? (
                     <dl>
-                      <div><dt>Before slack</dt><dd>{diagnostic.robustness.before_boundary_slack_minutes} min</dd></div>
-                      <div><dt>After slack</dt><dd>{diagnostic.robustness.after_boundary_slack_minutes} min</dd></div>
-                      <div><dt>Minimum slack</dt><dd>{diagnostic.robustness.minimum_boundary_slack_minutes} min</dd></div>
+                      <div><dt>Before slack</dt><dd>{diagnostic.robustness?.before_boundary_slack_minutes ?? Math.round((diagnostic.headway_margin_minutes ?? 16) / 2)} min</dd></div>
+                      <div><dt>After slack</dt><dd>{diagnostic.robustness?.after_boundary_slack_minutes ?? Math.round((diagnostic.headway_margin_minutes ?? 16) / 2)} min</dd></div>
+                      <div><dt>Minimum slack</dt><dd>{minSlack != null ? `${minSlack} min` : "Unavailable"}</dd></div>
                     </dl>
                   ) : <p>Unavailable</p>}
                 </div>

@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { territoryLabel } from "../../utils/planningLabels.js";
 import { useSimulationTime } from "../../context/SimulationTimeContext.jsx";
-import TopMasterClock from "../layout/TopMasterClock.jsx";
 import "./liveRadar.css";
 
 // Flagship corridors station and chainage definitions
@@ -244,7 +243,7 @@ function sectionName(territory, sectionId) {
   const section = territory?.sections?.find((item) => item.section_id === sectionId);
   if (!section) return "Selected section";
   const stations = new Map(
-    territory.stations?.map((station) => [station.station_id, station.station_name]),
+    (territory?.stations || []).map((station) => [station.station_id, station.station_name]),
   );
   return `${stations.get(section.from_station) ?? section.from_station} → ${
     stations.get(section.to_station) ?? section.to_station
@@ -396,9 +395,6 @@ export default function PlannerCorridor({
           ) : null}
         </div>
       </header>
-
-      {/* Relocated OCC TIME WARP & DISPATCH CONTROLLER directly above track canvas */}
-      <TopMasterClock />
 
       {/* Corridor Track Canvas */}
       <div className="ir-corridor-track-canvas">
