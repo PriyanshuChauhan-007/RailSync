@@ -31,10 +31,26 @@ app.use((req, _res, next) => {
 });
 
 const DEFAULT_TERRITORY_ID = 'delhi_agra';
-const ROOT_DIR = process.cwd();
-const DATA_DIR = fs.existsSync(path.resolve(ROOT_DIR, 'data'))
-  ? path.resolve(ROOT_DIR, 'data')
-  : path.resolve(__dirname, 'data');
+
+function findDataDir(): string {
+  const candidates = [
+    path.resolve(process.cwd(), 'data'),
+    path.resolve(__dirname, 'data'),
+    path.resolve(__dirname, '..', 'data'),
+    path.resolve('/app/applet/data'),
+    path.resolve(process.cwd(), 'api', 'data'),
+  ];
+  for (const dir of candidates) {
+    try {
+      if (fs.existsSync(dir) && fs.existsSync(path.join(dir, 'corridors'))) {
+        return dir;
+      }
+    } catch {}
+  }
+  return path.resolve(process.cwd(), 'data');
+}
+
+const DATA_DIR = findDataDir();
 const CORRIDORS_DIR = path.join(DATA_DIR, 'corridors');
 const FIXTURES_DIR = path.join(DATA_DIR, 'fixtures');
 
@@ -100,7 +116,13 @@ function loadTerritory(territoryId: string): LoadedTerritory {
     error.code = 'UNKNOWN_TERRITORY';
     throw error;
   }
-  const manifest: Manifest = loadJsonFile(manifestPath);
+  const manifest: Manifest | null = loadJsonFile(manifestPath);
+  if (!manifest) {
+    const error: any = new Error(`Could not read manifest file for territory '${territoryId}'.`);
+    error.status = 500;
+    error.code = 'MANIFEST_READ_ERROR';
+    throw error;
+  }
   if (manifest.status !== 'POPULATED') {
     const error: any = new Error(`Territory '${territoryId}' is registered as a placeholder and has no dataset.`);
     error.status = 409;
@@ -696,7 +718,7 @@ function solveSchedule(territory: LoadedTerritory, taskOverrides?: any[], riskMo
 
 // --- API Routes ---
 
-app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
+app.get(['/health', '/api/health', '/api'], (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     service: 'RailSync Backend',
@@ -1543,8 +1565,22 @@ async function startServer() {
   });
 }
 
-// Only start the standalone HTTP server when not running in a serverless environment like Vercel
-if (!process.env.VERCEL) {
+// Only start the standalone HTTP server when executed directly (not when imported as a serverless function)
+const isMainScript = Boolean(
+  process.argv[1] && (
+    process.argv[1].endsWith('server.ts') ||
+    process.argv[1].endsWith('server.js') ||
+    process.argv[1].includes('tsx')
+  )
+);
+const isServerless = Boolean(
+  process.env.VERCEL || 
+  process.env.AWS_LAMBDA_FUNCTION_NAME || 
+  process.env.LAMBDA_TASK_ROOT ||
+  !isMainScript
+);
+
+if (!isServerless && isMainScript) {
   startServer().catch(err => {
     console.error('Failed to start server:', err);
     process.exit(1);
