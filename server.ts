@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
@@ -14,8 +15,26 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-const DEFAULT_TERRITORY_ID = 'saktigarh_memari_public_demo';
-const DATA_DIR = path.resolve(__dirname, 'data');
+// Route normalizer: Ensure routes work with or without /api prefix (important for Vercel rewrites)
+app.use((req, _res, next) => {
+  const url = req.url.split('?')[0];
+  const apiEndpoints = [
+    '/dashboard', '/territories', '/tasks', '/trains', '/rolling-plan',
+    '/resources', '/alerts', '/data-sources', '/blocks', '/plans',
+    '/optimize', '/reoptimize', '/recovery', '/what-if', '/explain',
+    '/copilot', '/import', '/export', '/ml', '/db'
+  ];
+  if (apiEndpoints.some(ep => url === ep || url.startsWith(ep + '/'))) {
+    req.url = '/api' + req.url;
+  }
+  next();
+});
+
+const DEFAULT_TERRITORY_ID = 'delhi_agra';
+const ROOT_DIR = process.cwd();
+const DATA_DIR = fs.existsSync(path.resolve(ROOT_DIR, 'data'))
+  ? path.resolve(ROOT_DIR, 'data')
+  : path.resolve(__dirname, 'data');
 const CORRIDORS_DIR = path.join(DATA_DIR, 'corridors');
 const FIXTURES_DIR = path.join(DATA_DIR, 'fixtures');
 
@@ -54,11 +73,22 @@ function loadJsonFile(filepath: string) {
   return null;
 }
 
-function getManifestPath(territoryId: string): string | null {
+function resolveTerritoryId(id?: string): string {
+  if (!id || id === 'saktigarh_memari_public_demo' || id === 'default') {
+    return 'eastern_hdn';
+  }
+  return id;
+}
+
+function getManifestPath(rawTerritoryId: string): string | null {
+  const territoryId = resolveTerritoryId(rawTerritoryId);
   const corridorPath = path.join(CORRIDORS_DIR, territoryId, 'manifest.json');
   if (fs.existsSync(corridorPath)) return corridorPath;
   const fixturePath = path.join(FIXTURES_DIR, territoryId, 'manifest.json');
   if (fs.existsSync(fixturePath)) return fixturePath;
+  // Fallback to default corridor if requested territory is unknown
+  const defaultCorridor = path.join(CORRIDORS_DIR, DEFAULT_TERRITORY_ID, 'manifest.json');
+  if (fs.existsSync(defaultCorridor)) return defaultCorridor;
   return null;
 }
 
@@ -666,7 +696,7 @@ function solveSchedule(territory: LoadedTerritory, taskOverrides?: any[], riskMo
 
 // --- API Routes ---
 
-app.get('/health', (_req: Request, res: Response) => {
+app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     service: 'RailSync Backend',
@@ -1490,7 +1520,7 @@ app.get('/api/db/status', async (_req: Request, res: Response) => {
 
 // --- Server Startup & Vite Integration ---
 async function startServer() {
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
   const isProd = process.env.NODE_ENV === 'production';
 
   if (!isProd) {
@@ -1513,7 +1543,13 @@ async function startServer() {
   });
 }
 
-startServer().catch(err => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
+// Only start the standalone HTTP server when not running in a serverless environment like Vercel
+if (!process.env.VERCEL) {
+  startServer().catch(err => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  });
+}
+
+export { app };
+export default app;
