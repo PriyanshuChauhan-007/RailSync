@@ -1,36 +1,36 @@
 [
   {
-    "task_id": "WR_ENG001",
+    "task_id": "ER_ENG001",
     "department": "ENGINEERING",
-    "section_id": "WR_SEC01",
+    "section_id": "ER_SEC01",
     "section_ids": [
-      "WR_SEC01"
+      "ER_SEC01"
     ],
     "capacity_resource_ids": [
-      "WR_SEC01_NORTHBOUND"
+      "ER_SEC01_SOUTHBOUND"
     ],
-    "task_type": "Suburban quadrupled track packing",
+    "task_type": "Suburban trunk ultrasonic flaw testing",
     "duration_minutes": 25,
     "criticality": 10,
     "urgency": 10,
-    "overdue_days": 15,
+    "overdue_days": 12,
     "deadline": "2026-09-10T12:00:00",
     "requires_power_block": false,
     "crew_type": "TRACK_CREW",
-    "compatibility_group": "WR_GRP_A",
-    "machine_type": "TAMPER"
+    "compatibility_group": "ER_GRP_A",
+    "machine_type": "USFD_TROLLEY"
   },
   {
-    "task_id": "WR_TRD001",
+    "task_id": "ER_TRD001",
     "department": "TRD",
-    "section_id": "WR_SEC02",
+    "section_id": "ER_SEC02",
     "section_ids": [
-      "WR_SEC02"
+      "ER_SEC02"
     ],
     "capacity_resource_ids": [
-      "WR_SEC02_NORTHBOUND"
+      "ER_SEC02_SOUTHBOUND"
     ],
-    "task_type": "Catenary wire tension adjustment",
+    "task_type": "OHE contact dropper calibration",
     "duration_minutes": 30,
     "criticality": 8,
     "urgency": 8,
@@ -38,82 +38,82 @@
     "deadline": "2026-09-10T12:00:00",
     "requires_power_block": true,
     "crew_type": "OHE_CREW",
-    "compatibility_group": "WR_GRP_B",
+    "compatibility_group": "ER_GRP_B",
     "machine_type": "TOWER_WAGON"
   },
   {
-    "task_id": "WR_ENG002",
+    "task_id": "ER_ENG002",
     "department": "ENGINEERING",
-    "section_id": "WR_SEC03",
+    "section_id": "ER_SEC03",
     "section_ids": [
-      "WR_SEC03"
+      "ER_SEC03"
     ],
     "capacity_resource_ids": [
-      "WR_SEC03_NORTHBOUND"
+      "ER_SEC03_SOUTHBOUND"
     ],
-    "task_type": "Track alignment & curve realignment",
-    "duration_minutes": 30,
-    "criticality": 8,
-    "urgency": 8,
-    "overdue_days": 10,
-    "deadline": "2026-09-10T12:00:00",
-    "requires_power_block": false,
-    "crew_type": "TRACK_CREW",
-    "compatibility_group": "WR_GRP_C",
-    "machine_type": "TAMPER"
-  },
-  {
-    "task_id": "WR_SNT001",
-    "department": "S&T",
-    "section_id": "WR_SEC04",
-    "section_ids": [
-      "WR_SEC04"
-    ],
-    "capacity_resource_ids": [
-      "WR_SEC04_NORTHBOUND"
-    ],
-    "task_type": "Automatic block signaling inspection",
-    "duration_minutes": 20,
-    "criticality": 7,
-    "urgency": 6,
-    "overdue_days": 4,
-    "deadline": "2026-09-10T12:00:00",
-    "requires_power_block": false,
-    "crew_type": "SIGNAL_CREW",
-    "compatibility_group": "WR_GRP_D"
-  },
-  {
-    "task_id": "WR_ENG003",
-    "department": "ENGINEERING",
-    "section_id": "WR_SEC05",
-    "section_ids": [
-      "WR_SEC05"
-    ],
-    "capacity_resource_ids": [
-      "WR_SEC05_NORTHBOUND"
-    ],
-    "task_type": "USFD rail flaw detection",
+    "task_type": "Mainline high-speed tamping",
     "duration_minutes": 35,
     "criticality": 9,
     "urgency": 9,
-    "overdue_days": 11,
+    "overdue_days": 14,
     "deadline": "2026-09-10T12:00:00",
     "requires_power_block": false,
     "crew_type": "TRACK_CREW",
-    "compatibility_group": "WR_GRP_E",
-    "machine_type": "USFD_TROLLEY"
+    "compatibility_group": "ER_GRP_C",
+    "machine_type": "TAMPER"
   },
   {
-    "task_id": "WR_TRD002",
-    "department": "TRD",
-    "section_id": "WR_SEC06",
+    "task_id": "ER_SNT001",
+    "department": "S&T",
+    "section_id": "ER_SEC04",
     "section_ids": [
-      "WR_SEC06"
+      "ER_SEC04"
     ],
     "capacity_resource_ids": [
-      "WR_SEC06_NORTHBOUND"
+      "ER_SEC04_SOUTHBOUND"
     ],
-    "task_type": "Substation jumper cable replacement",
+    "task_type": "Electronic interlocking loop test",
+    "duration_minutes": 20,
+    "criticality": 7,
+    "urgency": 6,
+    "overdue_days": 3,
+    "deadline": "2026-09-10T12:00:00",
+    "requires_power_block": false,
+    "crew_type": "SIGNAL_CREW",
+    "compatibility_group": "ER_GRP_D"
+  },
+  {
+    "task_id": "ER_ENG003",
+    "department": "ENGINEERING",
+    "section_id": "ER_SEC05",
+    "section_ids": [
+      "ER_SEC05"
+    ],
+    "capacity_resource_ids": [
+      "ER_SEC05_SOUTHBOUND"
+    ],
+    "task_type": "Turnout diamond crossing grinding",
+    "duration_minutes": 30,
+    "criticality": 8,
+    "urgency": 8,
+    "overdue_days": 9,
+    "deadline": "2026-09-10T12:00:00",
+    "requires_power_block": false,
+    "crew_type": "TRACK_CREW",
+    "compatibility_group": "ER_GRP_E",
+    "machine_type": "TAMPER"
+  },
+  {
+    "task_id": "ER_TRD002",
+    "department": "TRD",
+    "section_id": "ER_SEC06",
+    "section_ids": [
+      "ER_SEC06"
+    ],
+    "capacity_resource_ids": [
+      "ER_SEC06_SOUTHBOUND"
+    ],
+    "task_type": "Section insulator adjustment",
     "duration_minutes": 25,
     "criticality": 8,
     "urgency": 7,
@@ -121,7 +121,7 @@
     "deadline": "2026-09-10T12:00:00",
     "requires_power_block": true,
     "crew_type": "OHE_CREW",
-    "compatibility_group": "WR_GRP_F",
+    "compatibility_group": "ER_GRP_F",
     "machine_type": "TOWER_WAGON"
   }
 ]

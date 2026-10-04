@@ -1,0 +1,85 @@
+[
+  {
+    "task_id": "DFC_ENG001",
+    "department": "ENGINEERING",
+    "section_id": "DFC_SEC01",
+    "section_ids": [
+      "DFC_SEC01"
+    ],
+    "capacity_resource_ids": [
+      "DFC_SEC01_EASTBOUND"
+    ],
+    "task_type": "Heavy axle-load weld ultrasound testing",
+    "duration_minutes": 30,
+    "criticality": 10,
+    "urgency": 10,
+    "overdue_days": 14,
+    "deadline": "2026-09-10T13:00:00",
+    "requires_power_block": false,
+    "crew_type": "TRACK_CREW",
+    "compatibility_group": "DFC_GRP_A",
+    "machine_type": "USFD_TROLLEY"
+  },
+  {
+    "task_id": "DFC_TRD001",
+    "department": "TRD",
+    "section_id": "DFC_SEC02",
+    "section_ids": [
+      "DFC_SEC02"
+    ],
+    "capacity_resource_ids": [
+      "DFC_SEC02_EASTBOUND"
+    ],
+    "task_type": "High-rise 2x25kV OHE contact wire inspection",
+    "duration_minutes": 35,
+    "criticality": 9,
+    "urgency": 9,
+    "overdue_days": 10,
+    "deadline": "2026-09-10T13:00:00",
+    "requires_power_block": true,
+    "crew_type": "OHE_CREW",
+    "compatibility_group": "DFC_GRP_B",
+    "machine_type": "TOWER_WAGON"
+  },
+  {
+    "task_id": "DFC_ENG002",
+    "department": "ENGINEERING",
+    "section_id": "DFC_SEC03",
+    "section_ids": [
+      "DFC_SEC03"
+    ],
+    "capacity_resource_ids": [
+      "DFC_SEC03_EASTBOUND"
+    ],
+    "task_type": "Heavy freight switch turnout tamping",
+    "duration_minutes": 35,
+    "criticality": 8,
+    "urgency": 8,
+    "overdue_days": 6,
+    "deadline": "2026-09-10T13:00:00",
+    "requires_power_block": false,
+    "crew_type": "TRACK_CREW",
+    "compatibility_group": "DFC_GRP_C",
+    "machine_type": "TAMPER"
+  },
+  {
+    "task_id": "DFC_SNT001",
+    "department": "S&T",
+    "section_id": "DFC_SEC04",
+    "section_ids": [
+      "DFC_SEC04"
+    ],
+    "capacity_resource_ids": [
+      "DFC_SEC04_EASTBOUND"
+    ],
+    "task_type": "Auto-signaling loop impedance check",
+    "duration_minutes": 25,
+    "criticality": 7,
+    "urgency": 7,
+    "overdue_days": 4,
+    "deadline": "2026-09-10T13:00:00",
+    "requires_power_block": false,
+    "crew_type": "SIGNAL_CREW",
+    "compatibility_group": "DFC_GRP_D"
+  }
+]

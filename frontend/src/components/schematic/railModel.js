@@ -11,10 +11,11 @@ export function trainModels(territory, occupancy) {
   const stations = stationLayout(territory);
   return [...new Set(occupancy.map((row) => row.train_id))].map((id) => {
     const service = territory.train_services?.find((item) => item.train_id === id);
-    const sequence = (service?.station_sequence ?? []).filter((station) => stations.some((item) => item.station_id === station));
+    const rawSeq = service?.station_sequence?.length ? service.station_sequence : [service?.origin_station_id, service?.destination_station_id].filter(Boolean);
+    const sequence = rawSeq.filter((station) => stations.some((item) => item.station_id === station));
     const first = stations.findIndex((station) => station.station_id === sequence[0]);
     const last = stations.findIndex((station) => station.station_id === sequence.at(-1));
-    const direction = first >= 0 && last !== first ? Math.sign(last - first) : 0;
+    const direction = first >= 0 && last !== first ? Math.sign(last - first) : (service?.direction === "NORTHBOUND" || service?.direction === "UP" ? -1 : service?.direction === "SOUTHBOUND" || service?.direction === "DOWN" ? 1 : 0);
     const rows = occupancy.filter((row) => row.train_id === id).sort((a, b) => a.entry_time.localeCompare(b.entry_time));
     const minutes = (new Date(rows.at(-1).exit_time) - new Date(rows[0].entry_time)) / 60000;
     return { id, label: service?.service_number ?? id, direction, rows, duration: Math.min(34, Math.max(18, 16 + minutes / 5)) };

@@ -1,0 +1,134 @@
+[
+  {
+    "section_id": "ER_SEC01",
+    "from_station": "HWH",
+    "to_station": "SRP",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "ER_SEC01_NORTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_MAIN"
+      },
+      {
+        "capacity_resource_id": "ER_SEC01_SOUTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_MAIN"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "NORTHBOUND": "ER_SEC01_NORTHBOUND",
+      "SOUTHBOUND": "ER_SEC01_SOUTHBOUND"
+    }
+  },
+  {
+    "section_id": "ER_SEC02",
+    "from_station": "SRP",
+    "to_station": "BDC",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "ER_SEC02_NORTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_MAIN"
+      },
+      {
+        "capacity_resource_id": "ER_SEC02_SOUTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_MAIN"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "NORTHBOUND": "ER_SEC02_NORTHBOUND",
+      "SOUTHBOUND": "ER_SEC02_SOUTHBOUND"
+    }
+  },
+  {
+    "section_id": "ER_SEC03",
+    "from_station": "BDC",
+    "to_station": "BWN",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "ER_SEC03_NORTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_MAIN"
+      },
+      {
+        "capacity_resource_id": "ER_SEC03_SOUTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_MAIN"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "NORTHBOUND": "ER_SEC03_NORTHBOUND",
+      "SOUTHBOUND": "ER_SEC03_SOUTHBOUND"
+    }
+  },
+  {
+    "section_id": "ER_SEC04",
+    "from_station": "BWN",
+    "to_station": "PAN",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "ER_SEC04_NORTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_MAIN"
+      },
+      {
+        "capacity_resource_id": "ER_SEC04_SOUTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_MAIN"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "NORTHBOUND": "ER_SEC04_NORTHBOUND",
+      "SOUTHBOUND": "ER_SEC04_SOUTHBOUND"
+    }
+  },
+  {
+    "section_id": "ER_SEC05",
+    "from_station": "PAN",
+    "to_station": "DGR",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "ER_SEC05_NORTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_MAIN"
+      },
+      {
+        "capacity_resource_id": "ER_SEC05_SOUTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_MAIN"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "NORTHBOUND": "ER_SEC05_NORTHBOUND",
+      "SOUTHBOUND": "ER_SEC05_SOUTHBOUND"
+    }
+  },
+  {
+    "section_id": "ER_SEC06",
+    "from_station": "DGR",
+    "to_station": "ASN",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "ER_SEC06_NORTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_MAIN"
+      },
+      {
+        "capacity_resource_id": "ER_SEC06_SOUTHBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_MAIN"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "NORTHBOUND": "ER_SEC06_NORTHBOUND",
+      "SOUTHBOUND": "ER_SEC06_SOUTHBOUND"
+    }
+  }
+]

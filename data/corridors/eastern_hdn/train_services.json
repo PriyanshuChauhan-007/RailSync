@@ -1,0 +1,32 @@
+[
+  {
+    "train_id": "12301",
+    "service_number": "12301",
+    "service_name": "Howrah Rajdhani Express",
+    "origin_station_id": "HWH",
+    "destination_station_id": "ASN",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
+  },
+  {
+    "train_id": "22301",
+    "service_number": "22301",
+    "service_name": "Howrah - New Jalpaiguri Vande Bharat Express",
+    "origin_station_id": "HWH",
+    "destination_station_id": "ASN",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
+  },
+  {
+    "train_id": "12019",
+    "service_number": "12019",
+    "service_name": "Ranchi Shatabdi Express",
+    "origin_station_id": "HWH",
+    "destination_station_id": "ASN",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
+  }
+]

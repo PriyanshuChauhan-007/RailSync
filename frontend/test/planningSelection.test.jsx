@@ -35,30 +35,30 @@ it("keeps judge-facing workspace copy singular and operationally scoped", () => 
 
 it("starts the public demo with a recovery event that visibly changes its plan", () => {
   const session = {
-    territoryId: "saktigarh_memari_public_demo",
+    territoryId: "delhi_agra",
     territory: {
-      territory_id: "saktigarh_memari_public_demo",
-      display_name: "Eastern demo",
+      territory_id: "delhi_agra",
+      display_name: "Northern HDN",
       stations: [], sections: [], resources: { crew: [], machines: [] },
     },
     trains: [
-      { train_id: "37786", section_id: "SKM_SEC01" },
-      { train_id: "37814", section_id: "SKM_SEC01" },
+      { train_id: "12002", section_id: "NR_SEC01" },
+      { train_id: "22436", section_id: "NR_SEC01" },
     ],
     tasks: [], recovery: null, riskConfig: { mode: "STATIC" },
     plan: {
       blocks: [], unscheduled_tasks: [], proof_state: "FULLY_OPTIMAL",
       planning_context: {
-        territory_id: "saktigarh_memari_public_demo",
-        horizon_start: "2017-11-01T03:30:00",
-        horizon_end: "2017-11-01T08:00:00",
+        territory_id: "delhi_agra",
+        horizon_start: "2026-09-10T05:00:00",
+        horizon_end: "2026-09-10T12:00:00",
       },
     },
   };
 
   render(<ScenarioLab session={session} setSession={vi.fn()} onNavigate={vi.fn()} />);
 
-  expect(screen.getByRole("combobox", { name: "Scenario train" }).value).toBe("37814");
+  expect(screen.getByRole("combobox", { name: "Scenario train" }).value).toBe("12002");
   expect(screen.getByRole("spinbutton", { name: "Delay minutes" }).value).toBe("25");
 });
 

@@ -1,103 +1,154 @@
 /* Semantic roles are the source of truth; railway-era names remain aliases. */
-:root {
-  color-scheme: light;
-  --page-bg: #f7f8f8;
-  --surface-primary: #ffffff;
-  --surface-secondary: #f3f6f8;
-  --surface-elevated: #ffffff;
-  --surface-subtle: #edf3f7;
-  --text-primary: #183347;
-  --text-secondary: #3f5568;
-  --text-muted: #536576;
-  --border-primary: #cfd8df;
-  --border-subtle: #e5eaee;
-  --accent: #1e5a8a;
-  --accent-muted: #dceaf4;
-  --success: #2d6a4f;
-  --on-accent: #ffffff;
-  --warning: #a55f14;
-  --danger: #b42318;
-  --info: #386a97;
-
-  --background: var(--page-bg);
-  --surface: var(--surface-primary);
-  --text: var(--text-primary);
-  --border: var(--border-primary);
-  --nav-background: var(--surface-primary);
-  --input-background: var(--surface-primary);
-  --selected-background: var(--surface-subtle);
-  --confirm: var(--success);
-  --confirm-surface: #edf4ef;
-  --warning-surface: #fff6e7;
-  --danger-surface: #fff0ed;
-  --chart-grid: #dce2e7;
-  --chart-label: #536576;
-  --chart-train: #1e5a8a;
-  --chart-possession: #2d6a4f;
-  --chart-possession-fill: #e6f0ea;
-  --chart-buffer: #c7974a;
-  --focus: #b9792e;
-  --navy: var(--text-primary);
-  --navy-mid: var(--text-secondary);
-  --ink: var(--text-primary);
-  --muted: var(--text-muted);
-  --line: var(--border-primary);
-  --white: var(--surface-primary);
-  --paper: var(--surface-secondary);
-  --train: var(--accent);
-  --block: var(--warning);
-  --critical: var(--danger);
-}
-:root[data-theme="dark"] {
+:root, [data-theme="dark"], .dark {
   color-scheme: dark;
-  --page-bg: #0e1925;
-  --surface-primary: #152432;
-  --surface-secondary: #1b2d3d;
-  --surface-elevated: #213649;
-  --surface-subtle: #243f53;
-  --text-primary: #e3edf4;
-  --text-secondary: #c7d7e3;
-  --text-muted: #afc0ce;
-  --border-primary: #496176;
-  --border-subtle: #2d4254;
-  --accent: #82b7e1;
-  --accent-muted: #243f53;
-  --success: #89c9a5;
-  --on-accent: #0e1925;
-  --warning: #e4b771;
-  --danger: #f0aaa0;
-  --info: #83bce6;
+  --bg-page: #080c14;
+  --bg-card: #0f172a;
+  --bg-card-subtle: #1e293b;
+  --bg-input: #0b1120;
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-kpi-blue: #38bdf8;
+  --track-rail-color: #334155;
+  --track-canvas-bg: #0b0f19;
 
-  --background: var(--page-bg);
-  --surface: var(--surface-primary);
+  --page-bg: var(--bg-page);
+  --surface-primary: var(--bg-card);
+  --surface-secondary: var(--bg-card-subtle);
+  --surface-elevated: var(--bg-card);
+  --surface-subtle: var(--bg-card-subtle);
+  --border-primary: var(--border-color);
+  --accent: var(--accent-kpi-blue);
+  --accent-muted: #1e293b;
+  --success: #22c55e;
+  --on-accent: #080c14;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #38bdf8;
+
+  --background: var(--bg-page);
+  --surface: var(--bg-card);
   --text: var(--text-primary);
-  --border: var(--border-primary);
-  --nav-background: #12212f;
-  --input-background: #10202e;
-  --selected-background: var(--surface-subtle);
+  --border: var(--border-color);
+  --nav-background: var(--bg-card);
+  --input-background: var(--bg-input);
+  --selected-background: var(--bg-card-subtle);
   --confirm: var(--success);
-  --confirm-surface: #203c32;
-  --warning-surface: #3d3323;
-  --danger-surface: #422e32;
-  --chart-grid: #344a5d;
-  --chart-label: #b5c9d7;
-  --chart-train: #83bce6;
-  --chart-possession: #89c9a5;
-  --chart-possession-fill: #203c32;
-  --chart-buffer: #cda766;
-  --focus: #edc27c;
-  --navy: var(--text-primary);
-  --navy-mid: var(--text-secondary);
-  --ink: var(--text-primary);
-  --muted: var(--text-muted);
-  --line: var(--border);
-  --white: var(--surface);
-  --paper: var(--surface-secondary);
-  --train: var(--accent);
-  --block: var(--warning);
-  --critical: var(--danger);
+  --confirm-surface: #14532d;
+  --warning-surface: #451a03;
+  --danger-surface: #450a0a;
+  --chart-grid: #334155;
+  --chart-label: var(--text-muted);
+  --chart-train: var(--accent-kpi-blue);
+  --chart-possession: #22c55e;
+  --chart-possession-fill: #14532d;
+  --chart-buffer: #d97706;
+  --focus: #38bdf8;
 }
-body { background: var(--page-bg); color: var(--text-primary); }
+
+[data-theme="light"], .light {
+  color-scheme: light;
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f1f5f9;
+  --bg-input: #ffffff;
+  --border-color: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent-kpi-blue: #0284c7;
+  --track-rail-color: #94a3b8;
+  --track-canvas-bg: #f8fafc;
+
+  --page-bg: var(--bg-page);
+  --surface-primary: var(--bg-card);
+  --surface-secondary: var(--bg-card-subtle);
+  --surface-elevated: var(--bg-card);
+  --surface-subtle: var(--bg-card-subtle);
+  --border-primary: var(--border-color);
+  --accent: var(--accent-kpi-blue);
+  --accent-muted: #e0f2fe;
+  --success: #16a34a;
+  --on-accent: #ffffff;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #0284c7;
+
+  --background: var(--bg-page);
+  --surface: var(--bg-card);
+  --text: var(--text-primary);
+  --border: var(--border-color);
+  --nav-background: var(--bg-card);
+  --input-background: var(--bg-input);
+  --selected-background: var(--bg-card-subtle);
+  --confirm: var(--success);
+  --confirm-surface: #dcfce7;
+  --warning-surface: #fef3c7;
+  --danger-surface: #fee2e2;
+  --chart-grid: #e2e8f0;
+  --chart-label: var(--text-muted);
+  --chart-train: var(--accent-kpi-blue);
+  --chart-possession: #16a34a;
+  --chart-possession-fill: #dcfce7;
+  --chart-buffer: #b45309;
+  --focus: #0284c7;
+}
+
+body { background-color: var(--bg-page); color: var(--text-primary); }
+
+/* Dropdown Menus (<select> & <option>) */
+select, option {
+  background-color: var(--bg-card-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Planning Workspace Panels & KPI Strip */
+.planner-panel,
+.planner-card,
+.optimizer-card,
+.kpi-card,
+.timeline-card,
+.diagnostic-card,
+.operations-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+.kpi-tile,
+.planner-kpi-item,
+.planner-stat-card,
+.inner-tile {
+  background-color: var(--bg-card-subtle);
+}
+
+.kpi-number,
+.stat-number,
+.metric-value,
+.planner-stat-value {
+  color: var(--accent-kpi-blue);
+}
+
+/* Track Schematic & Controller */
+.live-train-tracker-panel,
+.rn-network,
+.rn-band-scene,
+.planner-corridor-svg {
+  background-color: var(--track-canvas-bg);
+}
+
+.top-master-clock-controller,
+.rn-network-toolbar {
+  background-color: var(--bg-card-subtle);
+}
+
+.rn-rails,
+.planner-corridor-rail {
+  stroke: var(--track-rail-color);
+}
 .nav-appearance-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .theme-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text); font: 600 13px var(--font-sans); cursor: pointer; white-space: nowrap; }
 .theme-toggle span { font-size: 18px; line-height: 1; }

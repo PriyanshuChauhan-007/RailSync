@@ -1,0 +1,90 @@
+[
+  {
+    "section_id": "DFC_SEC01",
+    "from_station": "DER",
+    "to_station": "BRKY",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "DFC_SEC01_EASTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_FREIGHT"
+      },
+      {
+        "capacity_resource_id": "DFC_SEC01_WESTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_FREIGHT"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "EASTBOUND": "DFC_SEC01_EASTBOUND",
+      "WESTBOUND": "DFC_SEC01_WESTBOUND"
+    }
+  },
+  {
+    "section_id": "DFC_SEC02",
+    "from_station": "BRKY",
+    "to_station": "KRJN",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "DFC_SEC02_EASTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_FREIGHT"
+      },
+      {
+        "capacity_resource_id": "DFC_SEC02_WESTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_FREIGHT"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "EASTBOUND": "DFC_SEC02_EASTBOUND",
+      "WESTBOUND": "DFC_SEC02_WESTBOUND"
+    }
+  },
+  {
+    "section_id": "DFC_SEC03",
+    "from_station": "KRJN",
+    "to_station": "DAQ",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "DFC_SEC03_EASTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_FREIGHT"
+      },
+      {
+        "capacity_resource_id": "DFC_SEC03_WESTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_FREIGHT"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "EASTBOUND": "DFC_SEC03_EASTBOUND",
+      "WESTBOUND": "DFC_SEC03_WESTBOUND"
+    }
+  },
+  {
+    "section_id": "DFC_SEC04",
+    "from_station": "DAQ",
+    "to_station": "TDLN",
+    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
+    "capacity_resources": [
+      {
+        "capacity_resource_id": "DFC_SEC04_EASTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "DOWN_FREIGHT"
+      },
+      {
+        "capacity_resource_id": "DFC_SEC04_WESTBOUND",
+        "type": "RUNNING_LINE",
+        "track_id": "UP_FREIGHT"
+      }
+    ],
+    "direction_capacity_mapping": {
+      "EASTBOUND": "DFC_SEC04_EASTBOUND",
+      "WESTBOUND": "DFC_SEC04_WESTBOUND"
+    }
+  }
+]

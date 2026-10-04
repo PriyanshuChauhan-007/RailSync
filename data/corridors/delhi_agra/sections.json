@@ -1,8 +1,8 @@
 [
   {
     "section_id": "NR_SEC01",
-    "from_station": "NZM",
-    "to_station": "OKA",
+    "from_station": "NDLS",
+    "to_station": "NZM",
     "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
     "capacity_resources": [
       {
@@ -23,8 +23,8 @@
   },
   {
     "section_id": "NR_SEC02",
-    "from_station": "OKA",
-    "to_station": "TKD",
+    "from_station": "NZM",
+    "to_station": "FDB",
     "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
     "capacity_resources": [
       {
@@ -45,8 +45,8 @@
   },
   {
     "section_id": "NR_SEC03",
-    "from_station": "TKD",
-    "to_station": "FDB",
+    "from_station": "FDB",
+    "to_station": "PWL",
     "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
     "capacity_resources": [
       {
@@ -67,8 +67,8 @@
   },
   {
     "section_id": "NR_SEC04",
-    "from_station": "FDB",
-    "to_station": "FDN",
+    "from_station": "PWL",
+    "to_station": "MTJ",
     "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
     "capacity_resources": [
       {
@@ -89,8 +89,8 @@
   },
   {
     "section_id": "NR_SEC05",
-    "from_station": "FDN",
-    "to_station": "BVH",
+    "from_station": "MTJ",
+    "to_station": "AGC",
     "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
     "capacity_resources": [
       {
@@ -107,50 +107,6 @@
     "direction_capacity_mapping": {
       "NORTHBOUND": "NR_SEC05_NORTHBOUND",
       "SOUTHBOUND": "NR_SEC05_SOUTHBOUND"
-    }
-  },
-  {
-    "section_id": "NR_SEC06",
-    "from_station": "BVH",
-    "to_station": "AST",
-    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
-    "capacity_resources": [
-      {
-        "capacity_resource_id": "NR_SEC06_NORTHBOUND",
-        "type": "RUNNING_LINE",
-        "track_id": "NORTHBOUND_MAIN"
-      },
-      {
-        "capacity_resource_id": "NR_SEC06_SOUTHBOUND",
-        "type": "RUNNING_LINE",
-        "track_id": "SOUTHBOUND_MAIN"
-      }
-    ],
-    "direction_capacity_mapping": {
-      "NORTHBOUND": "NR_SEC06_NORTHBOUND",
-      "SOUTHBOUND": "NR_SEC06_SOUTHBOUND"
-    }
-  },
-  {
-    "section_id": "NR_SEC07",
-    "from_station": "AST",
-    "to_station": "PWL",
-    "capacity_mode": "EXPLICIT_DIRECTIONAL_TRACKS",
-    "capacity_resources": [
-      {
-        "capacity_resource_id": "NR_SEC07_NORTHBOUND",
-        "type": "RUNNING_LINE",
-        "track_id": "NORTHBOUND_MAIN"
-      },
-      {
-        "capacity_resource_id": "NR_SEC07_SOUTHBOUND",
-        "type": "RUNNING_LINE",
-        "track_id": "SOUTHBOUND_MAIN"
-      }
-    ],
-    "direction_capacity_mapping": {
-      "NORTHBOUND": "NR_SEC07_NORTHBOUND",
-      "SOUTHBOUND": "NR_SEC07_SOUTHBOUND"
     }
   }
 ]

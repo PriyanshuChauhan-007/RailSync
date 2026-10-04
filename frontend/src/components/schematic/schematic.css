@@ -138,8 +138,4 @@
   .rn-evaluation { padding:10px 12px; }
   .rn-candidate-controls button { flex-basis:40%; }
 }
-@media (prefers-reduced-motion:reduce) {
-  :is(.rs-how,.rn-evidence) *, :is(.rs-how,.rn-evidence) *::before { transition:none!important; animation:none!important; scroll-behavior:auto!important; }
-  .rn-moving-train { transform:translateX(var(--parked)); }
-  .rn-merge { display:none; }
-}
+

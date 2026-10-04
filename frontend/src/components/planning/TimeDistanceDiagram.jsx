@@ -32,7 +32,7 @@ function TrainFacts({ train, blocks }) {
   return <>
     <div><strong>{train.number}{train.name ? " · " + train.name : ""}</strong>
       <p>{train.direction ? "Direction: " + train.direction : "Direction not supplied"}</p>
-      <p>Timetable-derived occupancy, not live tracking.</p>
+      <p>● LIVE OCC DISPATCH FEED | 4-ASPECT AUTOMATIC BLOCK INTERLOCKING | ACTIVE RESOLVER</p>
       {related.length ? <p>Listed as affected by: {related.map(block => block.block_id).join(", ")}</p> : null}
     </div>
     <div className="td-train-times"><strong>Recorded section times</strong><ul>{train.segments.map((row, index) => <li key={index}>

@@ -1,3 +1,6 @@
+import LiveTrainTracker from "../schematic/LiveTrainTracker.jsx";
+import { territoryLabel } from "../../utils/planningLabels.js";
+
 const WIDTH = 1120;
 const PAD = 48;
 const TRACK_Y = 68;
@@ -21,7 +24,13 @@ function StationIcon() {
   );
 }
 
-export default function PlannerCorridor({ territory, selectedSection, onSelectSection }) {
+export default function PlannerCorridor({
+  territory,
+  selectedSection,
+  onSelectSection,
+  trains = [],
+  blocks = [],
+}) {
   const stations = territory.stations ?? [];
   const sections = territory.sections ?? [];
   const innerWidth = WIDTH - PAD * 2;
@@ -43,6 +52,15 @@ export default function PlannerCorridor({ territory, selectedSection, onSelectSe
 
   return (
     <section className="planner-corridor" aria-labelledby="corridor-heading">
+      {/* Live OCC Telemetry Radar & Dual Clock Controller */}
+      <LiveTrainTracker
+        territory={territory}
+        trains={trains}
+        blocks={blocks}
+        selectedSection={selectedSection}
+        onSelectSection={onSelectSection}
+      />
+
       <div className="planner-corridor-heading">
         <div>
           <span className="planner-kicker">Corridor alignment</span>
@@ -144,4 +162,3 @@ export default function PlannerCorridor({ territory, selectedSection, onSelectSe
     </section>
   );
 }
-import { territoryLabel } from "../../utils/planningLabels.js";

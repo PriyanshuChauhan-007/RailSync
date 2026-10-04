@@ -1,0 +1,44 @@
+[
+  {
+    "station_id": "HWH",
+    "station_name": "Howrah Junction",
+    "order": 1,
+    "chainage_km": 0.0
+  },
+  {
+    "station_id": "SRP",
+    "station_name": "Serampore",
+    "order": 2,
+    "chainage_km": 20.0
+  },
+  {
+    "station_id": "BDC",
+    "station_name": "Bandel Junction",
+    "order": 3,
+    "chainage_km": 40.0
+  },
+  {
+    "station_id": "BWN",
+    "station_name": "Barddhaman Junction",
+    "order": 4,
+    "chainage_km": 107.0
+  },
+  {
+    "station_id": "PAN",
+    "station_name": "Panagarh",
+    "order": 5,
+    "chainage_km": 164.0
+  },
+  {
+    "station_id": "DGR",
+    "station_name": "Durgapur",
+    "order": 6,
+    "chainage_km": 171.0
+  },
+  {
+    "station_id": "ASN",
+    "station_name": "Asansol Junction",
+    "order": 7,
+    "chainage_km": 200.0
+  }
+]

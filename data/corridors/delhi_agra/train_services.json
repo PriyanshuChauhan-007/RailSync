@@ -1,170 +1,42 @@
 [
   {
-    "train_id": "64076",
-    "service_number": "64076",
-    "service_name": "New Delhi–Palwal EMU",
+    "train_id": "12050",
+    "service_number": "12050",
+    "service_name": "Gatimaan Express (160 km/h)",
+    "origin_station_id": "NZM",
+    "destination_station_id": "AGC",
+    "direction": "SOUTHBOUND",
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
+  },
+  {
+    "train_id": "22436",
+    "service_number": "22436",
+    "service_name": "Vande Bharat Express",
     "origin_station_id": "NDLS",
-    "destination_station_id": "PWL",
+    "destination_station_id": "AGC",
     "direction": "SOUTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/64076",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "NZM",
-      "OKA",
-      "TKD",
-      "FDB",
-      "FDN",
-      "BVH",
-      "AST",
-      "PWL"
-    ]
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
   },
   {
-    "train_id": "64074",
-    "service_number": "64074",
-    "service_name": "New Delhi–Dholpur EMU",
+    "train_id": "12002",
+    "service_number": "12002",
+    "service_name": "Bhopal Shatabdi Express",
     "origin_station_id": "NDLS",
-    "destination_station_id": "DHO",
+    "destination_station_id": "AGC",
     "direction": "SOUTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/64074",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "NZM",
-      "OKA",
-      "TKD",
-      "FDB",
-      "FDN",
-      "BVH",
-      "AST",
-      "PWL"
-    ]
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
   },
   {
-    "train_id": "64062",
-    "service_number": "64062",
-    "service_name": "Delhi–Palwal EMU",
-    "origin_station_id": "DLI",
-    "destination_station_id": "PWL",
-    "direction": "SOUTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/64062",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "NZM",
-      "OKA",
-      "TKD",
-      "FDB",
-      "FDN",
-      "BVH",
-      "AST",
-      "PWL"
-    ]
-  },
-  {
-    "train_id": "64078",
-    "service_number": "64078",
-    "service_name": "New Delhi–Palwal EMU",
+    "train_id": "12622",
+    "service_number": "12622",
+    "service_name": "Tamil Nadu Express",
     "origin_station_id": "NDLS",
-    "destination_station_id": "PWL",
+    "destination_station_id": "AGC",
     "direction": "SOUTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/64078",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "NZM",
-      "OKA",
-      "TKD",
-      "FDB",
-      "FDN",
-      "BVH",
-      "AST",
-      "PWL"
-    ]
-  },
-  {
-    "train_id": "64077",
-    "service_number": "64077",
-    "service_name": "Palwal–New Delhi EMU",
-    "origin_station_id": "PWL",
-    "destination_station_id": "NDLS",
-    "direction": "NORTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/64077",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "PWL",
-      "AST",
-      "BVH",
-      "FDN",
-      "FDB",
-      "TKD",
-      "OKA",
-      "NZM"
-    ]
-  },
-  {
-    "train_id": "04921",
-    "service_number": "04921",
-    "service_name": "Palwal–New Delhi EMU Express Special",
-    "origin_station_id": "PWL",
-    "destination_station_id": "NDLS",
-    "direction": "NORTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/04921",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "PWL",
-      "AST",
-      "BVH",
-      "FDN",
-      "FDB",
-      "TKD",
-      "OKA",
-      "NZM"
-    ]
-  },
-  {
-    "train_id": "04913",
-    "service_number": "04913",
-    "service_name": "Palwal–Ghaziabad EMU Special",
-    "origin_station_id": "PWL",
-    "destination_station_id": "GZB",
-    "direction": "NORTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/04913",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "PWL",
-      "AST",
-      "BVH",
-      "FDN",
-      "FDB",
-      "TKD",
-      "OKA",
-      "NZM"
-    ]
-  },
-  {
-    "train_id": "64057",
-    "service_number": "64057",
-    "service_name": "Palwal–Ghaziabad EMU",
-    "origin_station_id": "PWL",
-    "destination_station_id": "GZB",
-    "direction": "NORTHBOUND",
-    "traffic_type": "PASSENGER_TIMETABLE",
-    "source_url": "https://www.ixigo.com/trains/64057",
-    "timetable_validity": "Public schedule accessed 2026-09-10",
-    "station_sequence": [
-      "PWL",
-      "AST",
-      "BVH",
-      "FDN",
-      "FDB",
-      "TKD",
-      "OKA",
-      "NZM"
-    ]
+    "traffic_type": "PASSENGER",
+    "source_url": "https://enquiry.indianrail.gov.in"
   }
 ]

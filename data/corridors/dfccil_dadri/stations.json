@@ -1,0 +1,32 @@
+[
+  {
+    "station_id": "DER",
+    "station_name": "New Dadri DFC",
+    "order": 1,
+    "chainage_km": 0.0
+  },
+  {
+    "station_id": "BRKY",
+    "station_name": "New Boraki",
+    "order": 2,
+    "chainage_km": 18.0
+  },
+  {
+    "station_id": "KRJN",
+    "station_name": "New Khurja",
+    "order": 3,
+    "chainage_km": 68.0
+  },
+  {
+    "station_id": "DAQ",
+    "station_name": "New Daud Khan",
+    "order": 4,
+    "chainage_km": 118.0
+  },
+  {
+    "station_id": "TDLN",
+    "station_name": "New Tundla DFC",
+    "order": 5,
+    "chainage_km": 180.0
+  }
+]

@@ -1,34 +1,62 @@
 import { useEffect, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
 
 export default function AmbientVideo({ src, className }) {
   const ref = useRef(null);
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
 
-    if (reduceMotion) {
-      video.pause();
-      video.currentTime = 0;
-      return undefined;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.autoplay = true;
+    video.loop = true;
+
+    const playVideo = () => {
+      video.play().catch(() => {});
+    };
+
+    // Immediate playback on mount
+    playVideo();
+
+    video.addEventListener("loadedmetadata", playVideo);
+    video.addEventListener("canplay", playVideo);
+
+    const handleFirstInteraction = () => {
+      playVideo();
+      document.removeEventListener("pointerdown", handleFirstInteraction);
+      document.removeEventListener("scroll", handleFirstInteraction);
+    };
+
+    document.addEventListener("pointerdown", handleFirstInteraction, { passive: true });
+    document.addEventListener("scroll", handleFirstInteraction, { passive: true });
+
+    let observer;
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            playVideo();
+          } else {
+            video.pause();
+          }
+        },
+        { threshold: 0.05 },
+      );
+      observer.observe(video);
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.play().catch(() => {});
-        } else {
-          video.pause();
-        }
-      },
-      { threshold: 0.2 },
-    );
-
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, [reduceMotion, src]);
+    return () => {
+      video.removeEventListener("loadedmetadata", playVideo);
+      video.removeEventListener("canplay", playVideo);
+      document.removeEventListener("pointerdown", handleFirstInteraction);
+      document.removeEventListener("scroll", handleFirstInteraction);
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [src]);
 
   return (
     <video
@@ -38,8 +66,9 @@ export default function AmbientVideo({ src, className }) {
       muted
       loop
       playsInline
-      autoPlay={!reduceMotion}
+      autoPlay
       aria-hidden="true"
     />
   );
 }
+

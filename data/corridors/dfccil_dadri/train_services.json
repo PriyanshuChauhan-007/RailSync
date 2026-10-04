@@ -1,0 +1,32 @@
+[
+  {
+    "train_id": "DFC_BLC01",
+    "service_number": "DFC_BLC01",
+    "service_name": "Heavy Double-Stack BLC",
+    "origin_station_id": "DER",
+    "destination_station_id": "TDLN",
+    "direction": "EASTBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://dfccil.com"
+  },
+  {
+    "train_id": "DFC_BOX01",
+    "service_number": "DFC_BOX01",
+    "service_name": "Long-Haul BOXNHL Coal",
+    "origin_station_id": "DER",
+    "destination_station_id": "TDLN",
+    "direction": "EASTBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://dfccil.com"
+  },
+  {
+    "train_id": "DFC_BTPN01",
+    "service_number": "DFC_BTPN01",
+    "service_name": "BTPN Petroleum Tanker",
+    "origin_station_id": "DER",
+    "destination_station_id": "TDLN",
+    "direction": "EASTBOUND",
+    "traffic_type": "HEAVY_FREIGHT",
+    "source_url": "https://dfccil.com"
+  }
+]

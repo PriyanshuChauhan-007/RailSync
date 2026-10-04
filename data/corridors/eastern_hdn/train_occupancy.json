@@ -1,0 +1,128 @@
+[
+  {
+    "train_id": "22301",
+    "section_id": "ER_SEC01",
+    "entry_time": "2026-09-10T05:55:00",
+    "exit_time": "2026-09-10T06:10:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "22301",
+    "section_id": "ER_SEC02",
+    "entry_time": "2026-09-10T06:10:00",
+    "exit_time": "2026-09-10T06:24:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "22301",
+    "section_id": "ER_SEC03",
+    "entry_time": "2026-09-10T06:24:00",
+    "exit_time": "2026-09-10T07:00:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "22301",
+    "section_id": "ER_SEC04",
+    "entry_time": "2026-09-10T07:00:00",
+    "exit_time": "2026-09-10T07:35:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "22301",
+    "section_id": "ER_SEC05",
+    "entry_time": "2026-09-10T07:35:00",
+    "exit_time": "2026-09-10T07:42:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "22301",
+    "section_id": "ER_SEC06",
+    "entry_time": "2026-09-10T07:42:00",
+    "exit_time": "2026-09-10T08:05:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12019",
+    "section_id": "ER_SEC01",
+    "entry_time": "2026-09-10T06:05:00",
+    "exit_time": "2026-09-10T06:22:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12019",
+    "section_id": "ER_SEC02",
+    "entry_time": "2026-09-10T06:22:00",
+    "exit_time": "2026-09-10T06:38:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12019",
+    "section_id": "ER_SEC03",
+    "entry_time": "2026-09-10T06:38:00",
+    "exit_time": "2026-09-10T07:20:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12019",
+    "section_id": "ER_SEC04",
+    "entry_time": "2026-09-10T07:20:00",
+    "exit_time": "2026-09-10T07:55:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12019",
+    "section_id": "ER_SEC05",
+    "entry_time": "2026-09-10T07:55:00",
+    "exit_time": "2026-09-10T08:05:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12019",
+    "section_id": "ER_SEC06",
+    "entry_time": "2026-09-10T08:05:00",
+    "exit_time": "2026-09-10T08:30:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC01",
+    "entry_time": "2026-09-10T07:00:00",
+    "exit_time": "2026-09-10T07:15:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC02",
+    "entry_time": "2026-09-10T07:15:00",
+    "exit_time": "2026-09-10T07:30:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC03",
+    "entry_time": "2026-09-10T07:30:00",
+    "exit_time": "2026-09-10T08:10:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC04",
+    "entry_time": "2026-09-10T08:10:00",
+    "exit_time": "2026-09-10T08:48:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC05",
+    "entry_time": "2026-09-10T08:48:00",
+    "exit_time": "2026-09-10T08:55:00",
+    "direction": "SOUTHBOUND"
+  },
+  {
+    "train_id": "12301",
+    "section_id": "ER_SEC06",
+    "entry_time": "2026-09-10T08:55:00",
+    "exit_time": "2026-09-10T09:20:00",
+    "direction": "SOUTHBOUND"
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "train_id": "DFC_BLC01",
+    "section_id": "DFC_SEC01",
+    "entry_time": "2026-09-10T05:00:00",
+    "exit_time": "2026-09-10T05:25:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BLC01",
+    "section_id": "DFC_SEC02",
+    "entry_time": "2026-09-10T05:25:00",
+    "exit_time": "2026-09-10T06:30:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BLC01",
+    "section_id": "DFC_SEC03",
+    "entry_time": "2026-09-10T06:30:00",
+    "exit_time": "2026-09-10T07:35:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BLC01",
+    "section_id": "DFC_SEC04",
+    "entry_time": "2026-09-10T07:35:00",
+    "exit_time": "2026-09-10T08:50:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BOX01",
+    "section_id": "DFC_SEC01",
+    "entry_time": "2026-09-10T06:30:00",
+    "exit_time": "2026-09-10T07:00:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BOX01",
+    "section_id": "DFC_SEC02",
+    "entry_time": "2026-09-10T07:00:00",
+    "exit_time": "2026-09-10T08:15:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BOX01",
+    "section_id": "DFC_SEC03",
+    "entry_time": "2026-09-10T08:15:00",
+    "exit_time": "2026-09-10T09:30:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BOX01",
+    "section_id": "DFC_SEC04",
+    "entry_time": "2026-09-10T09:30:00",
+    "exit_time": "2026-09-10T11:00:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BTPN01",
+    "section_id": "DFC_SEC01",
+    "entry_time": "2026-09-10T08:00:00",
+    "exit_time": "2026-09-10T08:30:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BTPN01",
+    "section_id": "DFC_SEC02",
+    "entry_time": "2026-09-10T08:30:00",
+    "exit_time": "2026-09-10T09:45:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BTPN01",
+    "section_id": "DFC_SEC03",
+    "entry_time": "2026-09-10T09:45:00",
+    "exit_time": "2026-09-10T11:00:00",
+    "direction": "EASTBOUND"
+  },
+  {
+    "train_id": "DFC_BTPN01",
+    "section_id": "DFC_SEC04",
+    "entry_time": "2026-09-10T11:00:00",
+    "exit_time": "2026-09-10T12:30:00",
+    "direction": "EASTBOUND"
+  }
+]

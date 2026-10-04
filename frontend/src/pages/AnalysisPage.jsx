@@ -5,6 +5,7 @@ import DataAssumptions from "../components/analysis/DataAssumptions.jsx";
 import IntegrationGains from "../components/analysis/IntegrationGains.jsx";
 import OutstandingWork from "../components/analysis/OutstandingWork.jsx";
 import PairedPossessionTimeline from "../components/analysis/PairedPossessionTimeline.jsx";
+import ABSplitScreenComparison from "../components/analysis/ABSplitScreenComparison.jsx";
 import Button from "../components/ui/Button.jsx";
 import { RiskResult } from "../components/planning/RiskControls.jsx";
 import "./analysis/analysis.css";
@@ -35,6 +36,9 @@ export default function AnalysisPage({ session, onNavigate, onHome }) {
             Compare possession time and maintenance delivered under the same operating constraints.
           </p>
         </header>
+
+        {/* Primary Evaluation Pitch Tool: A/B Split-Screen Comparison View */}
+        <ABSplitScreenComparison />
 
         {!plan ? (
           <section className="analysis-empty" aria-labelledby="analysis-empty-heading">

@@ -23,7 +23,7 @@ export default function SolutionPreview() {
         <div className="timeline" ref={ref}>
           <div className="timeline-meta">
             <div>
-              <strong>SKM_SEC01 · Saktigarh — Palsit</strong>
+              <strong>NR_SEC01 · New Delhi — Hazrat Nizamuddin</strong>
               Planning section
             </div>
             <div>
@@ -31,7 +31,7 @@ export default function SolutionPreview() {
               Horizon
             </div>
             <div>
-              <strong>SKM_ENG001 · 10 min</strong>
+              <strong>NR_ENG001 · 10 min</strong>
               Rail Weld Inspection
             </div>
           </div>

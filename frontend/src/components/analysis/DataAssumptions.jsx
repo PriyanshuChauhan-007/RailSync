@@ -4,7 +4,6 @@ export default function DataAssumptions({ defaultOpen = false, territory = null 
   const publicTimetable = territory?.provenance?.some(
     (p) => (typeof p === "string" ? p : p?.label) === "PUBLIC_TIMETABLE_DERIVED"
   );
-  const isHistoricalEastern = territory?.territory_id === "saktigarh_memari_public_demo";
   return (
     <details className="data-assumptions" open={defaultOpen}>
       <summary>
@@ -13,7 +12,7 @@ export default function DataAssumptions({ defaultOpen = false, territory = null 
       </summary>
       <dl>
         <div><dt>Territory</dt><dd>{publicTimetable ? "Attributed public timetable subset" : "Synthetic test fixture"}</dd></div>
-        <div><dt>Train occupancy</dt><dd>{publicTimetable ? (isHistoricalEastern ? "Official historical timetable-derived occupancy; validity 1 Nov 2017–30 Jun 2018" : "Public schedule-derived occupancy; source pages accessed 10 Sep 2026") : "Synthetic timetable fixture"}</dd></div>
+        <div><dt>Train occupancy</dt><dd>{publicTimetable ? "Public schedule-derived occupancy" : "Synthetic timetable fixture"}</dd></div>
         <div><dt>Maintenance</dt><dd>Synthetic work orders and demands</dd></div>
         <div>
           <dt>Crew, machine, power</dt>

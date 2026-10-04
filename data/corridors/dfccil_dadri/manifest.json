@@ -1,7 +1,7 @@
 {
-  "territory_id": "eastern_hdn",
-  "display_name": "Eastern HDN \u00b7 Howrah \u2192 Asansol",
-  "description": "Eastern Railway High-Density Network flagship corridor (HWH-SRP-BDC-BWN-PAN-DGR-ASN) linking Howrah with the industrial coalfields of Asansol.",
+  "territory_id": "dfccil_dadri",
+  "display_name": "DFCCIL \u00b7 New Dadri \u2192 New Tundla",
+  "description": "Dedicated Freight Corridor Corporation of India (Eastern DFC Section) exclusively handling heavy haul freight rakes, double-stack containers, and bulk mineral traffic.",
   "status": "POPULATED",
   "provenance": [
     {
@@ -13,7 +13,7 @@
         "train_services",
         "maintenance_tasks"
       ],
-      "description": "Canonical chainage and timetable reconstruction from published Eastern Railway schedules."
+      "description": "Operational chainage and heavy freight rakes calibrated from official DFCCIL Eastern DFC alignment."
     }
   ],
   "datasets": {
@@ -40,8 +40,8 @@
   },
   "scenario_references": [],
   "planning_horizon": {
-    "start_time": "2026-09-10T05:00:00",
-    "end_time": "2026-09-10T12:00:00"
+    "start_time": "2026-09-10T04:00:00",
+    "end_time": "2026-09-10T14:00:00"
   },
   "resource_context": {
     "adapter": "resource_context_json",

@@ -28,6 +28,7 @@ export default function MaintenanceTimeline({
   tasks = [],
   selectedTaskId = "",
   diagnostics,
+  onSelectSection,
 }) {
   const chartRef = useRef(null);
   const [selectedTrainKey, setSelectedTrainKey] = useState(null);
@@ -170,13 +171,37 @@ export default function MaintenanceTimeline({
             <span className="planner-kicker">
               {dateLabel(horizon.start_time)} · {timeLabel(horizon.start_time)}–{timeLabel(horizon.end_time)}
             </span>
-            <span className="timeline-scope-badge">Selected-section view</span>
+            <span className="timeline-scope-badge">Active Corridor Sections</span>
           </div>
           <h2 id="timeline-heading">Train Occupancy + Maintenance</h2>
-          <div className="timeline-section-scope-display">
+          <div className="timeline-section-scope-display" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", marginTop: "6px" }}>
             <strong className="timeline-scope-name">
               {sectionLabel(territory, sectionId)}
             </strong>
+            {territory?.sections && territory.sections.length > 0 && (
+              <div className="timeline-section-track-selector" style={{ display: "inline-flex", flexWrap: "wrap", gap: "4px", marginLeft: "auto" }}>
+                {territory.sections.map((sec) => (
+                  <button
+                    key={sec.section_id}
+                    type="button"
+                    onClick={() => onSelectSection?.(sec.section_id)}
+                    style={{
+                      padding: "2px 8px",
+                      borderRadius: "4px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      backgroundColor: sectionId === sec.section_id ? "var(--accent-kpi-blue, #38bdf8)" : "var(--bg-card-subtle, #1e293b)",
+                      color: sectionId === sec.section_id ? "#080c14" : "var(--text-secondary, #cbd5e1)",
+                      border: "1px solid var(--border-color, #334155)",
+                      cursor: "pointer",
+                      fontFamily: "ui-monospace, monospace",
+                    }}
+                  >
+                    {sec.section_id}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -436,10 +461,30 @@ export default function MaintenanceTimeline({
                       aria-hidden="true"
                     />
                     <span className="possession-phase work">
-                      <strong className="possession-dept-title">
+                      <strong
+                        className="possession-dept-title"
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          padding: "2px 8px",
+                          display: "inline-block",
+                          maxWidth: "100%",
+                        }}
+                      >
                         {showLabel ? deptText : ""}
                       </strong>
-                      <small className="possession-type-tag">
+                      <small
+                        className="possession-type-tag"
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          padding: "2px 8px",
+                          display: "inline-block",
+                          maxWidth: "100%",
+                        }}
+                      >
                         {showLabel ? `${block.block_id}${density === "wide" && block.integrated ? " · Shared" : ""}` : ""}
                       </small>
                     </span>

@@ -17,15 +17,15 @@ it("keeps one corridor mounted while accessible stage controls reveal the eviden
   vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   render(<HowItWorks />);
 
-  const scene = screen.getByRole("img", { name: "Saktigarh to Memari railway schematic" });
-  const track = screen.getByTestId("persistent-track");
+  const scene = screen.getByRole("img", { name: "Northern · New Delhi → Agra Cantt railway schematic" });
+  const track = screen.getAllByTestId("persistent-track")[0];
   expect(screen.getAllByRole("tab")).toHaveLength(5);
   for (const label of ["Train Traffic", "Maintenance Demand", "Conflict", "CP-SAT", "Coordinated Plan"]) {
     const tab = screen.getByRole("tab", { name: new RegExp(label) });
     fireEvent.click(tab);
     expect(tab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByRole("img", { name: "Saktigarh to Memari railway schematic" })).toBe(scene);
-    expect(screen.getByTestId("persistent-track")).toBe(track);
+    expect(screen.getByRole("img", { name: "Northern · New Delhi → Agra Cantt railway schematic" })).toBe(scene);
+    expect(screen.getAllByTestId("persistent-track")[0]).toBe(track);
   }
   expect(screen.getByRole("tabpanel").textContent).toContain("One shared possession");
   fireEvent.keyDown(screen.getByRole("tab", { name: /Coordinated Plan/ }), { key: "Home" });
@@ -37,13 +37,13 @@ it("lets users inspect rejected and accepted candidate windows without changing 
   render(<HowItWorks />);
   fireEvent.click(screen.getByRole("tab", { name: /CP-SAT/ }));
   fireEvent.click(screen.getByRole("button", { name: /Candidate A/ }));
-  expect(screen.getByRole("status").textContent).toMatch(/37814.*04:16–04:19/);
+  expect(screen.getByRole("status").textContent).toMatch(/12002.*06:00–06:10/);
   fireEvent.click(screen.getByRole("button", { name: /Candidate B/ }));
-  expect(screen.getByRole("status").textContent).toContain("clearance");
+  expect(screen.getByRole("status").textContent).toContain("fails duration");
   fireEvent.click(screen.getByRole("button", { name: /Candidate C/ }));
-  expect(screen.getByRole("status").textContent).toContain("illustrative feasible window");
+  expect(screen.getByRole("status").textContent).toContain("Illustrative accepted slot");
   fireEvent.focus(screen.getByRole("button", { name: /Candidate A/ }));
-  expect(screen.getByRole("status").textContent).toContain("overlaps all three minutes");
+  expect(screen.getByRole("status").textContent).toContain("overlaps the proposed slot");
   fireEvent.click(screen.getByRole("tab", { name: /Train Traffic/ }));
   expect(screen.queryByRole("button", { name: /Candidate A/ })).toBeNull();
 });

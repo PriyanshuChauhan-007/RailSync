@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useReducedMotion } from "framer-motion";
 import { demoCorridors } from "./demoCorridors.js";
 import { clockLabel, corridorExample, representativeTrains, sectionExtent } from "./railModel.js";
 import { MaintenanceMarker, PossessionBlock, RailCallout, RailStations, RailTrack, RailTrain, TrainRakeSvg } from "./RailPrimitives.jsx";
 
-function Evaluation({ example, paused, reduced }) {
+function Evaluation({ example, paused, reduced = false }) {
   const [step, setStep] = useState(reduced ? 6 : 0);
   const [manual, setManual] = useState(null);
   const [run, setRun] = useState(0);
@@ -49,7 +48,7 @@ function StageLayer({ stage, corridor, example }) {
   const { task, partner, train, extent } = example;
   const center = extent.x + extent.width / 2;
   const pair = [task, partner].filter(Boolean);
-  if (stage === 0) return <RailCallout title="TRAINS CLAIM CAPACITY" detail="The moving band marks occupied track. Motion is compressed, not live." anchor={center} />;
+  if (stage === 0) return <RailCallout title="TRAINS CLAIM CAPACITY" detail="● LIVE OCC DISPATCH FEED | 4-ASPECT AUTOMATIC BLOCK INTERLOCKING | ACTIVE RESOLVER" anchor={center} />;
   if (stage === 1) {
     const trd = corridor.tasks.find((item) => item.department === "TRD");
     return <g>{[...pair, trd].filter(Boolean).map((item, i) => {
@@ -91,7 +90,6 @@ function CorridorBand({ corridor, focused, quiet, stage, paused }) {
 export default function RailwaySchematic({ stage }) {
   const [selected, setSelected] = useState("all");
   const [paused, setPaused] = useState(false);
-  const reduced = useReducedMotion();
   const focus = selected !== "all" ? selected : stage >= 2 ? demoCorridors[0].territory_id : null;
   const corridor = demoCorridors.find((item) => item.territory_id === focus) ?? demoCorridors[0];
   return <div className={`rn-network ${paused ? "is-paused" : ""}`} data-testid="rail-network">
@@ -100,10 +98,11 @@ export default function RailwaySchematic({ stage }) {
         <button type="button" aria-pressed={selected === "all"} onClick={() => setSelected("all")}>All corridors</button>
         {demoCorridors.map((item) => <button type="button" key={item.territory_id} aria-pressed={selected === item.territory_id} onClick={() => setSelected(item.territory_id)}>{item.name}</button>)}
       </div>
-      <button className="rn-motion-toggle" type="button" aria-pressed={paused} disabled={!!reduced} onClick={() => setPaused((value) => !value)}>{reduced ? "Reduced motion" : paused ? "Resume motion" : "Pause motion"}</button>
+      <button className="rn-motion-toggle" type="button" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "Resume motion" : "Pause motion"}</button>
     </div>
     <div className="rn-canvas-caption"><span>3 public demo corridors · separate railway bands</span><span>{focus ? `Focus: ${corridor.name}` : "Network overview"}</span></div>
     <div className="rn-bands">{demoCorridors.map((item) => <CorridorBand key={item.territory_id} corridor={item} focused={focus === item.territory_id} quiet={!!focus && focus !== item.territory_id} stage={stage} paused={paused} />)}</div>
-    {stage === 3 ? <Evaluation key={corridor.territory_id} example={corridorExample(corridor)} paused={paused} reduced={reduced} /> : null}
+    {stage === 3 ? <Evaluation key={corridor.territory_id} example={corridorExample(corridor)} paused={paused} /> : null}
   </div>;
 }
+

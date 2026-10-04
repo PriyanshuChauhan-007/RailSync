@@ -12,6 +12,10 @@ import OperationalPanels from "../components/planning/OperationalPanels.jsx";
 import OptimizerControls from "../components/planning/OptimizerControls.jsx";
 import PlannerCorridor from "../components/planning/PlannerCorridor.jsx";
 import PriorityFeasibility from "../components/planning/PriorityFeasibility.jsx";
+import DepartmentalIngestionDrawer from "../components/planning/DepartmentalIngestionDrawer.jsx";
+import ManualDisruptionPanel from "../components/planning/ManualDisruptionPanel.jsx";
+import RailSaathiAuditReport from "../components/planning/RailSaathiAuditReport.jsx";
+import StrategicHorizonView from "../components/planning/StrategicHorizonView.jsx";
 import {
   getTasks,
   getTerritory,
@@ -21,7 +25,7 @@ import {
 } from "../services/api.js";
 import "./planner/planner.css";
 
-const DEFAULT_TERRITORY_ID = "saktigarh_memari_public_demo";
+const DEFAULT_TERRITORY_ID = "delhi_agra";
 
 function territoryChoiceLabel(territory) {
   return territoryLabel(territory);
@@ -369,6 +373,8 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               territory={dataState.territory}
               selectedSection={selectedSection}
               onSelectSection={selectSection}
+              trains={dataState.trains}
+              blocks={plan?.blocks ?? []}
             />
 
             <RiskControls config={session.riskConfig}
@@ -387,6 +393,7 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               horizon={horizon} hasPlan={Boolean(plan)} selectedBlockId={selectedBlockId}
               onSelectBlock={selectBlock} territory={dataState.territory} tasks={dataState.tasks}
               selectedTaskId={selectedTaskId} diagnostics={plan?.operational_diagnostics}
+              onSelectSection={selectSection}
             /> : <TimeDistanceDiagram
               territory={dataState.territory}
               occupancy={dataState.trains}
@@ -399,6 +406,11 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               selectedTaskId={selectedTaskId}
               onSelectBlock={selectBlock}
             />}
+
+            <DepartmentalIngestionDrawer
+              isOpen={true}
+              onSelectTask={selectTask}
+            />
 
             <div className="planning-workspace-grid">
               <MaintenanceTaskList
@@ -436,6 +448,30 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
               tasks={dataState.tasks}
               territory={dataState.territory}
             />
+
+            <RailSaathiAuditReport
+              plan={plan}
+              territory={dataState.territory}
+            />
+
+            <ManualDisruptionPanel
+              territory={dataState.territory}
+              plan={plan}
+              onDisruptionInjected={(recoveryResult) => {
+                if (recoveryResult?.blocks) {
+                  const updatedPlan = {
+                    ...(plan || {}),
+                    blocks: recoveryResult.blocks,
+                    recovery_id: recoveryResult.recovery_id,
+                  };
+                  setPlan(updatedPlan);
+                  setSession((current) => ({ ...current, plan: updatedPlan, recovery: recoveryResult }));
+                }
+              }}
+            />
+
+            <StrategicHorizonView />
+
             <OperationalPanels
               key={plan?.plan_identity?.plan_id ?? "operations"}
               territory={dataState.territory}

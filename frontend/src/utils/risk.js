@@ -1,6 +1,5 @@
 export function isPublicTerritory(territory) {
   if (!territory) return false;
-  if (territory.territory_id === "saktigarh_memari_public_demo") return true;
   if (Array.isArray(territory.provenance)) {
     return territory.provenance.some(
       (p) => (typeof p === "string" ? p : p?.label) === "PUBLIC_TIMETABLE_DERIVED"

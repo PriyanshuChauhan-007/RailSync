@@ -2,7 +2,9 @@ import { useId } from "react";
 import { deptLabel, sectionExtent, stationLayout } from "./railModel.js";
 
 export function TrainRakeSvg({ label, reverse = false }) {
-  return <g className="rn-rake">
+  const text = `${label}${reverse ? " ←" : " →"}`;
+  const boxWidth = Math.max(76, text.length * 7.5 + 20);
+  return <g className="rn-rake" style={{ transition: "left 0.4s linear" }}>
     <g transform={reverse ? "scale(-1 1)" : undefined}>
       {[-92, -62, -32].map((x) => <g key={x}>
         <rect x={x} y="-20" width="27" height="17" rx="3" className="rn-coach" />
@@ -15,8 +17,8 @@ export function TrainRakeSvg({ label, reverse = false }) {
       <circle cx="7" cy="-2" r="2.5" /><circle cx="26" cy="-2" r="2.5" />
       <path d="M-6-6H0M-36-6h4M-66-6h4" className="rn-coupling" />
     </g>
-    <rect x="-57" y="-41" width="66" height="18" rx="4" className="rn-train-label-bg" />
-    <text x="-24" y="-28" textAnchor="middle" className="rn-train-id">{label}{reverse ? " ←" : " →"}</text>
+    <rect x={-boxWidth / 2} y="-41" width={boxWidth} height="18" rx="4" className="rn-train-label-bg" />
+    <text x="0" y="-28" textAnchor="middle" className="rn-train-id">{text}</text>
   </g>;
 }
 
@@ -25,7 +27,14 @@ export function RailTrain({ train, index = 0, moving = true }) {
   return <g transform={`translate(0 ${reverse ? 142 : 116})`}>
     <g className={moving && train.direction ? "rn-moving-train" : "rn-static-train"}
       data-train={train.id} data-direction={train.direction}
-      style={{ "--travel-start": `${reverse ? 1320 : -80}px`, "--travel-end": `${reverse ? -80 : 1320}px`, "--parked": `${220 + index * 315}px`, animationDuration: `${train.duration}s`, animationDelay: `${-train.duration * (.22 + index * .29)}s` }}>
+      style={{
+        "--travel-start": `${reverse ? 1320 : -80}px`,
+        "--travel-end": `${reverse ? -80 : 1320}px`,
+        "--parked": `${220 + index * 315}px`,
+        animationDuration: `${(train.duration || 18) / 3}s`,
+        animationDelay: `${-((train.duration || 18) / 3) * (.22 + index * .29)}s`,
+        transition: "left 0.4s linear",
+      }}>
       <rect x={reverse ? -25 : -117} y="-2" width="143" height="7" rx="3" className="rn-moving-occupancy" />
       <TrainRakeSvg label={train.label} reverse={reverse} />
     </g>
@@ -34,7 +43,7 @@ export function RailTrain({ train, index = 0, moving = true }) {
 
 export function RailTrack({ territory, onSection, selectedSection }) {
   const pattern = useId().replaceAll(":", "");
-  return <g className="rn-track" data-testid={`track-${territory.territory_id}`}>
+  return <g className="rn-track" data-testid="persistent-track" data-track-id={`track-${territory.territory_id}`}>
     <defs><pattern id={pattern} width="12" height="12" patternUnits="userSpaceOnUse"><path d="M2 0V12" stroke="currentColor" strokeWidth="2" /></pattern></defs>
     <path d="M42 149H1160L1172 162H54Z" className="rn-track-depth" />
     {[116, 142].map((y) => <g key={y}>
