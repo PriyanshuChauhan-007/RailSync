@@ -47,7 +47,7 @@ export default function LandingPage({ onLaunchPlanner, initialTerritoryId }) {
       <Navbar
         overlay
         scrolled={scrolled}
-        onLaunchPlanner={onLaunchPlanner}
+        onLaunchPlanner={() => onLaunchPlanner(territoryId)}
         onHome={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       />
       <HeroSection onLaunchPlanner={() => onLaunchPlanner(territoryId)} />

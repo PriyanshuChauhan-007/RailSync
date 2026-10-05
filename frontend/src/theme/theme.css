@@ -1,54 +1,7 @@
 /* Semantic roles are the source of truth; railway-era names remain aliases. */
-:root, [data-theme="dark"], .dark {
-  color-scheme: dark;
-  --bg-page: #080c14;
-  --bg-card: #0f172a;
-  --bg-card-subtle: #1e293b;
-  --bg-input: #0b1120;
-  --border-color: #334155;
-  --border-subtle: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --accent-kpi-blue: #38bdf8;
-  --track-rail-color: #334155;
-  --track-canvas-bg: #0b0f19;
-
-  --page-bg: var(--bg-page);
-  --surface-primary: var(--bg-card);
-  --surface-secondary: var(--bg-card-subtle);
-  --surface-elevated: var(--bg-card);
-  --surface-subtle: var(--bg-card-subtle);
-  --border-primary: var(--border-color);
-  --accent: var(--accent-kpi-blue);
-  --accent-muted: #1e293b;
-  --success: #22c55e;
-  --on-accent: #080c14;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #38bdf8;
-
-  --background: var(--bg-page);
-  --surface: var(--bg-card);
-  --text: var(--text-primary);
-  --border: var(--border-color);
-  --nav-background: var(--bg-card);
-  --input-background: var(--bg-input);
-  --selected-background: var(--bg-card-subtle);
-  --confirm: var(--success);
-  --confirm-surface: #14532d;
-  --warning-surface: #451a03;
-  --danger-surface: #450a0a;
-  --chart-grid: #334155;
-  --chart-label: var(--text-muted);
-  --chart-train: var(--accent-kpi-blue);
-  --chart-possession: #22c55e;
-  --chart-possession-fill: #14532d;
-  --chart-buffer: #d97706;
-  --focus: #38bdf8;
-}
-
-[data-theme="light"], .light {
+:root,
+[data-theme="light"],
+.light {
   color-scheme: light;
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
@@ -95,6 +48,57 @@
   --chart-possession-fill: #dcfce7;
   --chart-buffer: #b45309;
   --focus: #0284c7;
+}
+
+:root[data-theme="dark"],
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+  --bg-page: #080c14;
+  --bg-card: #0f172a;
+  --bg-card-subtle: #1e293b;
+  --bg-input: #0b1120;
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-kpi-blue: #38bdf8;
+  --track-rail-color: #334155;
+  --track-canvas-bg: #0b0f19;
+
+  --page-bg: var(--bg-page);
+  --surface-primary: var(--bg-card);
+  --surface-secondary: var(--bg-card-subtle);
+  --surface-elevated: var(--bg-card);
+  --surface-subtle: var(--bg-card-subtle);
+  --border-primary: var(--border-color);
+  --accent: var(--accent-kpi-blue);
+  --accent-muted: #1e293b;
+  --success: #22c55e;
+  --on-accent: #080c14;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #38bdf8;
+
+  --background: var(--bg-page);
+  --surface: var(--bg-card);
+  --text: var(--text-primary);
+  --border: var(--border-color);
+  --nav-background: var(--bg-card);
+  --input-background: var(--bg-input);
+  --selected-background: var(--bg-card-subtle);
+  --confirm: var(--success);
+  --confirm-surface: #14532d;
+  --warning-surface: #451a03;
+  --danger-surface: #450a0a;
+  --chart-grid: #334155;
+  --chart-label: var(--text-muted);
+  --chart-train: var(--accent-kpi-blue);
+  --chart-possession: #22c55e;
+  --chart-possession-fill: #14532d;
+  --chart-buffer: #d97706;
+  --focus: #38bdf8;
 }
 
 body { background-color: var(--bg-page); color: var(--text-primary); }
@@ -195,3 +199,35 @@ select, option {
   .nav-appearance-actions { gap: 6px; }
   .nav-appearance-actions .workspace-home-button { font-size: 10px; padding: 7px; }
 }
+
+/* High contrast Launch Planner navbar button in both modes */
+:root:not([data-theme="dark"]) .navbar .rs-btn-primary,
+[data-theme="light"] .navbar .rs-btn-primary,
+.light .navbar .rs-btn-primary {
+  background-color: #0c1d32 !important;
+  color: #ffffff !important;
+  border-color: #0c1d32 !important;
+}
+
+[data-theme="dark"] .navbar .rs-btn-primary,
+.dark .navbar .rs-btn-primary {
+  background-color: #38bdf8 !important;
+  color: #080c14 !important;
+  border-color: #38bdf8 !important;
+}
+
+/* Dynamic CSS GMT Badge */
+.gmt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  background-color: var(--bg-card-subtle);
+  color: var(--accent-kpi-blue);
+  border: 1px solid var(--border-color);
+}
+

@@ -5,15 +5,21 @@
   "status": "POPULATED",
   "provenance": [
     {
-      "label": "SYNTHETIC_SCENARIO",
+      "label": "PUBLIC_TIMETABLE_DERIVED",
       "datasets": [
         "stations",
         "sections",
         "train_occupancy",
-        "train_services",
-        "maintenance_tasks"
+        "train_services"
       ],
       "description": "Canonical chainage and timetable reconstruction from published Eastern Railway schedules."
+    },
+    {
+      "label": "SYNTHETIC_PROTOTYPE",
+      "datasets": [
+        "maintenance_tasks"
+      ],
+      "description": "Standardized multi-department maintenance demand and resource pools."
     }
   ],
   "datasets": {

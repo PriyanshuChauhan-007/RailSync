@@ -10,7 +10,7 @@ from backend import copilot_service as service, operations_service, planning_ser
 from backend.main import app
 
 client = TestClient(app)
-TERRITORY = "saktigarh_memari_public_demo"
+TERRITORY = "delhi_agra"
 
 
 @pytest.fixture(scope="module")

@@ -123,5 +123,28 @@
     "crew_type": "OHE_CREW",
     "compatibility_group": "WR_GRP_F",
     "machine_type": "TOWER_WAGON"
+  },
+  {
+    "task_id": "WR_MULTI001",
+    "department": "ENGINEERING",
+    "section_id": "WR_SEC04",
+    "section_ids": [
+      "WR_SEC04",
+      "WR_SEC05"
+    ],
+    "capacity_resource_ids": [
+      "WR_SEC04_NORTHBOUND",
+      "WR_SEC05_NORTHBOUND"
+    ],
+    "task_type": "Two-section rail corridor survey",
+    "duration_minutes": 30,
+    "criticality": 10,
+    "urgency": 10,
+    "overdue_days": 20,
+    "deadline": "2026-09-10T12:00:00",
+    "requires_power_block": false,
+    "crew_type": "TRACK_CREW",
+    "compatibility_group": "WR_MULTI",
+    "machine_type": "TRACK_TROLLEY"
   }
 ]

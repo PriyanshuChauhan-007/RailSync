@@ -16,7 +16,7 @@ from optimizer.priority import score_task
 from optimizer.runtime import DEMO_SOLVE_LIMIT_SECONDS
 from .operations_service import register_plan
 
-DEFAULT_TERRITORY_ID = "saktigarh_memari_public_demo"
+DEFAULT_TERRITORY_ID = "delhi_agra"
 BASELINE_LABEL = "NON_INTEGRATED_CP_SAT_COMPARISON"
 SUPPORTED_PROFILE = "Availability First"
 DEMO_ALLOWANCES = OperationalAllowances()

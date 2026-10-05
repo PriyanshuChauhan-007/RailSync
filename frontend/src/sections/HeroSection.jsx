@@ -49,7 +49,7 @@ export default function HeroSection({ onLaunchPlanner }) {
           using constraint optimization.
         </motion.p>
         <motion.div className="hero-actions" variants={item}>
-          <Button onClick={onLaunchPlanner}>Launch Planner</Button>
+          <Button onClick={() => onLaunchPlanner?.()}>Launch Planner</Button>
           <Button variant="secondary" href="#how-it-works">
             See How It Works
           </Button>

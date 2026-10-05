@@ -5,7 +5,7 @@ from backend.main import app
 
 def test_planning_exposes_hand_checkable_priority_breakdown():
     response = TestClient(app).post(
-        "/api/optimize", json={"territory_id": "saktigarh_memari_public_demo"}
+        "/api/optimize", json={"territory_id": "delhi_agra"}
     )
     assert response.status_code == 200
     priorities = response.json()["operational_diagnostics"]["task_priorities"]

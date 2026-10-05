@@ -51,17 +51,19 @@ function initialDataState(session = {}) {
 }
 
 export default function PlanningWorkspace({ session, setSession, onNavigate, onHome }) {
-  const initialSection = session.tasks.find((task) => task.task_id === session.selectedTaskId)?.section_id
-    ?? session.plan?.blocks.find((block) => block.block_id === session.selectedBlockId)?.section_id
+  const initialSection = session.tasks?.find((task) => task.task_id === session.selectedTaskId)?.section_id
+    ?? session.plan?.blocks?.find((block) => block.block_id === session.selectedBlockId)?.section_id
     ?? session.territory?.sections?.[0]?.section_id ?? "";
-  const initialTask = session.tasks.find((task) => task.section_id === initialSection);
-  const initialBlock = session.plan?.blocks.find(
+  const initialTask = session.tasks?.find((task) => task.section_id === initialSection);
+  const initialBlock = session.plan?.blocks?.find(
     (block) => block.section_id === initialSection,
   );
   const [dataState, setDataState] = useState(() => initialDataState(session));
-  const [territoryId, setTerritoryId] = useState(
-    session.territoryId ?? session.territory?.territory_id ?? DEFAULT_TERRITORY_ID,
-  );
+  const rawTerritoryId = typeof session.territoryId === "string" ? session.territoryId : session.territory?.territory_id;
+  const safeSessionTerritoryId = (rawTerritoryId && rawTerritoryId.trim() && rawTerritoryId !== "[object Object]")
+    ? rawTerritoryId.trim()
+    : DEFAULT_TERRITORY_ID;
+  const [territoryId, setTerritoryId] = useState(safeSessionTerritoryId);
   const [availableTerritories, setAvailableTerritories] = useState([]);
   const [loadVersion, setLoadVersion] = useState(0);
   const [selectedSection, setSelectedSection] = useState(initialSection);
@@ -92,13 +94,16 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   }, []);
 
   useEffect(() => {
-    if (session.territory?.territory_id === territoryId) return undefined;
+    const validTerritoryId = (typeof territoryId === "string" && territoryId.trim() && territoryId !== "[object Object]")
+      ? territoryId.trim()
+      : DEFAULT_TERRITORY_ID;
+    if (session.territory?.territory_id === validTerritoryId) return undefined;
     const controller = new AbortController();
 
     Promise.all([
-      getTerritory(territoryId, { signal: controller.signal }),
-      getTasks(territoryId, { signal: controller.signal }),
-      getTrains(territoryId, { signal: controller.signal }),
+      getTerritory(validTerritoryId, { signal: controller.signal }),
+      getTasks(validTerritoryId, { signal: controller.signal }),
+      getTrains(validTerritoryId, { signal: controller.signal }),
     ])
       .then(([territory, taskResponse, trainResponse]) => {
         const territoryIds = [
@@ -106,7 +111,7 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
           taskResponse.territory_id,
           trainResponse.territory_id,
         ];
-        if (territoryIds.some((id) => id !== territoryId)) {
+        if (territoryIds.some((id) => id !== validTerritoryId)) {
           throw new Error("Backend returned inconsistent territory data.");
         }
 
@@ -156,24 +161,24 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   );
 
   const selectedBlock = useMemo(
-    () => plan?.blocks.find((block) => block.block_id === selectedBlockId) ?? null,
+    () => plan?.blocks?.find((block) => block.block_id === selectedBlockId) ?? null,
     [plan, selectedBlockId],
   );
   const selectedTask = useMemo(
-    () => dataState.tasks.find((task) => task.task_id === selectedTaskId) ?? null,
+    () => dataState.tasks?.find((task) => task.task_id === selectedTaskId) ?? null,
     [dataState.tasks, selectedTaskId],
   );
 
   const selectedBlockDiagnostic = useMemo(
     () =>
-      plan?.analysis?.block_diagnostics.find(
+      plan?.analysis?.block_diagnostics?.find(
         (item) => item.block_id === selectedBlockId,
       ) ?? null,
     [plan, selectedBlockId],
   );
 
   const scheduledTaskIds = useMemo(
-    () => new Set(plan?.blocks.flatMap((block) => block.tasks) ?? []),
+    () => new Set(plan?.blocks?.flatMap((block) => block.tasks) ?? []),
     [plan],
   );
   const unscheduledTaskIds = useMemo(
@@ -192,8 +197,8 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   }, [dataState.territory, plan]);
 
   const selectSection = (sectionId) => {
-    const firstTask = dataState.tasks.find((task) => (task.section_ids?.length ? task.section_ids : [task.section_id]).includes(sectionId));
-    const firstBlock = plan?.blocks.find((block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(sectionId));
+    const firstTask = dataState.tasks?.find((task) => (task.section_ids?.length ? task.section_ids : [task.section_id]).includes(sectionId));
+    const firstBlock = plan?.blocks?.find((block) => (block.section_ids?.length ? block.section_ids : [block.section_id]).includes(sectionId));
     selectedSectionRef.current = sectionId;
     setSelectedSection(sectionId);
     setSelectedTaskId(firstTask?.task_id ?? "");
@@ -201,7 +206,7 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   };
 
   const selectTask = (task) => {
-    const firstBlock = plan?.blocks.find((block) => block.tasks.includes(task.task_id));
+    const firstBlock = plan?.blocks?.find((block) => block.tasks?.includes(task.task_id));
     selectedSectionRef.current = task.section_id;
     setSelectedTaskId(task.task_id);
     setSelectedSection(task.section_id);
@@ -209,8 +214,8 @@ export default function PlanningWorkspace({ session, setSession, onNavigate, onH
   };
 
   const selectBlock = (id) => {
-    const block = plan?.blocks.find((item) => item.block_id === id);
-    const taskId = block?.tasks.includes(selectedTaskId) ? selectedTaskId : block?.tasks[0] ?? "";
+    const block = plan?.blocks?.find((item) => item.block_id === id);
+    const taskId = block?.tasks?.includes(selectedTaskId) ? selectedTaskId : block?.tasks?.[0] ?? "";
     setSession((current) => ({ ...current, selectedBlockId: block?.block_id ?? "", selectedTaskId: taskId }));
     if (block) {
       selectedSectionRef.current = block.section_id;

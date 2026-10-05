@@ -118,14 +118,18 @@ export default function LiveTrainTracker({
 
   // Position active train rakes with 3x accelerated baseline glide
   const activeTrains = useMemo(() => {
-    return (territory?.train_services || [
-      { service_id: "12050", train_name: "12050 Gatimaan Exp", speed_kmh: 160, direction: "DN" },
-      { service_id: "22436", train_name: "22436 Vande Bharat", speed_kmh: 130, direction: "UP" },
-      { service_id: "12002", train_name: "12002 Bhopal Shatabdi", speed_kmh: 130, direction: "DN" },
-    ]).map((service, idx) => {
-      const isUp = service.direction === "UP" || idx % 2 === 1;
+    const rawServices = territory?.train_services?.length
+      ? territory.train_services
+      : [
+          { service_number: "12050", service_name: "12050 Gatimaan Exp", speed_kmh: 160, direction: "SOUTHBOUND" },
+          { service_number: "22436", service_name: "22436 Vande Bharat", speed_kmh: 130, direction: "NORTHBOUND" },
+          { service_number: "12002", service_name: "12002 Bhopal Shatabdi", speed_kmh: 130, direction: "SOUTHBOUND" },
+        ];
+    return rawServices.map((service, idx) => {
+      const isUp = service.direction === "NORTHBOUND" || service.direction === "UP" || idx % 2 === 1;
+      const speedKmh = service.speed_kmh || (service.traffic_type === "PASSENGER" ? 130 : 80);
       // 3x baseline velocity glide based on simMinutes
-      const cyclePeriodMins = Math.max(30, (totalLengthKm / (service.speed_kmh || 100)) * 60 / 3);
+      const cyclePeriodMins = Math.max(30, (totalLengthKm / speedKmh) * 60 / 3);
       const offset = (idx * 27) % cyclePeriodMins;
       const progress = ((simMinutes + offset) % cyclePeriodMins) / cyclePeriodMins;
       const x = isUp
@@ -293,15 +297,16 @@ export default function LiveTrainTracker({
           })}
 
           {/* Active Trains Gliding across UP and DN Tracks */}
-          {activeTrains.map((train) => {
-            const labelText = train.train_name || train.service_id;
+          {activeTrains.map((train, idx) => {
+            const labelText = train.service_name || train.train_name || train.service_number || train.train_id || train.service_id || `Train ${idx + 1}`;
+            const labelStr = String(labelText);
             // Dynamic SVG badge width calculation so text never overflows:
-            const boxWidth = Math.max(76, labelText.length * 7.5 + 20);
+            const boxWidth = Math.max(76, labelStr.length * 7.5 + 20);
             const boxHeight = 22;
 
             return (
               <g
-                key={train.service_id}
+                key={train.train_id || train.service_number || train.service_id || idx}
                 transform={`translate(${train.x}, ${train.trackY})`}
                 style={{
                   transition: "left 0.4s linear, transform 0.4s linear",
@@ -330,7 +335,7 @@ export default function LiveTrainTracker({
                   fontWeight="800"
                   fontFamily="system-ui, -apple-system, sans-serif"
                 >
-                  {labelText}
+                  {labelStr}
                 </text>
               </g>
             );

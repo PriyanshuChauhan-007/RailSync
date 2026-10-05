@@ -12,10 +12,12 @@ export default function TopMasterClock({
   const [playing, setPlaying] = useState(isPlaying);
   const [multiplier, setMultiplier] = useState(speed);
 
-  // Sync with incoming props if provided
+  // Sync with incoming props if provided from external scrub/reset
   useEffect(() => {
-    if (simMinutes !== undefined) setInternalTime(simMinutes);
-  }, [simMinutes]);
+    if (simMinutes !== undefined && Math.abs(simMinutes - internalTime) > 0.1) {
+      setInternalTime(simMinutes);
+    }
+  }, [simMinutes, internalTime]);
 
   useEffect(() => {
     if (isPlaying !== undefined) setPlaying(isPlaying);
@@ -30,16 +32,19 @@ export default function TopMasterClock({
     if (!playing) return undefined;
     const intervalMs = 250; // tick every quarter-second
     const timer = setInterval(() => {
+      const advance = (multiplier * (intervalMs / 1000)) / 4;
       setInternalTime((curr) => {
-        // Multiplier advance in minutes: 1x = 1/60 min per tick, 60x = 1 min per sec
-        const next = (curr + (multiplier * (intervalMs / 1000)) / 4) % 1440;
-        const bounded = next < 0 ? 0 : next;
-        onTimeChange?.(bounded);
-        return bounded;
+        const next = (curr + advance) % 1440;
+        return next < 0 ? 0 : next;
       });
     }, intervalMs);
     return () => clearInterval(timer);
-  }, [playing, multiplier, onTimeChange]);
+  }, [playing, multiplier]);
+
+  // Synchronize internal progression with parent safely
+  useEffect(() => {
+    onTimeChange?.(internalTime);
+  }, [internalTime, onTimeChange]);
 
   const formatTime = (totalMinutes) => {
     const hours = Math.floor(totalMinutes / 60) % 24;

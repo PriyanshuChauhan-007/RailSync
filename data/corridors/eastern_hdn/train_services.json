@@ -18,15 +18,5 @@
     "direction": "SOUTHBOUND",
     "traffic_type": "PASSENGER",
     "source_url": "https://enquiry.indianrail.gov.in"
-  },
-  {
-    "train_id": "12019",
-    "service_number": "12019",
-    "service_name": "Ranchi Shatabdi Express",
-    "origin_station_id": "HWH",
-    "destination_station_id": "ASN",
-    "direction": "SOUTHBOUND",
-    "traffic_type": "PASSENGER",
-    "source_url": "https://enquiry.indianrail.gov.in"
   }
 ]

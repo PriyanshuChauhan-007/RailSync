@@ -2,11 +2,11 @@ import { useId } from "react";
 import { deptLabel, sectionExtent, stationLayout } from "./railModel.js";
 
 export function TrainRakeSvg({ label, reverse = false }) {
-  const text = `${label}${reverse ? " ←" : " →"}`;
+  const text = `${label ?? ""}${reverse ? " ←" : " →"}`;
   const boxWidth = Math.max(76, text.length * 7.5 + 20);
   return <g className="rn-rake" style={{ transition: "left 0.4s linear" }}>
     <g transform={reverse ? "scale(-1 1)" : undefined}>
-      {[-92, -62, -32].map((x) => <g key={x}>
+      {([-92, -62, -32] ?? []).map((x) => <g key={'coach-wheel-'+x}>
         <rect x={x} y="-20" width="27" height="17" rx="3" className="rn-coach" />
         <path d={`M${x + 4} -17h18v5h-18Z`} className="rn-windows" />
         <path d={`M${x + 7} -11v7m7-7v7`} className="rn-coach-lines" />
@@ -23,73 +23,73 @@ export function TrainRakeSvg({ label, reverse = false }) {
 }
 
 export function RailTrain({ train, index = 0, moving = true }) {
-  const reverse = train.direction === -1;
+  const reverse = train?.direction === -1;
   return <g transform={`translate(0 ${reverse ? 142 : 116})`}>
-    <g className={moving && train.direction ? "rn-moving-train" : "rn-static-train"}
-      data-train={train.id} data-direction={train.direction}
+    <g className={moving && train?.direction ? "rn-moving-train" : "rn-static-train"}
+      data-train={train?.id} data-direction={train?.direction}
       style={{
         "--travel-start": `${reverse ? 1320 : -80}px`,
         "--travel-end": `${reverse ? -80 : 1320}px`,
         "--parked": `${220 + index * 315}px`,
-        animationDuration: `${(train.duration || 18) / 3}s`,
-        animationDelay: `${-((train.duration || 18) / 3) * (.22 + index * .29)}s`,
+        animationDuration: `${(train?.duration || 18) / 3}s`,
+        animationDelay: `${-((train?.duration || 18) / 3) * (.22 + index * .29)}s`,
         transition: "left 0.4s linear",
       }}>
       <rect x={reverse ? -25 : -117} y="-2" width="143" height="7" rx="3" className="rn-moving-occupancy" />
-      <TrainRakeSvg label={train.label} reverse={reverse} />
+      <TrainRakeSvg label={train?.label} reverse={reverse} />
     </g>
   </g>;
 }
 
 export function RailTrack({ territory, onSection, selectedSection }) {
   const pattern = useId().replaceAll(":", "");
-  return <g className="rn-track" data-testid="persistent-track" data-track-id={`track-${territory.territory_id}`}>
+  return <g className="rn-track" data-testid="persistent-track" data-track-id={`track-${territory?.territory_id ?? 'default'}`}>
     <defs><pattern id={pattern} width="12" height="12" patternUnits="userSpaceOnUse"><path d="M2 0V12" stroke="currentColor" strokeWidth="2" /></pattern></defs>
     <path d="M42 149H1160L1172 162H54Z" className="rn-track-depth" />
-    {[116, 142].map((y) => <g key={y}>
+    {([116, 142] ?? []).map((y) => <g key={'track-sleepers-'+y}>
       <rect x="40" y={y - 6} width="1120" height="12" fill={`url(#${pattern})`} className="rn-sleepers" />
       <path d={`M40 ${y - 4}H1160M40 ${y + 4}H1160`} className="rn-rails" />
     </g>)}
-    {territory.sections.map((section) => {
-      const extent = sectionExtent(territory, [section.section_id]);
+    {(territory?.sections ?? []).map((section, idx) => {
+      const extent = sectionExtent(territory, [section?.section_id]);
       if (!extent) return null;
-      return <rect key={section.section_id} x={extent.x} width={extent.width} y="106" height="47" rx="3"
-        className={`rn-section-hit ${selectedSection === section.section_id ? "is-selected" : ""}`}
+      return <rect key={'sec-'+(section?.section_id ?? idx)} x={extent.x} width={extent.width} y="106" height="47" rx="3"
+        className={`rn-section-hit ${selectedSection === section?.section_id ? "is-selected" : ""}`}
         role={onSection ? "button" : undefined} tabIndex={onSection ? 0 : undefined}
-        aria-label={onSection ? `Inspect section ${section.section_id}` : undefined}
-        onClick={() => onSection?.(section.section_id)} onKeyDown={(event) => {
-          if (onSection && ["Enter", " "].includes(event.key)) { event.preventDefault(); onSection(section.section_id); }
-        }}><title>{section.section_id}</title></rect>;
+        aria-label={onSection ? `Inspect section ${section?.section_id}` : undefined}
+        onClick={() => onSection?.(section?.section_id)} onKeyDown={(event) => {
+          if (onSection && ["Enter", " "].includes(event.key)) { event.preventDefault(); onSection(section?.section_id); }
+        }}><title>{section?.section_id}</title></rect>;
     })}
   </g>;
 }
 
 export function RailStations({ territory, onStation }) {
-  return <g className="rn-stations">{stationLayout(territory).map((station, index) => <g key={station.station_id}
-    transform={`translate(${station.x} 0)`} role={onStation ? "button" : undefined} tabIndex={onStation ? 0 : undefined}
-    aria-label={onStation ? `Inspect station ${station.station_name}` : undefined}
-    onClick={() => onStation?.(station.station_id)} onKeyDown={(event) => {
-      if (onStation && ["Enter", " "].includes(event.key)) { event.preventDefault(); onStation(station.station_id); }
+  return <g className="rn-stations">{(stationLayout(territory) ?? []).map((station, index) => <g key={'station-'+(station?.station_id ?? index)}
+    transform={`translate(${station?.x ?? 0} 0)`} role={onStation ? "button" : undefined} tabIndex={onStation ? 0 : undefined}
+    aria-label={onStation ? `Inspect station ${station?.station_name}` : undefined}
+    onClick={() => onStation?.(station?.station_id)} onKeyDown={(event) => {
+      if (onStation && ["Enter", " "].includes(event.key)) { event.preventDefault(); onStation(station?.station_id); }
     }}>
     <path d="M-12 130 0 125 12 130 0 135Z" className="rn-platform" /><circle cy="129" r="4" />
     <path d={`M0 102V${index % 2 ? 63 : 48}`} className="rn-station-stem" />
-    <text y={index % 2 ? 59 : 44} textAnchor="middle" className="rn-station-name">{station.station_name}</text>
-    <text y="176" textAnchor="middle" className="rn-station-code">{station.station_id}</text>
+    <text y={index % 2 ? 59 : 44} textAnchor="middle" className="rn-station-name">{station?.station_name}</text>
+    <text y="176" textAnchor="middle" className="rn-station-code">{station?.station_id}</text>
   </g>)}</g>;
 }
 
 export function MaintenanceMarker({ task, x, y = 208, index = 0, merging = false }) {
-  return <g className={`rn-maintenance rn-dept-${task.department === "ENGINEERING" ? "eng" : task.department === "TRD" ? "trd" : "snt"} ${merging ? `rn-merge rn-merge-${index}` : "rn-attach"}`}
+  return <g className={`rn-maintenance rn-dept-${task?.department === "ENGINEERING" ? "eng" : task?.department === "TRD" ? "trd" : "snt"} ${merging ? `rn-merge rn-merge-${index}` : "rn-attach"}`}
     style={{ "--task-x": `${x}px`, "--task-y": `${y}px`, animationDelay: `${index * .15}s` }}>
     <rect x="-53" y="-14" width="106" height="28" rx="5" />
-    <text textAnchor="middle" y="5">{deptLabel(task.department)} · {task.duration_minutes} min</text>
-    <title>{task.task_id} · {task.task_type} · {task.duration_minutes} min</title>
+    <text textAnchor="middle" y="5">{deptLabel(task?.department)} · {task?.duration_minutes} min</text>
+    <title>{task?.task_id} · {task?.task_type} · {task?.duration_minutes} min</title>
   </g>;
 }
 
 export function PossessionBlock({ x, width, label, className = "", y = 116 }) {
   return <g className={`rn-possession ${className}`} transform={`translate(${x} ${y})`}>
-    <path d={`M0-12H${width - 10}L${width}-3H10Z`} className="rn-possession-top" />
+    <path d={`M0-12H${Math.max(10, width - 10)}L${width}-3H10Z`} className="rn-possession-top" />
     <rect x="10" y="-3" width={Math.max(10, width - 10)} height="24" rx="2" />
     <text x={width / 2 + 5} y="13" textAnchor="middle">{label}</text>
   </g>;

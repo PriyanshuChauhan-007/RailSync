@@ -1,5 +1,17 @@
+export function parseUtcTimestamp(timestamp) {
+  if (!timestamp) return 0;
+  if (typeof timestamp === "number") return timestamp;
+  const match = String(timestamp).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (match) {
+    const [, y, m, d, hr, mn, sec] = match;
+    return Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hr), Number(mn), Number(sec || 0));
+  }
+  const parsed = Date.parse(timestamp);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export function timestampValue(timestamp) {
-  return new Date(timestamp).getTime();
+  return parseUtcTimestamp(timestamp);
 }
 
 export function timeLabel(timestamp) {
@@ -9,10 +21,11 @@ export function timeLabel(timestamp) {
 export function dateLabel(timestamp) {
   if (!timestamp) return "Planning horizon";
   return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(new Date(timestamp));
+  }).format(new Date(parseUtcTimestamp(timestamp)));
 }
 
 export function durationMinutes(startTime, endTime) {
@@ -26,12 +39,15 @@ export function buildTicks(horizon) {
   const hours = Math.max(1, (end - start) / 3_600_000);
   const intervals = Math.min(8, Math.max(1, Math.ceil(hours)));
   return Array.from({ length: intervals + 1 }, (_, index) => {
-    const timestamp = new Date(start + ((end - start) * index) / intervals);
+    const timeMs = start + ((end - start) * index) / intervals;
+    const dateUtc = new Date(timeMs);
+    const hoursStr = String(dateUtc.getUTCHours()).padStart(2, "0");
+    const minsStr = String(dateUtc.getUTCMinutes()).padStart(2, "0");
     return {
-      key: timestamp.toISOString(),
+      key: dateUtc.toISOString(),
       label: hours > 24
-        ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short" }).format(timestamp)
-        : timestamp.toTimeString().slice(0, 5),
+        ? new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "2-digit", month: "short" }).format(dateUtc)
+        : `${hoursStr}:${minsStr}`,
       left: `${(index / intervals) * 100}%`,
     };
   });

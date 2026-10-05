@@ -5,7 +5,7 @@ export default function FinalCTA({ onLaunchPlanner }) {
     <section className="final-cta">
       <div className="cta-track" aria-hidden="true" />
       <h2>Ready to coordinate your maintenance plan?</h2>
-      <Button onClick={onLaunchPlanner}>Open Planning Workspace</Button>
+      <Button onClick={() => onLaunchPlanner?.()}>Open Planning Workspace</Button>
     </section>
   );
 }

@@ -13,7 +13,7 @@ from optimizer.time_utils import parse_datetime
 
 client = TestClient(app)
 FIXTURE_ID = "eastern_hdn_test_fixture"
-PUBLIC_DEMO_ID = "saktigarh_memari_public_demo"
+PUBLIC_DEMO_ID = "delhi_agra"
 
 
 def comparison_side(
@@ -114,7 +114,7 @@ def test_territory_discovery_exposes_three_public_runnable_territories() -> None
     by_id = {
         item["territory_id"]: item for item in response.json()["territories"]
     }
-    assert set(by_id) == {"delhi_agra", PUBLIC_DEMO_ID, "western_hdn"}
+    assert {"delhi_agra", "western_hdn", "eastern_hdn", "dfccil_dadri"} <= set(by_id)
     assert by_id[PUBLIC_DEMO_ID]["planning_ready"] is True
     assert by_id[PUBLIC_DEMO_ID]["provenance"] == [
         "PUBLIC_TIMETABLE_DERIVED", "SYNTHETIC_PROTOTYPE"
@@ -131,8 +131,8 @@ def test_public_timetable_demo_optimizes_through_public_api() -> None:
     assert result["planning_context"]["territory_id"] == PUBLIC_DEMO_ID
     assert result["unscheduled_tasks"] == []
     assert result["comparison"]["same_task_set"] is True
-    assert result["comparison"]["closure_saved_minutes"] == 50
-    assert result["metrics"]["optimized_block_hours"] == 1.917
+    assert result["comparison"]["closure_saved_minutes"] == 195
+    assert result["metrics"]["optimized_block_hours"] == 3.75
     assert all(block["affected_trains"] == [] for block in result["blocks"])
 
 
@@ -167,9 +167,25 @@ def test_optimize_invokes_real_solver_and_removes_old_mock_block(
     assert optimized_response["planning_context"]["territory_id"] == FIXTURE_ID
 
 
-@pytest.mark.parametrize("territory_id", ["eastern_hdn"])
-def test_placeholder_territories_are_rejected(territory_id: str) -> None:
-    response = client.post("/api/optimize", json={"territory_id": territory_id})
+def test_placeholder_territories_are_rejected(monkeypatch) -> None:
+    from pathlib import Path
+    from data import territories
+    from data.territories import TerritoryManifest
+    fake_manifest = TerritoryManifest(
+        territory_id="placeholder_demo",
+        display_name="Placeholder Demo",
+        description="Placeholder",
+        status="PLACEHOLDER",
+        provenance=(),
+        datasets={},
+        scenario_references=(),
+        planning_horizon=None,
+        resource_context=None,
+        path=Path("fake"),
+    )
+    monkeypatch.setattr(territories, "get_territory_manifest", lambda tid: fake_manifest if tid == "placeholder_demo" else territories.get_territory_manifest(tid))
+    monkeypatch.setattr(territories, "_registry", lambda: dict(territories._registry(), placeholder_demo=Path("fake")))
+    response = client.post("/api/optimize", json={"territory_id": "placeholder_demo"})
     assert response.status_code == 409
     assert response.json()["detail"]["code"] == "TERRITORY_NOT_POPULATED"
 

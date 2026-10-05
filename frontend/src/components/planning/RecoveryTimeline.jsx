@@ -35,7 +35,8 @@ export default function RecoveryTimeline({ result, territory, tasks, originalTra
           <TimelineGrid ticks={ticks} />
           {lane.rows.filter((row) => (row.section_ids?.length ? row.section_ids : [row.section_id]).includes(sectionId)).map((row,index) => {
             const change = !lane.train && result.block_changes.find((item) => (lane.changed ? item.after_block_id : item.before_block_id) === row.block_id);
-            const state = lane.train ? lane.changed && disruptedTrainIds.has(row.train_id) ? "DISRUPTED" : "TRAIN" : change?.state ?? "UNKNOWN";
+            const isDisrupted = lane.train && lane.changed && disruptedTrainIds.has(row.train_id);
+            const state = lane.train ? isDisrupted ? "DISRUPTED" : "TRAIN" : change?.state ?? "UNKNOWN";
             const start = row.entry_time ?? row.start_time, end = row.exit_time ?? row.end_time;
             const humanTrain = lane.train ? trainLabel(row.train_id, territory) : "";
             const canonicalTrain = lane.train ? canonicalTrainId(row.train_id) : "";
@@ -43,9 +44,22 @@ export default function RecoveryTimeline({ result, territory, tasks, originalTra
             const density = intervalDensity(start, end, horizon);
             const stateLabel = `${state === "RETAINED" ? "Unchanged" : state.toLowerCase()} · ${label}`;
             const showLabel = !lane.train && intervalLabelFits(start, end, horizon, stateLabel);
+            const minWidth = lane.train ? (isDisrupted ? "90px" : "62px") : "86px";
+            const delayBadge = isDisrupted ? `+${result.disruption.delay_minutes ?? 25}m` : null;
+
             return <span key={`${row.train_id ?? row.block_id}-${index}`} className={`recovery-bar marker-${density} state-${state.toLowerCase()}`}
-              style={rangeStyle(start,end,horizon)} title={lane.train ? `${humanTrain} (${canonicalTrain}): ${timeLabel(start)}–${timeLabel(end)}` : `${label}: ${timeLabel(start)}–${timeLabel(end)} · ${state}`}>
-              {lane.train ? <OperationalTrainMarker train={row} territory={territory} compact /> : showLabel ? stateLabel : ""}
+              style={{ ...rangeStyle(start,end,horizon), minWidth }}
+              title={lane.train ? `${humanTrain} (${canonicalTrain}): ${timeLabel(start)}–${timeLabel(end)}` : `${row.block_id} · ${label}: ${timeLabel(start)}–${timeLabel(end)} · ${state}`}>
+              {lane.train ? (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <OperationalTrainMarker train={row} territory={territory} compact />
+                  {delayBadge ? <span className="delay-badge" style={{ fontSize: "9px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", backgroundColor: "#ef4444", color: "#fff" }}>{delayBadge}</span> : null}
+                </span>
+              ) : (
+                <span style={{ fontSize: "11px", fontWeight: 700 }}>
+                  {row.block_id}{showLabel ? ` · ${stateLabel}` : ""}
+                </span>
+              )}
             </span>;
           })}
         </div>

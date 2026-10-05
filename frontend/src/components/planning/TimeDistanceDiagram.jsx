@@ -173,9 +173,9 @@ export default function TimeDistanceDiagram({
           })}
           {layers.conflicts && actualConflicts.filter(visible).map((conflict, index) => <rect key={index} className="td-conflict" {...range(conflict)} y={conflict.y} height={conflict.height}><title>{conflict.reason ?? "Recorded conflict"}</title></rect>)}
         </g>
-        {selectedSection ? <text x={TD.width - TD.right} y={model.height - 7} textAnchor="end" className="td-scope-label">Focused section: {sectionFrom && sectionTo ? `${sectionFrom.station_name} → ${sectionTo.station_name}` : selectedSection}</text> : null}
       </svg>
     </div>
+    {selectedSection ? <div className="td-scope-label" style={{ padding: "4px 12px", fontSize: "12px", color: "var(--text-secondary)" }}>Focused section: {sectionFrom && sectionTo ? `${sectionFrom.station_name} → ${sectionTo.station_name}` : selectedSection}</div> : null}
     <div className="td-pan"><label>Time position <input aria-label="Time position" type="range" min={0} max={Math.max(0, model.total - span)} step="any" value={bounded.start} disabled={bounded.zoom === 1} onChange={event => setView(boundView(Number(event.target.value), bounded.zoom, model.total))} /></label><span>Zoom then drag empty chart space or use arrows. Page scrolling stays normal.</span></div>
     <div className="td-details" role="region" aria-label={trainDetail ? "Train details" : blockDetail ? "Possession details" : "Diagram details"} aria-live="polite">
       {trainDetail ? <TrainFacts train={trainDetail} blocks={model.possessions} /> : blockDetail ? <BlockFacts block={{ ...blockDetail, sectionNames: sectionIds(blockDetail).map(id => {

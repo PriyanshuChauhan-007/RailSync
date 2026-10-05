@@ -14,7 +14,14 @@ export default function AmbientVideo({ src, className }) {
     video.loop = true;
 
     const playVideo = () => {
-      video.play().catch(() => {});
+      try {
+        const p = video.play();
+        if (p && typeof p.catch === "function") {
+          p.catch(() => {});
+        }
+      } catch {
+        // Safe fallback
+      }
     };
 
     // Immediate playback on mount

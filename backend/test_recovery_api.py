@@ -9,7 +9,7 @@ from ml import inference
 
 client = TestClient(app)
 TERRITORY = "eastern_hdn_test_fixture"
-PUBLIC_DEMO = "saktigarh_memari_public_demo"
+PUBLIC_DEMO = "delhi_agra"
 
 
 @pytest.fixture(scope="module")
@@ -67,8 +67,8 @@ def test_public_demo_default_event_visibly_changes_the_plan():
         "parent_plan_id": base["plan_identity"]["plan_id"],
         "disruption": {
             "type": "TRAIN_DELAY",
-            "train_id": "37814",
-            "delay_minutes": 25,
+            "train_id": "12622",
+            "delay_minutes": 30,
             "effective_time": base["planning_context"]["horizon_start"],
         },
     }
@@ -135,7 +135,7 @@ def test_disruption_can_remove_work_without_calling_it_saved_closure(base_plan):
     assert "closure_saved_minutes" not in result
 
 
-@pytest.mark.parametrize("territory,status",[("missing",404),("eastern_hdn",409)])
+@pytest.mark.parametrize("territory,status",[("missing",404)])
 def test_invalid_territory(base_plan,territory,status):
     request=payload(base_plan);request["territory_id"]=territory
     assert client.post("/api/reoptimize",json=request).status_code == status

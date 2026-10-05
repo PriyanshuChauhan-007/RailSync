@@ -2,11 +2,21 @@
 export const TD = { width: 1000, left: 170, right: 28, top: 46, row: 76, maxZoom: 32 };
 export const MINUTE = 60000;
 export const sectionIds = (block) => block.section_ids?.length ? block.section_ids : [block.section_id].filter(Boolean);
-const finiteTime = (value) => typeof value === "string" && Number.isFinite(Date.parse(value));
+export function parseUtcTime(value) {
+  if (!value) return NaN;
+  if (typeof value === "number") return value;
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (match) {
+    const [, y, m, d, hr, mn, sec] = match;
+    return Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hr), Number(mn), Number(sec || 0));
+  }
+  return Date.parse(value);
+}
+const finiteTime = (value) => typeof value === "string" && Number.isFinite(parseUtcTime(value));
 
 export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, tasks = [], rowSpacing = TD.row) {
   if (!territory || !finiteTime(horizon?.start_time) || !finiteTime(horizon?.end_time)) return null;
-  const start = Date.parse(horizon.start_time), total = (Date.parse(horizon.end_time) - start) / MINUTE;
+  const start = parseUtcTime(horizon.start_time), total = (parseUtcTime(horizon.end_time) - start) / MINUTE;
   if (total <= 0) return null;
   const stations = [...(territory.stations ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   if (stations.length < 2) return null;
@@ -14,11 +24,11 @@ export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, ta
   const sections = new Map((territory.sections ?? []).map((section) => [section.section_id, section]));
   const services = new Map((territory.train_services ?? []).map((service) => [service.train_id, service]));
   const taskById = new Map(tasks.map((task) => [task.task_id, task]));
-  const minute = (value) => (Date.parse(value) - start) / MINUTE;
+  const minute = (value) => (parseUtcTime(value) - start) / MINUTE;
   const trains = new Map();
   for (const row of occupancy) {
     const section = sections.get(row.section_id);
-    if (!section || !finiteTime(row.entry_time) || !finiteTime(row.exit_time) || Date.parse(row.exit_time) < Date.parse(row.entry_time)) continue;
+    if (!section || !finiteTime(row.entry_time) || !finiteTime(row.exit_time) || parseUtcTime(row.exit_time) < parseUtcTime(row.entry_time)) continue;
     const from = stationById.get(section.from_station), to = stationById.get(section.to_station);
     if (!from || !to) continue;
     const service = services.get(row.train_id);
@@ -38,7 +48,7 @@ export function buildTimeDistanceModel(territory, occupancy, blocks, horizon, ta
       y2: knownDirection ? exit.y : (from.y + to.y) / 2,
     });
   }
-  const possessions = blocks.filter((block) => finiteTime(block.start_time) && finiteTime(block.end_time) && Date.parse(block.end_time) > Date.parse(block.start_time)).map((block) => ({
+  const possessions = blocks.filter((block) => finiteTime(block.start_time) && finiteTime(block.end_time) && parseUtcTime(block.end_time) > parseUtcTime(block.start_time)).map((block) => ({
     ...block, start: minute(block.start_time), end: minute(block.end_time),
     taskDetails: (block.tasks ?? []).map((id) => taskById.get(id) ?? { task_id: id }),
     departments: [...new Set((block.tasks ?? []).map((id) => taskById.get(id)?.department).filter(Boolean))],

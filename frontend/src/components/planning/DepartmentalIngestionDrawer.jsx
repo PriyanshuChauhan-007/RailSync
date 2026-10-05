@@ -8,8 +8,9 @@ const PREDICTIVE_RECORDS = [
     system: "TMS",
     asset: "KM 24.8 UP Main Line Track Weld",
     category: "Ultrasonic Rail Flaw",
+    gmt: "54.2 GMT/yr",
     rawObserved: "0.8mm internal micro-fissure detected during USFD run #18",
-    prediction: "ML Prediction: Critical Failure in 14 Days -> Urgency Weight: 92% (54.2 GMT/yr load)",
+    prediction: "ML Prediction: Critical Failure in 14 Days -> Urgency Weight: 92%",
     urgencyWeight: 92,
     daysToFailure: 14,
     status: "CRITICAL P1",
@@ -22,6 +23,7 @@ const PREDICTIVE_RECORDS = [
     system: "SMMS",
     asset: "Point Machine 14B (Crossover 12)",
     category: "Current Signature Anomaly",
+    gmt: "48.6 GMT/yr",
     rawObserved: "Switch throw operating peak current rose from 3.2A to 4.7A",
     prediction: "ML Prediction: Point Detection Friction Trip in 11 Days -> Urgency Weight: 89%",
     urgencyWeight: 89,
@@ -36,6 +38,7 @@ const PREDICTIVE_RECORDS = [
     system: "TDMS",
     asset: "Traction Catenary Span SEC02/14",
     category: "Contact Wire Thickness Loss",
+    gmt: "51.0 GMT/yr",
     rawObserved: "Laser contact wire sensor measured residual diameter 8.2mm",
     prediction: "ML Prediction: Contact Wire Wear Exceeds 8.0mm in 16 Days -> Urgency Weight: 91%",
     urgencyWeight: 91,
@@ -248,14 +251,24 @@ export default function DepartmentalIngestionDrawer({ isOpen = true, onClose, on
                         borderRadius: "6px",
                         backgroundColor: "rgba(239, 68, 68, 0.1)",
                         border: "1px solid rgba(239, 68, 68, 0.3)",
-                        color: "#f87171",
+                        color: "var(--danger, #f87171)",
                         fontWeight: 700,
                         fontSize: "11px",
                         fontFamily: "ui-monospace, monospace",
                         lineHeight: "1.4",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
                       }}
                     >
-                      {rec.prediction}
+                      <span>{rec.prediction}</span>
+                      {rec.gmt && (
+                        <div>
+                          <span className="gmt-badge">
+                            TRAFFIC LOAD: {rec.gmt}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </td>
 

@@ -18,15 +18,5 @@
     "direction": "NORTHBOUND",
     "traffic_type": "PASSENGER",
     "source_url": "https://enquiry.indianrail.gov.in"
-  },
-  {
-    "train_id": "12009",
-    "service_number": "12009",
-    "service_name": "Mumbai - Ahmedabad Shatabdi Express",
-    "origin_station_id": "MMCT",
-    "destination_station_id": "ST",
-    "direction": "NORTHBOUND",
-    "traffic_type": "PASSENGER",
-    "source_url": "https://enquiry.indianrail.gov.in"
   }
 ]

@@ -37,7 +37,7 @@ def recovery_payload(plan, disruption):
 def test_only_three_public_territories_are_shown_by_default():
     territories = client.get("/api/territories").json()["territories"]
     assert {item["territory_id"] for item in territories} == {
-        "saktigarh_memari_public_demo", "western_hdn", "delhi_agra"
+        "western_hdn", "delhi_agra", "eastern_hdn", "dfccil_dadri"
     }
     assert all(item["planning_ready"] for item in territories)
 
@@ -140,7 +140,7 @@ def test_excel_import_is_parsed_and_validated_without_persisting():
 
 
 @pytest.mark.parametrize("disruption", [
-    {"type": "TRAIN_DELAY", "train_id": "93003", "delay_minutes": 12},
+    {"type": "TRAIN_DELAY", "train_id": "20901", "delay_minutes": 12},
     {"type": "CREW_UNAVAILABLE", "crew_type": "OHE_CREW", "event_id": "V2_CREW",
      "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T06:15:00"},
     {"type": "MACHINE_UNAVAILABLE", "machine_type": "TOWER_WAGON", "event_id": "V2_MACHINE",
@@ -148,8 +148,8 @@ def test_excel_import_is_parsed_and_validated_without_persisting():
     {"type": "POWER_ISOLATION_CANCELLED", "section_ids": ["WR_SEC02"], "event_id": "V2_POWER",
      "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T06:15:00"},
     {"type": "SECTION_UNAVAILABLE", "section_id": "WR_SEC03", "start_time": "2026-09-10T06:00:00", "end_time": "2026-09-10T08:00:00"},
-    {"type": "WEATHER_RESTRICTION", "delay_minutes": 5, "train_ids": ["93001"]},
-    {"type": "EMERGENCY_WORK", "task": {"task_id": "EMERGENCY_WR_SEC08", "department": "ENGINEERING", "section_id": "WR_SEC08", "task_type": "Emergency track inspection", "duration_minutes": 20, "criticality": 10, "urgency": 10, "overdue_days": 0, "deadline": "2026-09-10T10:30:00", "requires_power_block": False, "crew_type": "TRACK_CREW", "compatibility_group": "EMERGENCY_WR_SEC08"}},
+    {"type": "WEATHER_RESTRICTION", "delay_minutes": 5, "train_ids": ["20901"]},
+    {"type": "EMERGENCY_WORK", "task": {"task_id": "EMERGENCY_WR_SEC06", "department": "ENGINEERING", "section_id": "WR_SEC06", "task_type": "Emergency track inspection", "duration_minutes": 20, "criticality": 10, "urgency": 10, "overdue_days": 0, "deadline": "2026-09-10T10:30:00", "requires_power_block": False, "crew_type": "TRACK_CREW", "compatibility_group": "EMERGENCY_WR_SEC06"}},
 ])
 def test_every_scenario_option_runs_a_real_recovery(public_plan, disruption):
     response = client.post("/api/reoptimize", json=recovery_payload(public_plan, disruption))
@@ -158,7 +158,7 @@ def test_every_scenario_option_runs_a_real_recovery(public_plan, disruption):
 
 
 def test_elapsed_work_without_actual_execution_is_rejected(public_plan):
-    payload = recovery_payload(public_plan, {"type": "TRAIN_DELAY", "train_id": "93003", "delay_minutes": 0})
+    payload = recovery_payload(public_plan, {"type": "TRAIN_DELAY", "train_id": "20901", "delay_minutes": 0})
     first = payload["current_plan"]["blocks"][0]
     first["status"] = "COMPLETED"
     payload["disruption"]["effective_time"] = first["end_time"]

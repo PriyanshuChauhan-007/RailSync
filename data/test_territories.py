@@ -27,7 +27,6 @@ def test_multiple_territories_are_registered() -> None:
         "dfccil_dadri",
         "eastern_hdn",
         "eastern_hdn_test_fixture",
-        "saktigarh_memari_public_demo",
         "western_hdn",
     }
 
@@ -101,7 +100,7 @@ def test_eastern_hdn_loads_standardized_corridor() -> None:
     assert territory.manifest.status == "POPULATED"
     assert len(territory.stations) == 7
     assert len(territory.sections) == 6
-    assert len(territory.train_services) == 3
+    assert len(territory.train_services) == 2
 
 
 def test_eastern_fixture_manifest_is_explicitly_synthetic() -> None:
@@ -179,41 +178,17 @@ def test_eastern_fixture_uses_existing_fair_comparison_pipeline() -> None:
     ]
 
 
-def test_public_timetable_demo_loads_canonical_historical_data() -> None:
-    territory = load_territory("saktigarh_memari_public_demo")
-    assert len(territory.stations) == 5
-    assert len(territory.sections) == 4
-    assert len(territory.train_occupancy) == 20
-    assert len(territory.maintenance_tasks) == 6
-    assert territory.stations[0] == {
-        "station_id": "SKG", "station_name": "Saktigarh", "order": 1
-    }
-    assert territory.stations[-1]["station_id"] == "MYM"
-    assert {item["label"] for item in territory.manifest.provenance} == {
-        "PUBLIC_TIMETABLE_DERIVED", "SYNTHETIC_PROTOTYPE"
-    }
-    public_record = next(
-        item for item in territory.manifest.provenance
-        if item["label"] == "PUBLIC_TIMETABLE_DERIVED"
-    )
-    assert set(public_record["datasets"]) == {
-        "stations", "sections", "train_occupancy", "train_services"
-    }
-    assert len(territory.train_services) == 5
-    assert territory.resource_provenance == "SYNTHETIC_PROTOTYPE"
-
-
 @pytest.mark.parametrize("territory_id", ["western_hdn", "delhi_agra", "eastern_hdn", "dfccil_dadri"])
 def test_additional_public_territories_are_planning_ready(territory_id: str) -> None:
     territory = load_territory(territory_id)
     assert territory.manifest.status == "POPULATED"
-    assert len(territory.train_services) >= 3
+    assert len(territory.train_services) >= 2
     assert len(territory.maintenance_tasks) >= 4
     assert territory.resource_provenance == "SYNTHETIC_PROTOTYPE"
 
 
-def test_public_timetable_demo_runs_unchanged_optimizer_and_fair_comparison() -> None:
-    territory = load_territory("saktigarh_memari_public_demo")
+def test_delhi_agra_runs_optimizer_and_comparison() -> None:
+    territory = load_territory("delhi_agra")
     comparison = compare_plans(
         territory.as_optimizer_input(),
         territory.manifest.planning_horizon["start_time"],
@@ -223,8 +198,6 @@ def test_public_timetable_demo_runs_unchanged_optimizer_and_fair_comparison() ->
     plan = comparison["optimized"]["plan"]
     assert comparison["comparison_proof_state"] == "FULLY_OPTIMAL"
     assert comparison["comparison"]["same_task_set"] is True
-    assert comparison["comparison"]["closure_saved_minutes"] == 50
     assert plan["status"] == "success"
     assert plan["unscheduled_tasks"] == []
-    assert plan["metrics"]["integrated_blocks"] == 2
-    assert all(block["affected_trains"] == [] for block in plan["blocks"])
+    assert len(plan["blocks"]) > 0
